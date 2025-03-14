@@ -4,11 +4,16 @@ import type { Metadata } from "next"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import MediaGrid from "@/components/media-grid"
-import { fetchPopularMovies, fetchTopRatedMovies, fetchUpcomingMovies, fetchNowPlayingMovies } from "@/lib/tmdb"
+import {
+  fetchPopularMovies,
+  fetchTopRatedMovies,
+  fetchUpcomingMovies,
+  fetchNowPlayingMovies,
+} from "@/lib/tmdb"
 
 export const metadata: Metadata = {
   title: "Movies | BingeBox",
-  description: "Browse popular, top rated, upcoming, and now playing movies",
+  description: "Browse popular, top rated, upcoming, and now playing movie",
 }
 
 export default function MoviesPage() {
@@ -91,4 +96,3 @@ function GridSkeleton() {
     </div>
   )
 }
-

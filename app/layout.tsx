@@ -13,7 +13,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "BingeBox",
-  description: "Watch your favorite movies and TV shows",
+  description: "Watch your favorite movie and TV shows",
 }
 
 export default function RootLayout({

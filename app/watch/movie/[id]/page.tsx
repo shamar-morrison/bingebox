@@ -20,7 +20,7 @@ export default function WatchMoviePage({ params }: WatchMoviePageProps) {
         <div className="flex items-center justify-between mb-4">
           <Button variant="ghost" size="sm" asChild className="text-white">
             <Link
-              href={`/movies/${movieId}`}
+              href={`/movie/${movieId}`}
               className="flex items-center gap-1"
             >
               <ChevronLeft className="w-4 h-4" />

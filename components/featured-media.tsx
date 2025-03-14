@@ -20,9 +20,8 @@ export default async function FeaturedMedia() {
 
   const mediaType = featured.media_type!
   const detailsPath =
-    mediaType === "movie" ? `/movies/${featured.id}` : `/tv/${featured.id}`
+    mediaType === "movie" ? `/movie/${featured.id}` : `/tv/${featured.id}`
 
-  // Path for Watch Now button
   const watchPath =
     mediaType === "movie"
       ? `/watch/movie/${featured.id}`

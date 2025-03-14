@@ -14,7 +14,7 @@ function MediaCard({ item }: { item: MediaItem }) {
     : `/placeholder.svg?height=750&width=500&text=${encodeURIComponent(title)}`
 
   const detailsPath =
-    mediaType === "movie" ? `/movies/${item.id}` : `/tv/${item.id}`
+    mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`
   const watchPath =
     mediaType === "movie"
       ? `/watch/movie/${item.id}`

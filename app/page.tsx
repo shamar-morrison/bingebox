@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import FeaturedMedia from "@/components/featured-media"
 import MediaRow from "@/components/media-row"
-import { fetchTrending, fetchPopularMovies, fetchTopRatedShows } from "@/lib/tmdb"
+import {
+  fetchTrending,
+  fetchPopularMovies,
+  fetchTopRatedShows,
+} from "@/lib/tmdb"
 
 export default function Home() {
   return (
@@ -34,7 +38,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Popular Movies</h2>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/movies/popular" className="flex items-center">
+              <Link href="/app/movie/popular" className="flex items-center">
                 View all <ChevronRight className="w-4 h-4 ml-1" />
               </Link>
             </Button>
@@ -69,12 +73,24 @@ async function TrendingRow() {
 
 async function PopularMoviesRow() {
   const movies = await fetchPopularMovies()
-  return <MediaRow items={movies.results.slice(0, 8).map((item) => ({ ...item, media_type: "movie" }))} />
+  return (
+    <MediaRow
+      items={movies.results
+        .slice(0, 8)
+        .map((item) => ({ ...item, media_type: "movie" }))}
+    />
+  )
 }
 
 async function TopRatedShowsRow() {
   const shows = await fetchTopRatedShows()
-  return <MediaRow items={shows.results.slice(0, 8).map((item) => ({ ...item, media_type: "tv" }))} />
+  return (
+    <MediaRow
+      items={shows.results
+        .slice(0, 8)
+        .map((item) => ({ ...item, media_type: "tv" }))}
+    />
+  )
 }
 
 function RowSkeleton() {
@@ -114,4 +130,3 @@ function FeaturedMediaSkeleton() {
     </div>
   )
 }
-

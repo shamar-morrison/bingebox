@@ -48,7 +48,10 @@ export function SeasonEpisodeSelector({
   return (
     <div className="flex flex-col sm:flex-row gap-4 mt-6 mb-2">
       <div className="flex flex-col gap-1 flex-1">
-        <label htmlFor="season-select" className="text-sm text-gray-400">
+        <label
+          htmlFor="season-select"
+          className="text-sm text-muted-foreground"
+        >
           Season
         </label>
         <Select
@@ -57,16 +60,15 @@ export function SeasonEpisodeSelector({
         >
           <SelectTrigger
             id="season-select"
-            className="bg-gray-800 border-gray-700 text-white"
+            className="border-input bg-background"
           >
             <SelectValue placeholder="Select season" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700 text-white">
+          <SelectContent>
             {seasons.map((season) => (
               <SelectItem
                 key={season.id}
                 value={season.season_number.toString()}
-                className="focus:bg-gray-700 focus:text-white"
               >
                 {season.name}
               </SelectItem>
@@ -76,7 +78,10 @@ export function SeasonEpisodeSelector({
       </div>
 
       <div className="flex flex-col gap-1 flex-1">
-        <label htmlFor="episode-select" className="text-sm text-gray-400">
+        <label
+          htmlFor="episode-select"
+          className="text-sm text-muted-foreground"
+        >
           Episode
         </label>
         <Select
@@ -85,16 +90,15 @@ export function SeasonEpisodeSelector({
         >
           <SelectTrigger
             id="episode-select"
-            className="bg-gray-800 border-gray-700 text-white"
+            className="border-input bg-background"
           >
             <SelectValue placeholder="Select episode" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700 text-white">
+          <SelectContent>
             {episodes.map((episode) => (
               <SelectItem
                 key={episode.id}
                 value={episode.episode_number.toString()}
-                className="focus:bg-gray-700 focus:text-white"
               >
                 E{episode.episode_number} - {episode.name}
               </SelectItem>

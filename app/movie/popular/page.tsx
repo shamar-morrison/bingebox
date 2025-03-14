@@ -7,7 +7,7 @@ import { fetchPopularMovies } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
   title: "Popular Movies | BingeBox",
-  description: "Browse popular movies",
+  description: "Browse popular movie",
 }
 
 export default function PopularMoviesPage() {
@@ -24,7 +24,11 @@ export default function PopularMoviesPage() {
 
 async function PopularMoviesGrid() {
   const movies = await fetchPopularMovies()
-  return <MediaGrid items={movies.results.map((item) => ({ ...item, media_type: "movie" }))} />
+  return (
+    <MediaGrid
+      items={movies.results.map((item) => ({ ...item, media_type: "movie" }))}
+    />
+  )
 }
 
 function GridSkeleton() {
@@ -42,4 +46,3 @@ function GridSkeleton() {
     </div>
   )
 }
-

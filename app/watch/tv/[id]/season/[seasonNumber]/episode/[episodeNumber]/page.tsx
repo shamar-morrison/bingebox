@@ -24,10 +24,10 @@ export default function WatchTVEpisodePage({
   const episodeNumber = Number.parseInt(params.episodeNumber)
 
   return (
-    <main className="min-h-screen bg-black pt-16">
+    <main className="min-h-screen bg-background pt-16">
       <div className="container px-4 py-4">
         <div className="flex items-center justify-between mb-4">
-          <Button variant="ghost" size="sm" asChild className="text-white">
+          <Button variant="ghost" size="sm" asChild>
             <Link
               href={`/watch/tv/${showId}/season/${seasonNumber}`}
               className="flex items-center gap-1"
@@ -37,7 +37,7 @@ export default function WatchTVEpisodePage({
             </Link>
           </Button>
 
-          <Button variant="ghost" size="sm" asChild className="text-white">
+          <Button variant="ghost" size="sm" asChild>
             <Link href="/" className="flex items-center gap-1">
               <Info className="w-4 h-4" />
               BingeBox
@@ -77,9 +77,9 @@ async function EpisodePlayer({
   if (!episodeDetails) {
     return (
       <div className="container px-4 pb-16">
-        <div className="p-8 text-center text-white">
+        <div className="p-8 text-center">
           <h2 className="text-xl font-medium">Episode not found</h2>
-          <p className="mt-2 text-gray-400">
+          <p className="mt-2 text-muted-foreground">
             The requested episode could not be found.
           </p>
         </div>
@@ -165,9 +165,9 @@ async function EpisodePlayer({
           episodes={episodes}
         />
 
-        <div className="mt-6 space-y-4 text-white">
+        <div className="mt-6 space-y-4">
           <h1 className="text-2xl font-bold">{episodeTitle}</h1>
-          <p className="text-gray-400">{episodeOverview}</p>
+          <p className="text-muted-foreground">{episodeOverview}</p>
         </div>
       </div>
     </div>

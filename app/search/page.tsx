@@ -10,7 +10,7 @@ import { searchMovies, searchMulti, searchPerson, searchTV } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
   title: "Search | BingeBox",
-  description: "Search for movies, TV shows, and people",
+  description: "Search for movie, TV shows, and people",
 }
 
 interface SearchPageProps {

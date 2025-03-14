@@ -7,7 +7,7 @@ import { fetchTrending } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
   title: "Trending | BingeBox",
-  description: "Browse trending movies and TV shows",
+  description: "Browse trending movie and TV shows",
 }
 
 export default function TrendingPage() {
@@ -42,4 +42,3 @@ function GridSkeleton() {
     </div>
   )
 }
-
