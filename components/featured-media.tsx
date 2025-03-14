@@ -17,10 +17,10 @@ export default async function FeaturedMedia() {
     ? `https://image.tmdb.org/t/p/original${featured.backdrop_path}`
     : `/placeholder.svg?height=1080&width=1920&text=${encodeURIComponent(featured.title || featured.name || "Featured Media")}`
 
-  const mediaType = featured.media_type
+  const mediaType = featured.media_type!
   const detailsPath = mediaType === "movie" ? `/movies/${featured.id}` : `/tv/${featured.id}`
 
-  const title = featured.title || featured.name
+  const title = featured.title || featured.name || 'backdrop'
   const overview = featured.overview || "No overview available"
 
   return (

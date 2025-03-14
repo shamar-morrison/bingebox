@@ -32,7 +32,7 @@ export default function TrailerDialog({ children, mediaType, mediaId, title }: T
       try {
         const key = await getTrailerKey(mediaType, mediaId)
         setTrailerKey(key)
-      } catch (err) {
+      } catch (err: unknown) {
         setError("Trailer not available")
       } finally {
         setIsLoading(false)
