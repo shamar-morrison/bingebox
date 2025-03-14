@@ -30,7 +30,7 @@ export default function Footer() {
                 </li>
                 <li>
                   <Link
-                    href="/movies"
+                    href="/movie"
                     className="text-muted-foreground hover:text-primary"
                   >
                     Movies
@@ -60,7 +60,7 @@ export default function Footer() {
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link
-                    href="/app/movie/popular"
+                    href="/movie/popular"
                     className="text-muted-foreground hover:text-primary"
                   >
                     Popular Movies
@@ -68,7 +68,7 @@ export default function Footer() {
                 </li>
                 <li>
                   <Link
-                    href="/app/movie/top-rated"
+                    href="/movie/top-rated"
                     className="text-muted-foreground hover:text-primary"
                   >
                     Top Rated Movies
