@@ -1,6 +1,8 @@
-import type { MediaItem } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import type { MediaItem } from "@/lib/types"
+import { Play } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -11,33 +13,52 @@ function MediaCard({ item }: { item: MediaItem }) {
     ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
     : `/placeholder.svg?height=750&width=500&text=${encodeURIComponent(title)}`
 
-  const detailsPath = mediaType === "movie" ? `/movies/${item.id}` : `/tv/${item.id}`
+  const detailsPath =
+    mediaType === "movie" ? `/movies/${item.id}` : `/tv/${item.id}`
+  const watchPath =
+    mediaType === "movie"
+      ? `/watch/movie/${item.id}`
+      : `/watch/tv/${item.id}/season/1/episode/1`
 
-  const voteAverage = item.vote_average ? Math.round(item.vote_average * 10) / 10 : null
+  const voteAverage = item.vote_average
+    ? Math.round(item.vote_average * 10) / 10
+    : null
 
   return (
-    <Link href={detailsPath}>
-      <Card className="overflow-hidden transition-all hover:scale-105 hover:shadow-lg">
-        <div className="relative aspect-[2/3]">
+    <Card className="overflow-hidden">
+      <Link href={detailsPath}>
+        <div className="relative aspect-[2/3] group">
           <Image
             src={posterPath || "/placeholder.svg"}
             alt={title}
             fill
-            className="object-cover"
+            className="object-cover transition-all group-hover:scale-105 group-hover:opacity-75"
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 12.5vw"
           />
           {voteAverage && (
-            <Badge variant="secondary" className="absolute top-2 right-2">
+            <Badge variant="secondary" className="absolute top-2 right-2 z-10">
               ★ {voteAverage}
             </Badge>
           )}
         </div>
-        <CardContent className="p-2">
+      </Link>
+      <CardContent className="p-2">
+        <Link href={detailsPath}>
           <h3 className="font-medium line-clamp-1">{title}</h3>
-          <p className="text-xs text-muted-foreground">{mediaType === "movie" ? "Movie" : "TV Show"}</p>
-        </CardContent>
-      </Card>
-    </Link>
+          <p className="text-xs text-muted-foreground mb-2">
+            {mediaType === "movie" ? "Movie" : "TV Show"}
+          </p>
+        </Link>
+        <Button asChild variant="secondary" size="sm" className="w-full">
+          <Link
+            href={watchPath}
+            className="flex items-center justify-center gap-1"
+          >
+            <Play className="w-3 h-3" /> Watch Now
+          </Link>
+        </Button>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -50,4 +71,3 @@ export default function MediaRow({ items }: { items: MediaItem[] }) {
     </div>
   )
 }
-

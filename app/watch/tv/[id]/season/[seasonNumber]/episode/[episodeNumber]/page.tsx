@@ -1,11 +1,15 @@
-import { ChevronLeft, Info } from "lucide-react"
+import { ArrowLeft, ArrowRight, ChevronLeft, Info } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 
 import { Button } from "@/components/ui/button"
 import { VideoPlayerSkeleton } from "@/components/video-player-skeleton"
 import VidsrcPlayer from "@/components/vidsrc-player"
-import { fetchEpisodeDetails, fetchTVDetails } from "@/lib/tmdb"
+import {
+  fetchEpisodeDetails,
+  fetchSeasonDetails,
+  fetchTVDetails,
+} from "@/lib/tmdb"
 
 interface WatchTVEpisodePageProps {
   params: { id: string; seasonNumber: string; episodeNumber: string }
@@ -67,6 +71,7 @@ async function EpisodePlayer({
     seasonNumber,
     episodeNumber,
   )
+  const seasonDetails = await fetchSeasonDetails(id, seasonNumber)
 
   if (!episodeDetails) {
     return (
@@ -91,6 +96,30 @@ async function EpisodePlayer({
       ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
       : `/placeholder.svg?height=750&width=500&text=${encodeURIComponent(episodeTitle)}`
 
+  // Calculate previous and next episode links
+  const episodes = seasonDetails.episodes || []
+  const totalEpisodes = episodes.length
+
+  // Previous episode - either previous in current season or last of previous season
+  let prevEpisodeLink = null
+  if (episodeNumber > 1) {
+    // Previous episode in current season
+    prevEpisodeLink = `/watch/tv/${id}/season/${seasonNumber}/episode/${episodeNumber - 1}`
+  } else if (seasonNumber > 1) {
+    // Last episode of previous season
+    prevEpisodeLink = `/watch/tv/${id}/season/${seasonNumber - 1}/episode/1`
+  }
+
+  // Next episode - either next in current season or first of next season
+  let nextEpisodeLink = null
+  if (episodeNumber < totalEpisodes) {
+    // Next episode in current season
+    nextEpisodeLink = `/watch/tv/${id}/season/${seasonNumber}/episode/${episodeNumber + 1}`
+  } else if (show.seasons && show.seasons.length > seasonNumber) {
+    // First episode of next season
+    nextEpisodeLink = `/watch/tv/${id}/season/${seasonNumber + 1}/episode/1`
+  }
+
   return (
     <div className="container px-4 pb-16">
       <div className="max-w-5xl mx-auto">
@@ -101,6 +130,38 @@ async function EpisodePlayer({
           episodeNumber={episodeNumber}
           title={episodeTitle}
         />
+
+        <div className="flex justify-between mt-4">
+          {prevEpisodeLink ? (
+            <Button
+              variant="outline"
+              asChild
+              className="flex items-center gap-1"
+            >
+              <Link href={prevEpisodeLink}>
+                <ArrowLeft className="w-4 h-4" />
+                Previous Episode
+              </Link>
+            </Button>
+          ) : (
+            <div></div>
+          )}
+
+          {nextEpisodeLink ? (
+            <Button
+              variant="outline"
+              asChild
+              className="flex items-center gap-1"
+            >
+              <Link href={nextEpisodeLink}>
+                Next Episode
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </Button>
+          ) : (
+            <div></div>
+          )}
+        </div>
 
         <div className="mt-6 space-y-4 text-white">
           <h1 className="text-2xl font-bold">{episodeTitle}</h1>

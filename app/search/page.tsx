@@ -1,11 +1,12 @@
-import { Suspense } from "react"
 import type { Metadata } from "next"
+import Link from "next/link"
+import { Suspense } from "react"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Skeleton } from "@/components/ui/skeleton"
-import SearchForm from "@/components/search-form"
 import MediaGrid from "@/components/media-grid"
-import { searchMulti, searchMovies, searchTV, searchPerson } from "@/lib/tmdb"
+import SearchForm from "@/components/search-form"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { searchMovies, searchMulti, searchPerson, searchTV } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
   title: "Search | BingeBox",
@@ -32,42 +33,70 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
           <Tabs defaultValue={type} className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
               <TabsTrigger value="multi" asChild>
-                <a href={`/search?q=${encodeURIComponent(query)}&type=multi`}>All</a>
+                <Link
+                  href={`/search?q=${encodeURIComponent(query)}&type=multi`}
+                  replace
+                >
+                  All
+                </Link>
               </TabsTrigger>
               <TabsTrigger value="movie" asChild>
-                <a href={`/search?q=${encodeURIComponent(query)}&type=movie`}>Movies</a>
+                <Link
+                  href={`/search?q=${encodeURIComponent(query)}&type=movie`}
+                  replace
+                >
+                  Movies
+                </Link>
               </TabsTrigger>
               <TabsTrigger value="tv" asChild>
-                <a href={`/search?q=${encodeURIComponent(query)}&type=tv`}>TV Shows</a>
+                <Link
+                  href={`/search?q=${encodeURIComponent(query)}&type=tv`}
+                  replace
+                >
+                  TV Shows
+                </Link>
               </TabsTrigger>
               <TabsTrigger value="person" asChild>
-                <a href={`/search?q=${encodeURIComponent(query)}&type=person`}>People</a>
+                <Link
+                  href={`/search?q=${encodeURIComponent(query)}&type=person`}
+                  replace
+                >
+                  People
+                </Link>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="multi" className="space-y-4">
-              <h2 className="text-2xl font-semibold">Search Results for "{query}"</h2>
+              <h2 className="text-2xl font-semibold">
+                Search Results for "{query}"
+              </h2>
               <Suspense fallback={<GridSkeleton />}>
                 <MultiSearchResults query={query} page={page} />
               </Suspense>
             </TabsContent>
 
             <TabsContent value="movie" className="space-y-4">
-              <h2 className="text-2xl font-semibold">Movie Results for "{query}"</h2>
+              <h2 className="text-2xl font-semibold">
+                Movie Results for "{query}"
+              </h2>
               <Suspense fallback={<GridSkeleton />}>
                 <MovieSearchResults query={query} page={page} />
               </Suspense>
             </TabsContent>
 
             <TabsContent value="tv" className="space-y-4">
-              <h2 className="text-2xl font-semibold">TV Show Results for "{query}"</h2>
+              <h2 className="text-2xl font-semibold">
+                TV Show Results for "{query}"
+              </h2>
               <Suspense fallback={<GridSkeleton />}>
                 <TVSearchResults query={query} page={page} />
               </Suspense>
             </TabsContent>
 
             <TabsContent value="person" className="space-y-4">
-              <h2 className="text-2xl font-semibold">People Results for "{query}"</h2>
+              <h2 className="text-2xl font-semibold">
+                People Results for "{query}"
+              </h2>
               <Suspense fallback={<GridSkeleton />}>
                 <PersonSearchResults query={query} page={page} />
               </Suspense>
@@ -76,15 +105,25 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center p-12 mt-8 text-center border rounded-lg">
-          <h2 className="text-xl font-medium">Enter a search term to find movies, TV shows, and people</h2>
-          <p className="mt-2 text-muted-foreground">You can search by title, name, or keywords</p>
+          <h2 className="text-xl font-medium">
+            Enter a search term to find movies, TV shows, and people
+          </h2>
+          <p className="mt-2 text-muted-foreground">
+            You can search by title, name, or keywords
+          </p>
         </div>
       )}
     </main>
   )
 }
 
-async function MultiSearchResults({ query, page }: { query: string; page: number }) {
+async function MultiSearchResults({
+  query,
+  page,
+}: {
+  query: string
+  page: number
+}) {
   const results = await searchMulti(query, page)
 
   if (results.results.length === 0) {
@@ -94,41 +133,73 @@ async function MultiSearchResults({ query, page }: { query: string; page: number
   return <MediaGrid items={results.results} />
 }
 
-async function MovieSearchResults({ query, page }: { query: string; page: number }) {
+async function MovieSearchResults({
+  query,
+  page,
+}: {
+  query: string
+  page: number
+}) {
   const results = await searchMovies(query, page)
 
   if (results.results.length === 0) {
     return <NoResults />
   }
 
-  return <MediaGrid items={results.results.map((item) => ({ ...item, media_type: "movie" }))} />
+  return (
+    <MediaGrid
+      items={results.results.map((item) => ({ ...item, media_type: "movie" }))}
+    />
+  )
 }
 
-async function TVSearchResults({ query, page }: { query: string; page: number }) {
+async function TVSearchResults({
+  query,
+  page,
+}: {
+  query: string
+  page: number
+}) {
   const results = await searchTV(query, page)
 
   if (results.results.length === 0) {
     return <NoResults />
   }
 
-  return <MediaGrid items={results.results.map((item) => ({ ...item, media_type: "tv" }))} />
+  return (
+    <MediaGrid
+      items={results.results.map((item) => ({ ...item, media_type: "tv" }))}
+    />
+  )
 }
 
-async function PersonSearchResults({ query, page }: { query: string; page: number }) {
+async function PersonSearchResults({
+  query,
+  page,
+}: {
+  query: string
+  page: number
+}) {
   const results = await searchPerson(query, page)
 
   if (results.results.length === 0) {
     return <NoResults />
   }
 
-  return <MediaGrid items={results.results.map((item) => ({ ...item, media_type: "person" }))} />
+  return (
+    <MediaGrid
+      items={results.results.map((item) => ({ ...item, media_type: "person" }))}
+    />
+  )
 }
 
 function NoResults() {
   return (
     <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg">
       <h3 className="text-lg font-medium">No results found</h3>
-      <p className="mt-2 text-muted-foreground">Try adjusting your search or filter to find what you're looking for</p>
+      <p className="mt-2 text-muted-foreground">
+        Try adjusting your search or filter to find what you're looking for
+      </p>
     </div>
   )
 }
@@ -148,4 +219,3 @@ function GridSkeleton() {
     </div>
   )
 }
-
