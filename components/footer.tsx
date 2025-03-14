@@ -148,8 +148,8 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 text-xs text-center text-muted-foreground">
-          This product uses the TMDB API but is not endorsed or certified by
-          TMDB.
+          This site does not store any files on our server, we only linked to
+          the media which is hosted on 3rd party services.
         </div>
       </div>
     </footer>
