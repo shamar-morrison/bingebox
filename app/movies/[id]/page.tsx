@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: MoviePageProps): Promise<Meta
   const movie = await fetchMovieDetails(Number.parseInt(params.id))
 
   return {
-    title: `${movie.title || "Movie"} | StreamFlix`,
-    description: movie.overview || "Watch this movie on StreamFlix",
+    title: `${movie.title || "Movie"} | BingeBox`,
+    description: movie.overview || "Watch this movie on BingeBox",
   }
 }
 

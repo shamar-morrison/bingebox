@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
               <Film className="w-5 h-5 text-primary" />
-              <span className="text-lg font-bold">StreamFlix</span>
+              <span className="text-lg font-bold">BingeBox</span>
             </Link>
             <p className="text-sm text-muted-foreground">Your ultimate destination for movies and TV shows.</p>
           </div>
@@ -92,7 +92,7 @@ export default function Footer() {
 
         <div className="flex flex-col items-center justify-between pt-8 mt-8 border-t sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} StreamFlix. All rights reserved.
+            &copy; {new Date().getFullYear()} BingeBox. All rights reserved.
           </p>
           <div className="flex items-center gap-4 mt-4 sm:mt-0">
             <Link href="https://github.com" className="text-muted-foreground hover:text-primary">

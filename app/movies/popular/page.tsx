@@ -6,7 +6,7 @@ import MediaGrid from "@/components/media-grid"
 import { fetchPopularMovies } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
-  title: "Popular Movies | StreamFlix",
+  title: "Popular Movies | BingeBox",
   description: "Browse popular movies",
 }
 

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: PersonPageProps): Promise<Met
   const person = await fetchPersonDetails(Number.parseInt(params.id))
 
   return {
-    title: `${person.name || "Person"} | StreamFlix`,
+    title: `${person.name || "Person"} | BingeBox`,
     description: person.biography?.slice(0, 160) || `View ${person.name}'s movies and TV shows`,
   }
 }

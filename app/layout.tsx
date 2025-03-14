@@ -12,7 +12,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "StreamFlix",
+  title: "BingeBox",
   description: "Watch your favorite movies and TV shows",
 }
 

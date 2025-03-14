@@ -30,7 +30,7 @@ export default function WatchTVEpisodePage({ params }: WatchTVEpisodePageProps) 
           <Button variant="ghost" size="sm" asChild className="text-white">
             <Link href="/" className="flex items-center gap-1">
               <Info className="w-4 h-4" />
-              StreamFlix
+              BingeBox
             </Link>
           </Button>
         </div>

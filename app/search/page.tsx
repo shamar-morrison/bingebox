@@ -8,7 +8,7 @@ import MediaGrid from "@/components/media-grid"
 import { searchMulti, searchMovies, searchTV, searchPerson } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
-  title: "Search | StreamFlix",
+  title: "Search | BingeBox",
   description: "Search for movies, TV shows, and people",
 }
 

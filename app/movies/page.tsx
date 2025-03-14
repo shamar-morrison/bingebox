@@ -7,7 +7,7 @@ import MediaGrid from "@/components/media-grid"
 import { fetchPopularMovies, fetchTopRatedMovies, fetchUpcomingMovies, fetchNowPlayingMovies } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
-  title: "Movies | StreamFlix",
+  title: "Movies | BingeBox",
   description: "Browse popular, top rated, upcoming, and now playing movies",
 }
 

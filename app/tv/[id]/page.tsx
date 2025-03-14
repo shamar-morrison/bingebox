@@ -22,8 +22,8 @@ export async function generateMetadata({ params }: TVShowPageProps): Promise<Met
   const show = await fetchTVDetails(Number.parseInt(params.id))
 
   return {
-    title: `${show.name || "TV Show"} | StreamFlix`,
-    description: show.overview || "Watch this TV show on StreamFlix",
+    title: `${show.name || "TV Show"} | BingeBox`,
+    description: show.overview || "Watch this TV show on BingeBox",
   }
 }
 

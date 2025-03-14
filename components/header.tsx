@@ -52,7 +52,7 @@ export default function Header() {
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
             <Film className="w-6 h-6 text-primary" />
-            <span className="text-xl font-bold">StreamFlix</span>
+            <span className="text-xl font-bold">BingeBox</span>
           </Link>
 
           <nav className="hidden md:flex">
@@ -99,7 +99,7 @@ export default function Header() {
                 <div className="flex items-center justify-between pb-4 border-b">
                   <Link href="/" className="flex items-center gap-2">
                     <Film className="w-5 h-5 text-primary" />
-                    <span className="font-semibold">StreamFlix</span>
+                    <span className="font-semibold">BingeBox</span>
                   </Link>
                 </div>
 
