@@ -1,16 +1,16 @@
-import { Suspense } from "react"
-import Image from "next/image"
-import type { Metadata } from "next"
 import { CalendarIcon, Clock, Star } from "lucide-react"
+import type { Metadata } from "next"
+import Image from "next/image"
+import { Suspense } from "react"
 
-import { Skeleton } from "@/components/ui/skeleton"
+import CastSection from "@/components/cast-section"
+import MediaRow from "@/components/media-row"
+import TrailerDialog from "@/components/trailer-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import TrailerDialog from "@/components/trailer-dialog"
-import CastSection from "@/components/cast-section"
-import MediaRow from "@/components/media-row"
 import { fetchMovieDetails } from "@/lib/tmdb"
 
 interface MoviePageProps {
@@ -80,7 +80,7 @@ async function MovieDetails({ id }: { id: number }) {
         <div className="absolute inset-0">
           <Image
             src={backdropPath || "/placeholder.svg"}
-            alt={movie.title || "Movie backdrop"}
+            alt={""}
             fill
             priority
             className="object-cover"

@@ -1,24 +1,31 @@
-import { Suspense } from "react"
-import Image from "next/image"
-import type { Metadata } from "next"
 import { CalendarIcon, Clock, Star } from "lucide-react"
+import type { Metadata } from "next"
+import Image from "next/image"
+import { Suspense } from "react"
 
-import { Skeleton } from "@/components/ui/skeleton"
+import CastSection from "@/components/cast-section"
+import MediaRow from "@/components/media-row"
+import TrailerDialog from "@/components/trailer-dialog"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import TrailerDialog from "@/components/trailer-dialog"
-import CastSection from "@/components/cast-section"
-import MediaRow from "@/components/media-row"
 import { fetchTVDetails } from "@/lib/tmdb"
 
 interface TVShowPageProps {
   params: { id: string }
 }
 
-export async function generateMetadata({ params }: TVShowPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: TVShowPageProps): Promise<Metadata> {
   const show = await fetchTVDetails(Number.parseInt(params.id))
 
   return {
@@ -58,18 +65,22 @@ async function TVShowDetails({ id }: { id: number }) {
       })
     : "Air date unknown"
 
-  const voteAverage = show.vote_average ? Math.round(show.vote_average * 10) / 10 : null
+  const voteAverage = show.vote_average
+    ? Math.round(show.vote_average * 10) / 10
+    : null
 
   const genres = show.genres || []
   const cast = show.credits?.cast || []
   const similarShows = show.similar?.results || []
   const seasons = show.seasons || []
 
-  const creator = show.credits?.crew?.find((person) => person.job === "Creator" || person.job === "Executive Producer")
+  const creator = show.credits?.crew?.find(
+    (person) => person.job === "Creator" || person.job === "Executive Producer",
+  )
 
   return (
     <>
-      <div className="relative w-full h-[500px] md:h-[600px]">
+      <div className="relative w-full h-[500px] md:h-[600px] mt-16">
         <div className="absolute inset-0">
           <Image
             src={backdropPath || "/placeholder.svg"}
@@ -122,7 +133,8 @@ async function TVShowDetails({ id }: { id: number }) {
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4 text-muted-foreground" />
                     <span>
-                      {seasons.length} {seasons.length === 1 ? "Season" : "Seasons"}
+                      {seasons.length}{" "}
+                      {seasons.length === 1 ? "Season" : "Seasons"}
                     </span>
                   </div>
                 </div>
@@ -134,14 +146,20 @@ async function TVShowDetails({ id }: { id: number }) {
                   </div>
                 )}
 
-                <p className="text-muted-foreground">{show.overview || "No overview available."}</p>
+                <p className="text-muted-foreground">
+                  {show.overview || "No overview available."}
+                </p>
 
                 <div className="flex flex-wrap gap-3 pt-2">
                   <Button asChild>
                     <a href={`/watch/tv/${id}/season/1/episode/1`}>Watch Now</a>
                   </Button>
 
-                  <TrailerDialog mediaType="tv" mediaId={id} title={show.name || "TV Show"}>
+                  <TrailerDialog
+                    mediaType="tv"
+                    mediaId={id}
+                    title={show.name || "TV Show"}
+                  >
                     <Button variant="outline">Watch Trailer</Button>
                   </TrailerDialog>
                 </div>
@@ -165,11 +183,16 @@ async function TVShowDetails({ id }: { id: number }) {
             {seasons.length > 0 ? (
               <Accordion type="single" collapsible className="w-full">
                 {seasons.map((season) => (
-                  <AccordionItem key={season.id} value={`season-${season.season_number}`}>
+                  <AccordionItem
+                    key={season.id}
+                    value={`season-${season.season_number}`}
+                  >
                     <AccordionTrigger className="hover:no-underline">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{season.name}</span>
-                        <Badge variant="outline">{season.episode_count} Episodes</Badge>
+                        <Badge variant="outline">
+                          {season.episode_count} Episodes
+                        </Badge>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
@@ -187,19 +210,29 @@ async function TVShowDetails({ id }: { id: number }) {
                         <div className="space-y-2">
                           {season.air_date && (
                             <p className="text-sm">
-                              <span className="text-muted-foreground">Air Date: </span>
-                              {new Date(season.air_date).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}
+                              <span className="text-muted-foreground">
+                                Air Date:{" "}
+                              </span>
+                              {new Date(season.air_date).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                },
+                              )}
                             </p>
                           )}
                           <p className="text-sm text-muted-foreground">
-                            {season.overview || "No overview available for this season."}
+                            {season.overview ||
+                              "No overview available for this season."}
                           </p>
                           <Button size="sm" asChild>
-                            <a href={`/watch/tv/${id}/season/${season.season_number}`}>Watch Season</a>
+                            <a
+                              href={`/watch/tv/${id}/season/${season.season_number}`}
+                            >
+                              Watch Season
+                            </a>
                           </Button>
                         </div>
                       </div>
@@ -209,7 +242,9 @@ async function TVShowDetails({ id }: { id: number }) {
               </Accordion>
             ) : (
               <div className="p-8 text-center border rounded-lg">
-                <p className="text-muted-foreground">No season information available.</p>
+                <p className="text-muted-foreground">
+                  No season information available.
+                </p>
               </div>
             )}
           </TabsContent>
@@ -221,7 +256,9 @@ async function TVShowDetails({ id }: { id: number }) {
               <CastSection cast={cast.slice(0, 12)} />
             ) : (
               <div className="p-8 text-center border rounded-lg">
-                <p className="text-muted-foreground">No cast information available.</p>
+                <p className="text-muted-foreground">
+                  No cast information available.
+                </p>
               </div>
             )}
           </TabsContent>
@@ -230,10 +267,16 @@ async function TVShowDetails({ id }: { id: number }) {
             <h2 className="text-2xl font-semibold">Similar TV Shows</h2>
             <Separator />
             {similarShows.length > 0 ? (
-              <MediaRow items={similarShows.slice(0, 8).map((item) => ({ ...item, media_type: "tv" }))} />
+              <MediaRow
+                items={similarShows
+                  .slice(0, 8)
+                  .map((item) => ({ ...item, media_type: "tv" }))}
+              />
             ) : (
               <div className="p-8 text-center border rounded-lg">
-                <p className="text-muted-foreground">No similar TV shows available.</p>
+                <p className="text-muted-foreground">
+                  No similar TV shows available.
+                </p>
               </div>
             )}
           </TabsContent>
@@ -291,4 +334,3 @@ export function TVShowDetailsSkeleton() {
     </>
   )
 }
-

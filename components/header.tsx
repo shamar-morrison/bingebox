@@ -33,6 +33,7 @@ export default function Header() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
@@ -114,6 +115,7 @@ export default function Header() {
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
       setShowResults(false)
+      setIsSheetOpen(false)
     }
   }
 
@@ -300,7 +302,7 @@ export default function Header() {
 
           <ThemeToggle />
 
-          <Sheet>
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
                 <Menu className="w-5 h-5" />
@@ -310,7 +312,11 @@ export default function Header() {
             <SheetContent side="right">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between pb-4 border-b">
-                  <Link href="/" className="flex items-center gap-2">
+                  <Link
+                    href="/"
+                    className="flex items-center gap-2"
+                    onClick={() => setIsSheetOpen(false)}
+                  >
                     <Film className="w-5 h-5 text-primary" />
                     <span className="font-semibold">BingeBox</span>
                   </Link>
@@ -340,6 +346,7 @@ export default function Header() {
                                 ? "text-primary"
                                 : "text-muted-foreground"
                             }`}
+                            onClick={() => setIsSheetOpen(false)}
                           >
                             <Icon className="w-4 h-4" />
                             {item.label}

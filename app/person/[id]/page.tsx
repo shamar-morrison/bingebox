@@ -1,24 +1,28 @@
-import { Suspense } from "react"
-import Image from "next/image"
-import type { Metadata } from "next"
 import { CalendarIcon, MapPin } from "lucide-react"
+import type { Metadata } from "next"
+import Image from "next/image"
+import { Suspense } from "react"
 
+import MediaGrid from "@/components/media-grid"
+import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import MediaGrid from "@/components/media-grid"
 import { fetchPersonDetails } from "@/lib/tmdb"
 
 interface PersonPageProps {
   params: { id: string }
 }
 
-export async function generateMetadata({ params }: PersonPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PersonPageProps): Promise<Metadata> {
   const person = await fetchPersonDetails(Number.parseInt(params.id))
 
   return {
     title: `${person.name || "Person"} | BingeBox`,
-    description: person.biography?.slice(0, 160) || `View ${person.name}'s movies and TV shows`,
+    description:
+      person.biography?.slice(0, 160) ||
+      `View ${person.name}'s movies and TV shows`,
   }
 }
 
@@ -50,14 +54,20 @@ async function PersonDetails({ id }: { id: number }) {
     : "Unknown"
 
   const age =
-    person.birthday && !person.deathday ? new Date().getFullYear() - new Date(person.birthday).getFullYear() : null
+    person.birthday && !person.deathday
+      ? new Date().getFullYear() - new Date(person.birthday).getFullYear()
+      : null
 
   const movieCredits = person.movie_credits?.cast || []
   const tvCredits = person.tv_credits?.cast || []
 
   // Sort credits by popularity
-  const sortedMovieCredits = [...movieCredits].sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
-  const sortedTVCredits = [...tvCredits].sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+  const sortedMovieCredits = [...movieCredits].sort(
+    (a, b) => (b.popularity || 0) - (a.popularity || 0),
+  )
+  const sortedTVCredits = [...tvCredits].sort(
+    (a, b) => (b.popularity || 0) - (a.popularity || 0),
+  )
 
   return (
     <>
@@ -76,13 +86,17 @@ async function PersonDetails({ id }: { id: number }) {
 
             <div className="mt-6 space-y-4">
               <div>
-                <h2 className="text-sm font-medium text-muted-foreground">Personal Info</h2>
+                <h2 className="text-sm font-medium text-muted-foreground">
+                  Personal Info
+                </h2>
                 <Separator className="my-2" />
               </div>
 
               <div>
                 <h3 className="text-sm font-medium">Known For</h3>
-                <p className="text-sm">{person.known_for_department || "Acting"}</p>
+                <p className="text-sm">
+                  {person.known_for_department || "Acting"}
+                </p>
               </div>
 
               <div>
@@ -124,7 +138,9 @@ async function PersonDetails({ id }: { id: number }) {
             {person.biography && (
               <div className="mb-8">
                 <h2 className="text-xl font-semibold mb-2">Biography</h2>
-                <p className="text-muted-foreground whitespace-pre-line">{person.biography}</p>
+                <p className="text-muted-foreground whitespace-pre-line">
+                  {person.biography}
+                </p>
               </div>
             )}
 
@@ -135,23 +151,41 @@ async function PersonDetails({ id }: { id: number }) {
               </TabsList>
 
               <TabsContent value="movies" className="mt-6">
-                <h2 className="text-xl font-semibold mb-4">Movie Appearances</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Movie Appearances
+                </h2>
                 {sortedMovieCredits.length > 0 ? (
-                  <MediaGrid items={sortedMovieCredits.map((item) => ({ ...item, media_type: "movie" }))} />
+                  <MediaGrid
+                    items={sortedMovieCredits.map((item) => ({
+                      ...item,
+                      media_type: "movie",
+                    }))}
+                  />
                 ) : (
                   <div className="p-8 text-center border rounded-lg">
-                    <p className="text-muted-foreground">No movie credits found.</p>
+                    <p className="text-muted-foreground">
+                      No movie credits found.
+                    </p>
                   </div>
                 )}
               </TabsContent>
 
               <TabsContent value="tv" className="mt-6">
-                <h2 className="text-xl font-semibold mb-4">TV Show Appearances</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  TV Show Appearances
+                </h2>
                 {sortedTVCredits.length > 0 ? (
-                  <MediaGrid items={sortedTVCredits.map((item) => ({ ...item, media_type: "tv" }))} />
+                  <MediaGrid
+                    items={sortedTVCredits.map((item) => ({
+                      ...item,
+                      media_type: "tv",
+                    }))}
+                  />
                 ) : (
                   <div className="p-8 text-center border rounded-lg">
-                    <p className="text-muted-foreground">No TV credits found.</p>
+                    <p className="text-muted-foreground">
+                      No TV credits found.
+                    </p>
                   </div>
                 )}
               </TabsContent>
@@ -222,4 +256,3 @@ export function PersonDetailsSkeleton() {
     </div>
   )
 }
-
