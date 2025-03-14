@@ -12,7 +12,6 @@ import {
   fetchTVDetails,
 } from "@/lib/tmdb"
 
-// Define the page component
 interface WatchTVEpisodePageProps {
   params: { id: string; seasonNumber: string; episodeNumber: string }
 }
@@ -58,7 +57,6 @@ export default function WatchTVEpisodePage({
   )
 }
 
-// Server component for episode player and details
 async function EpisodePlayer({
   id,
   seasonNumber,
@@ -93,13 +91,6 @@ async function EpisodePlayer({
   const episodeOverview =
     episodeDetails.overview || "No overview available for this episode."
 
-  const posterPath = episodeDetails.still_path
-    ? `https://image.tmdb.org/t/p/w500${episodeDetails.still_path}`
-    : show.poster_path
-      ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
-      : `/placeholder.svg?height=750&width=500&text=${encodeURIComponent(episodeTitle)}`
-
-  // Calculate previous and next episode links
   const episodes = seasonDetails.episodes || []
   const totalEpisodes = episodes.length
 
@@ -166,7 +157,6 @@ async function EpisodePlayer({
           )}
         </div>
 
-        {/* Season and Episode selection UI */}
         <SeasonEpisodeSelector
           showId={id}
           currentSeasonNumber={seasonNumber}
