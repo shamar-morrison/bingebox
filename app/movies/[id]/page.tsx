@@ -17,7 +17,9 @@ interface MoviePageProps {
   params: { id: string }
 }
 
-export async function generateMetadata({ params }: MoviePageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: MoviePageProps): Promise<Metadata> {
   const movie = await fetchMovieDetails(Number.parseInt(params.id))
 
   return {
@@ -57,9 +59,13 @@ async function MovieDetails({ id }: { id: number }) {
       })
     : "Release date unknown"
 
-  const runtime = movie.runtime ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m` : "Runtime unknown"
+  const runtime = movie.runtime
+    ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m`
+    : "Runtime unknown"
 
-  const voteAverage = movie.vote_average ? Math.round(movie.vote_average * 10) / 10 : null
+  const voteAverage = movie.vote_average
+    ? Math.round(movie.vote_average * 10) / 10
+    : null
 
   const genres = movie.genres || []
   const cast = movie.credits?.cast || []
@@ -133,14 +139,20 @@ async function MovieDetails({ id }: { id: number }) {
                   </div>
                 )}
 
-                <p className="text-muted-foreground">{movie.overview || "No overview available."}</p>
+                <p className="text-muted-foreground">
+                  {movie.overview || "No overview available."}
+                </p>
 
                 <div className="flex flex-wrap gap-3 pt-2">
                   <Button asChild>
                     <a href={`/watch/movie/${id}`}>Watch Now</a>
                   </Button>
 
-                  <TrailerDialog mediaType="movie" mediaId={id} title={movie.title || "Movie"}>
+                  <TrailerDialog
+                    mediaType="movie"
+                    mediaId={id}
+                    title={movie.title || "Movie"}
+                  >
                     <Button variant="outline">Watch Trailer</Button>
                   </TrailerDialog>
                 </div>
@@ -164,7 +176,9 @@ async function MovieDetails({ id }: { id: number }) {
               <CastSection cast={cast.slice(0, 12)} />
             ) : (
               <div className="p-8 text-center border rounded-lg">
-                <p className="text-muted-foreground">No cast information available.</p>
+                <p className="text-muted-foreground">
+                  No cast information available.
+                </p>
               </div>
             )}
           </TabsContent>
@@ -173,10 +187,16 @@ async function MovieDetails({ id }: { id: number }) {
             <h2 className="text-2xl font-semibold">Similar Movies</h2>
             <Separator />
             {similarMovies.length > 0 ? (
-              <MediaRow items={similarMovies.slice(0, 8).map((item) => ({ ...item, media_type: "movie" }))} />
+              <MediaRow
+                items={similarMovies
+                  .slice(0, 8)
+                  .map((item) => ({ ...item, media_type: "movie" }))}
+              />
             ) : (
               <div className="p-8 text-center border rounded-lg">
-                <p className="text-muted-foreground">No similar movies available.</p>
+                <p className="text-muted-foreground">
+                  No similar movies available.
+                </p>
               </div>
             )}
           </TabsContent>
@@ -234,4 +254,3 @@ export function MovieDetailsSkeleton() {
     </>
   )
 }
-
