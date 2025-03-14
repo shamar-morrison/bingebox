@@ -80,7 +80,7 @@ async function TVShowDetails({ id }: { id: number }) {
 
   return (
     <>
-      <div className="relative w-full h-[500px] md:h-[600px] mt-16">
+      <div className="relative w-full h-[500px] md:h-[600px]">
         <div className="absolute inset-0">
           <Image
             src={backdropPath || "/placeholder.svg"}
@@ -92,7 +92,7 @@ async function TVShowDetails({ id }: { id: number }) {
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         </div>
 
-        <div className="absolute inset-0 flex items-center">
+        <div className="absolute inset-0 flex items-center mt-16">
           <div className="container px-4">
             <div className="grid items-center gap-8 md:grid-cols-[300px_1fr]">
               <div className="relative hidden overflow-hidden rounded-lg shadow-lg md:block aspect-[2/3]">
