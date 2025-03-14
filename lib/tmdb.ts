@@ -1,4 +1,4 @@
-import type { MediaResponse, MediaItem, VideoResponse } from "./types"
+import type { MediaItem, MediaResponse, VideoResponse } from "./types"
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY
 const TMDB_BASE_URL = "https://api.themoviedb.org/3"
@@ -63,42 +63,125 @@ export const fetchOnTheAirShows = async (): Promise<MediaResponse> => {
 }
 
 export const fetchMovieDetails = async (id: number): Promise<MediaItem> => {
-  return fetchFromTMDB<MediaItem>(`/movie/${id}?append_to_response=credits,similar,videos`)
+  return fetchFromTMDB<MediaItem>(
+    `/movie/${id}?append_to_response=credits,similar,videos`,
+  )
 }
 
 export const fetchTVDetails = async (id: number): Promise<MediaItem> => {
-  return fetchFromTMDB<MediaItem>(`/tv/${id}?append_to_response=credits,similar,videos,seasons`)
+  return fetchFromTMDB<MediaItem>(
+    `/tv/${id}?append_to_response=credits,similar,videos,seasons`,
+  )
 }
 
-export const fetchVideos = async (mediaType: string, id: number): Promise<VideoResponse> => {
+export const fetchVideos = async (
+  mediaType: string,
+  id: number,
+): Promise<VideoResponse> => {
   return fetchFromTMDB<VideoResponse>(`/${mediaType}/${id}/videos`)
 }
 
-export const searchMulti = async (query: string, page = 1): Promise<MediaResponse> => {
-  return fetchFromTMDB<MediaResponse>(`/search/multi?query=${encodeURIComponent(query)}&page=${page}`)
+export const searchMulti = async (
+  query: string,
+  page = 1,
+): Promise<MediaResponse> => {
+  return fetchFromTMDB<MediaResponse>(
+    `/search/multi?query=${encodeURIComponent(query)}&page=${page}`,
+  )
 }
 
-export const searchMovies = async (query: string, page = 1): Promise<MediaResponse> => {
-  return fetchFromTMDB<MediaResponse>(`/search/movie?query=${encodeURIComponent(query)}&page=${page}`)
+export const searchMovies = async (
+  query: string,
+  page = 1,
+): Promise<MediaResponse> => {
+  return fetchFromTMDB<MediaResponse>(
+    `/search/movie?query=${encodeURIComponent(query)}&page=${page}`,
+  )
 }
 
-export const searchTV = async (query: string, page = 1): Promise<MediaResponse> => {
-  return fetchFromTMDB<MediaResponse>(`/search/tv?query=${encodeURIComponent(query)}&page=${page}`)
+export const searchTV = async (
+  query: string,
+  page = 1,
+): Promise<MediaResponse> => {
+  return fetchFromTMDB<MediaResponse>(
+    `/search/tv?query=${encodeURIComponent(query)}&page=${page}`,
+  )
 }
 
-export const searchPerson = async (query: string, page = 1): Promise<MediaResponse> => {
-  return fetchFromTMDB<MediaResponse>(`/search/person?query=${encodeURIComponent(query)}&page=${page}`)
+export const searchPerson = async (
+  query: string,
+  page = 1,
+): Promise<MediaResponse> => {
+  return fetchFromTMDB<MediaResponse>(
+    `/search/person?query=${encodeURIComponent(query)}&page=${page}`,
+  )
 }
 
 export const fetchPersonDetails = async (id: number): Promise<any> => {
-  return fetchFromTMDB<any>(`/person/${id}?append_to_response=movie_credits,tv_credits`)
+  return fetchFromTMDB<any>(
+    `/person/${id}?append_to_response=movie_credits,tv_credits`,
+  )
 }
 
-export const fetchSeasonDetails = async (tvId: number, seasonNumber: number): Promise<any> => {
+export const fetchSeasonDetails = async (
+  tvId: number,
+  seasonNumber: number,
+): Promise<any> => {
   return fetchFromTMDB<any>(`/tv/${tvId}/season/${seasonNumber}`)
 }
 
-export const fetchEpisodeDetails = async (tvId: number, seasonNumber: number, episodeNumber: number): Promise<any> => {
-  return fetchFromTMDB<any>(`/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}`)
+export const fetchEpisodeDetails = async (
+  tvId: number,
+  seasonNumber: number,
+  episodeNumber: number,
+): Promise<any> => {
+  return fetchFromTMDB<any>(
+    `/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}`,
+  )
 }
 
+export interface DiscoverParams {
+  page?: number
+  sort_by?: string
+  with_genres?: string
+  "vote_average.gte"?: number
+  "vote_average.lte"?: number
+  "primary_release_date.gte"?: string
+  "primary_release_date.lte"?: string
+  "first_air_date.gte"?: string
+  "first_air_date.lte"?: string
+  with_watch_providers?: string
+  watch_region?: string
+  year?: number
+  primary_release_year?: number
+  first_air_date_year?: number
+  with_original_language?: string
+}
+
+export const fetchGenres = async (mediaType: "movie" | "tv"): Promise<any> => {
+  return fetchFromTMDB<any>(`/genre/${mediaType}/list`)
+}
+
+export const discoverMovies = async (
+  params: DiscoverParams = {},
+): Promise<MediaResponse> => {
+  const queryParams = Object.entries(params)
+    .map(([key, value]) => `&${key}=${encodeURIComponent(String(value))}`)
+    .join("")
+
+  console.log("TMDB Movie API Request:", `/discover/movie?${queryParams}`)
+
+  return fetchFromTMDB<MediaResponse>(`/discover/movie?${queryParams}`)
+}
+
+export const discoverTV = async (
+  params: DiscoverParams = {},
+): Promise<MediaResponse> => {
+  const queryParams = Object.entries(params)
+    .map(([key, value]) => `&${key}=${encodeURIComponent(String(value))}`)
+    .join("")
+
+  console.log("TMDB TV API Request:", `/discover/tv?${queryParams}`)
+
+  return fetchFromTMDB<MediaResponse>(`/discover/tv?${queryParams}`)
+}
