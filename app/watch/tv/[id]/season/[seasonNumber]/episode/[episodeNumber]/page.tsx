@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, ChevronLeft, Info } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 
+import { SeasonEpisodeSelector } from "@/components/season-episode-selector"
 import { Button } from "@/components/ui/button"
 import { VideoPlayerSkeleton } from "@/components/video-player-skeleton"
 import VidsrcPlayer from "@/components/vidsrc-player"
@@ -11,6 +12,7 @@ import {
   fetchTVDetails,
 } from "@/lib/tmdb"
 
+// Define the page component
 interface WatchTVEpisodePageProps {
   params: { id: string; seasonNumber: string; episodeNumber: string }
 }
@@ -56,6 +58,7 @@ export default function WatchTVEpisodePage({
   )
 }
 
+// Server component for episode player and details
 async function EpisodePlayer({
   id,
   seasonNumber,
@@ -162,6 +165,15 @@ async function EpisodePlayer({
             <div></div>
           )}
         </div>
+
+        {/* Season and Episode selection UI */}
+        <SeasonEpisodeSelector
+          showId={id}
+          currentSeasonNumber={seasonNumber}
+          currentEpisodeNumber={episodeNumber}
+          seasons={show.seasons || []}
+          episodes={episodes}
+        />
 
         <div className="mt-6 space-y-4 text-white">
           <h1 className="text-2xl font-bold">{episodeTitle}</h1>
