@@ -36,13 +36,6 @@ export default function WatchTVEpisodePage({
               Back to season
             </Link>
           </Button>
-
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/" className="flex items-center gap-1">
-              <Info className="w-4 h-4" />
-              BingeBox
-            </Link>
-          </Button>
         </div>
       </div>
 
