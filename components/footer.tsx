@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Film, Github, Twitter } from "lucide-react"
+import { Film } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -112,14 +112,6 @@ export default function Footer() {
                     Privacy Policy
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/about"
-                    className="text-muted-foreground hover:text-primary"
-                  >
-                    About Us
-                  </Link>
-                </li>
               </ul>
             </div>
           </div>
@@ -130,20 +122,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} BingeBox. All rights reserved.
           </p>
           <div className="flex items-center gap-4 mt-4 sm:mt-0">
-            <Link
-              href="https://github.com"
-              className="text-muted-foreground hover:text-primary"
-            >
-              <Github className="w-4 h-4" />
-              <span className="sr-only">GitHub</span>
-            </Link>
-            <Link
-              href="https://twitter.com"
-              className="text-muted-foreground hover:text-primary"
-            >
-              <Twitter className="w-4 h-4" />
-              <span className="sr-only">Twitter</span>
-            </Link>
+            <p className={"text-xs text-muted-foreground"}>Contact Us</p>
           </div>
         </div>
 
