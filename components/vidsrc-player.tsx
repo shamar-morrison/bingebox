@@ -15,7 +15,6 @@ export default function VidsrcPlayer({
   episodeNumber,
   title,
 }: VidsrcPlayerProps) {
-
   const getEmbedUrl = () => {
     const baseUrl = "https://vidsrc.to/embed"
 
@@ -30,7 +29,7 @@ export default function VidsrcPlayer({
     <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
       <iframe
         src={getEmbedUrl()}
-        className="absolute top-0 left-0 w-full h-full border-0 rounded-lg"
+        className="absolute top-0 left-0 w-full h-full border-0 outline-none rounded-lg"
         allowFullScreen
         title={title}
       ></iframe>
