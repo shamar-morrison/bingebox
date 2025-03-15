@@ -31,6 +31,13 @@ export default function VidsrcPlayer({
   const [selectedSource, setSelectedSource] = useState<SourceOption>(sources[0])
 
   const getEmbedUrl = () => {
+    // VidLink autoplays by default so the player start muted, this prevents that
+    if (mediaType === "movie" && selectedSource.name === "VidLink") {
+      return `${selectedSource.baseUrl}/movie/${tmdbId}?autoplay=false`
+    } else if (mediaType === "tv" && selectedSource.name === "VidLink") {
+      return `${selectedSource.baseUrl}/tv/${tmdbId}/${seasonNumber}/${episodeNumber}?autoplay=false`
+    }
+
     if (mediaType === "movie") {
       return `${selectedSource.baseUrl}/movie/${tmdbId}`
     } else {
