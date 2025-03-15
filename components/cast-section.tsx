@@ -18,7 +18,7 @@ export default function CastSection({ cast }: CastSectionProps) {
                 src={
                   person.profile_path
                     ? `https://image.tmdb.org/t/p/w300${person.profile_path}`
-                    : `/placeholder.svg?height=450&width=300&text=${encodeURIComponent(person.name)}`
+                    : `/placeholder.svg`
                 }
                 alt={person.name}
                 fill
@@ -28,7 +28,9 @@ export default function CastSection({ cast }: CastSectionProps) {
             </div>
             <CardContent className="p-3">
               <h3 className="font-medium line-clamp-1">{person.name}</h3>
-              <p className="text-xs text-muted-foreground line-clamp-1">{person.character || "Unknown role"}</p>
+              <p className="text-xs text-muted-foreground line-clamp-1">
+                {person.character || "Unknown role"}
+              </p>
             </CardContent>
           </Card>
         </Link>
@@ -36,4 +38,3 @@ export default function CastSection({ cast }: CastSectionProps) {
     </div>
   )
 }
-

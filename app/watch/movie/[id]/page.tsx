@@ -15,7 +15,7 @@ export default function WatchMoviePage({ params }: WatchMoviePageProps) {
   const movieId = Number.parseInt(params.id)
 
   return (
-    <main className="min-h-screen bg-black pt-16">
+    <main className="min-h-screen bg-background pt-16">
       <div className="container px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <Button variant="ghost" size="sm" asChild className="text-white">
@@ -46,7 +46,7 @@ async function MoviePlayer({ id }: { id: number }) {
     <div className="container px-4 pb-16">
       <div className="max-w-5xl mx-auto">
         <VidsrcPlayer tmdbId={id} mediaType="movie" title={title} />
-        <div className="mt-6 space-y-4 text-white">
+        <div className="mt-6 space-y-4 text-foreground">
           <h1 className="text-2xl font-bold">{title}</h1>
           <p className="text-gray-400">{movie.overview}</p>
         </div>
