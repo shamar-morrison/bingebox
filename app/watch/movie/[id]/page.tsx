@@ -1,4 +1,4 @@
-import { ChevronLeft, Info } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -25,13 +25,6 @@ export default function WatchMoviePage({ params }: WatchMoviePageProps) {
             >
               <ChevronLeft className="w-4 h-4" />
               Back to details
-            </Link>
-          </Button>
-
-          <Button variant="ghost" size="sm" asChild className="text-white">
-            <Link href="/" className="flex items-center gap-1">
-              <Info className="w-4 h-4" />
-              BingeBox
             </Link>
           </Button>
         </div>
