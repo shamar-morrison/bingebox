@@ -36,9 +36,7 @@ export async function generateMetadata({
 
   return {
     title,
-    description:
-      episodeDetails?.overview ||
-      `Stream ${show.name} Season ${seasonNumber} Episode ${episodeNumber} in HD quality for free on BingeBox`,
+    description: `Stream ${show.name} Season ${seasonNumber} Episode ${episodeNumber} in HD quality for free on BingeBox`,
   }
 }
 
