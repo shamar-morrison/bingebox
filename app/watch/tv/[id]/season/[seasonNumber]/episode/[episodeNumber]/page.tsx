@@ -1,4 +1,5 @@
-import { ArrowLeft, ArrowRight, ChevronLeft, Info } from "lucide-react"
+import { ArrowLeft, ArrowRight, ChevronLeft } from "lucide-react"
+import type { Metadata } from "next"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -14,6 +15,31 @@ import {
 
 interface WatchTVEpisodePageProps {
   params: { id: string; seasonNumber: string; episodeNumber: string }
+}
+
+export async function generateMetadata({
+  params,
+}: WatchTVEpisodePageProps): Promise<Metadata> {
+  const showId = Number.parseInt(params.id)
+  const seasonNumber = Number.parseInt(params.seasonNumber)
+  const episodeNumber = Number.parseInt(params.episodeNumber)
+
+  const show = await fetchTVDetails(showId)
+  const episodeDetails = await fetchEpisodeDetails(
+    showId,
+    seasonNumber,
+    episodeNumber,
+  )
+
+  const episodeTitle = episodeDetails?.name || `Episode ${episodeNumber}`
+  const title = `Watch ${show.name} S${seasonNumber}E${episodeNumber} - ${episodeTitle} Free Online - BingeBox`
+
+  return {
+    title,
+    description:
+      episodeDetails?.overview ||
+      `Stream ${show.name} Season ${seasonNumber} Episode ${episodeNumber} in HD quality for free on BingeBox`,
+  }
 }
 
 export default function WatchTVEpisodePage({

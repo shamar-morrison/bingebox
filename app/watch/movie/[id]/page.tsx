@@ -1,4 +1,5 @@
 import { ChevronLeft } from "lucide-react"
+import type { Metadata } from "next"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -9,6 +10,20 @@ import { fetchMovieDetails } from "@/lib/tmdb"
 
 interface WatchMoviePageProps {
   params: { id: string }
+}
+
+export async function generateMetadata({
+  params,
+}: WatchMoviePageProps): Promise<Metadata> {
+  const movieId = Number.parseInt(params.id)
+  const movie = await fetchMovieDetails(movieId)
+
+  return {
+    title: `Watch ${movie.title || "Movie"} Free Online - BingeBox`,
+    description:
+      movie.overview ||
+      `Stream ${movie.title} in HD quality for free on BingeBox`,
+  }
 }
 
 export default function WatchMoviePage({ params }: WatchMoviePageProps) {
