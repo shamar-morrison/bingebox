@@ -64,7 +64,7 @@ export const fetchOnTheAirShows = async (): Promise<MediaResponse> => {
 
 export const fetchMovieDetails = async (id: number): Promise<MediaItem> => {
   return fetchFromTMDB<MediaItem>(
-    `/movie/${id}?append_to_response=credits,similar,videos`,
+    `/movie/${id}?append_to_response=credits,similar,videos,external_ids`,
   )
 }
 
@@ -180,8 +180,6 @@ export const discoverTV = async (
   const queryParams = Object.entries(params)
     .map(([key, value]) => `&${key}=${encodeURIComponent(String(value))}`)
     .join("")
-
-  console.log("TMDB TV API Request:", `/discover/tv?${queryParams}`)
 
   return fetchFromTMDB<MediaResponse>(`/discover/tv?${queryParams}`)
 }

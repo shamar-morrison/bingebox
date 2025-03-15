@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import NextTopLoader from "nextjs-toploader"
 import type React from "react"
+import { Toaster } from "sonner"
 import "./globals.css"
 
 import Footer from "@/components/footer"
@@ -38,6 +39,7 @@ export default function RootLayout({
             <Footer />
           </div>
         </ThemeProvider>
+        <Toaster position="top-center" />
       </body>
     </html>
   )

@@ -19,6 +19,7 @@ export interface MediaItem {
   media_type?: string
   genre_ids?: number[]
   genres?: { id: number; name: string }[]
+  runtime?: number
   credits?: {
     cast: Cast[]
     crew: {
@@ -50,6 +51,12 @@ export interface MediaItem {
     air_date: string
   }[]
   popularity?: number
+  external_ids?: {
+    imdb_id?: string
+    facebook_id?: string
+    instagram_id?: string
+    twitter_id?: string
+  }
 }
 
 export interface MediaResponse {
@@ -69,4 +76,3 @@ export interface VideoResponse {
     type: string
   }[]
 }
-
