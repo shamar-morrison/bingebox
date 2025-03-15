@@ -1,0 +1,10 @@
+<svg width="500" height="750" viewBox="0 0 500 750" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="750" fill="#1e293b"/>
+  
+  <!-- Simple image icon -->
+  <rect x="150" y="225" width="200" height="150" rx="8" stroke="#94a3b8" stroke-width="12" fill="none"/>
+  <circle cx="190" cy="265" r="15" fill="#94a3b8"/>
+  <path d="M150 325L200 275L250 325L325 250L350 275" stroke="#94a3b8" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <text x="50%" y="90%" dominant-baseline="middle" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="24" fill="#94a3b8">No Image Available</text>
+</svg> 

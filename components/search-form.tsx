@@ -1,29 +1,39 @@
 "use client"
 
+import { Loader2, Search } from "lucide-react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import type React from "react"
+import { useEffect, useState } from "react"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Search } from "lucide-react"
-
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 
 interface SearchFormProps {
   initialQuery?: string
   initialType?: string
 }
 
-export default function SearchForm({ initialQuery = "", initialType = "multi" }: SearchFormProps) {
+export default function SearchForm({
+  initialQuery = "",
+  initialType = "multi",
+}: SearchFormProps) {
   const [query, setQuery] = useState(initialQuery)
-  const [type, setType] = useState(initialType)
+  const [type] = useState(initialType)
+  const [isSearching, setIsSearching] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Reset isSearching when the URL changes
+  useEffect(() => {
+    setIsSearching(false)
+  }, [pathname, searchParams])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     if (query.trim()) {
+      setIsSearching(true)
       router.push(`/search?q=${encodeURIComponent(query.trim())}&type=${type}`)
     }
   }
@@ -38,25 +48,22 @@ export default function SearchForm({ initialQuery = "", initialType = "multi" }:
           className="pl-9"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          disabled={isSearching}
         />
       </div>
 
-      <div className="flex gap-2">
-        <Select value={type} onValueChange={setType}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Search type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="multi">All</SelectItem>
-            <SelectItem value="movie">Movies</SelectItem>
-            <SelectItem value="tv">TV Shows</SelectItem>
-            <SelectItem value="person">People</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Button type="submit">Search</Button>
+      <div className="w-full md:w-auto">
+        <Button type="submit" className="w-full" disabled={isSearching}>
+          {isSearching ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Searching...
+            </>
+          ) : (
+            "Search"
+          )}
+        </Button>
       </div>
     </form>
   )
 }
-

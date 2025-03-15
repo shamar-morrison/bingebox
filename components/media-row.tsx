@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { MediaItem } from "@/lib/types"
@@ -11,7 +10,7 @@ function MediaCard({ item }: { item: MediaItem }) {
   const title = item.title || item.name || "Untitled"
   const posterPath = item.poster_path
     ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-    : `/placeholder.svg?height=750&width=500&text=${encodeURIComponent(title)}`
+    : `/placeholder.svg`
 
   const detailsPath =
     mediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`
@@ -19,10 +18,6 @@ function MediaCard({ item }: { item: MediaItem }) {
     mediaType === "movie"
       ? `/watch/movie/${item.id}`
       : `/watch/tv/${item.id}/season/1/episode/1`
-
-  const voteAverage = item.vote_average
-    ? Math.round(item.vote_average * 10) / 10
-    : null
 
   return (
     <Card className="overflow-hidden">
@@ -35,11 +30,6 @@ function MediaCard({ item }: { item: MediaItem }) {
             className="object-cover transition-all group-hover:scale-105 group-hover:opacity-75"
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 12.5vw"
           />
-          {voteAverage && (
-            <Badge variant="secondary" className="absolute top-2 right-2 z-10">
-              ★ {voteAverage}
-            </Badge>
-          )}
         </div>
       </Link>
       <CardContent className="p-2">

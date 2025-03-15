@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { searchMovies, searchMulti, searchPerson, searchTV } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
-  title: "Search | BingeBox",
+  title: "Search | BingeBox - Watch Movies and TV Shows for free",
   description: "Search for movie, TV shows, and people",
 }
 
@@ -68,7 +68,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
 
             <TabsContent value="multi" className="space-y-4">
               <h2 className="text-2xl font-semibold">
-                Search Results for "{query}"
+                Search Results for &#34;{query}&#34;
               </h2>
               <Suspense fallback={<GridSkeleton />}>
                 <MultiSearchResults query={query} page={page} />
@@ -77,7 +77,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
 
             <TabsContent value="movie" className="space-y-4">
               <h2 className="text-2xl font-semibold">
-                Movie Results for "{query}"
+                Movie Results for &#34;{query}&#34;
               </h2>
               <Suspense fallback={<GridSkeleton />}>
                 <MovieSearchResults query={query} page={page} />
@@ -86,7 +86,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
 
             <TabsContent value="tv" className="space-y-4">
               <h2 className="text-2xl font-semibold">
-                TV Show Results for "{query}"
+                TV Show Results for &#34;{query}&#34;
               </h2>
               <Suspense fallback={<GridSkeleton />}>
                 <TVSearchResults query={query} page={page} />
@@ -95,7 +95,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
 
             <TabsContent value="person" className="space-y-4">
               <h2 className="text-2xl font-semibold">
-                People Results for "{query}"
+                People Results for &#34;{query}&#34;
               </h2>
               <Suspense fallback={<GridSkeleton />}>
                 <PersonSearchResults query={query} page={page} />
@@ -198,7 +198,7 @@ function NoResults() {
     <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg">
       <h3 className="text-lg font-medium">No results found</h3>
       <p className="mt-2 text-muted-foreground">
-        Try adjusting your search or filter to find what you're looking for
+        Try adjusting your search or filter to find what you&#39;re looking for
       </p>
     </div>
   )

@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { discoverMovies, discoverTV } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
-  title: "Discover | BingeBox",
+  title: "Discover | BingeBox - Watch Movies and TV Shows for free",
   description: "Discover movies and TV shows",
 }
 
@@ -98,7 +98,6 @@ async function DiscoverResults({ searchParams }: DiscoverPageProps) {
 
   if (with_genres) params.with_genres = with_genres
 
-  // Handle year parameters properly based on media type
   if (media_type === "movie") {
     if (primary_release_year) {
       params.primary_release_year = Number(primary_release_year)
@@ -117,23 +116,11 @@ async function DiscoverResults({ searchParams }: DiscoverPageProps) {
   if (with_original_language)
     params.with_original_language = with_original_language
 
-  console.log("Server component params:", {
-    media_type,
-    params,
-    year,
-    primary_release_year,
-    first_air_date_year,
-  })
-
   try {
     const data =
       media_type === "tv"
         ? await discoverTV(params)
         : await discoverMovies(params)
-
-    console.log(
-      `Server received ${data.total_results} results for ${media_type}`,
-    )
 
     return (
       <>

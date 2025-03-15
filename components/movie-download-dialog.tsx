@@ -114,7 +114,7 @@ export default function MovieDownloadDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px] md:max-w-[600px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Download "{title}"</DialogTitle>
+          <DialogTitle>Download &#34;{title}&#34;</DialogTitle>
           <DialogDescription>Available torrents from YTS.mx</DialogDescription>
         </DialogHeader>
 
@@ -141,21 +141,21 @@ export default function MovieDownloadDialog({
         {ytsData && !isLoading && !error && (
           <>
             <div className="grid gap-4 md:grid-cols-[200px_1fr]">
-              <div>
+              <div className="flex justify-center md:block">
                 <img
                   src={ytsData.medium_cover_image}
                   alt={ytsData.title}
                   className="object-cover rounded-md w-[200px]"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 text-center md:text-left">
                 <h3 className="text-xl font-semibold">
                   {ytsData.title} ({ytsData.year})
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   Rating: {ytsData.rating}/10 • Runtime: {ytsData.runtime} min
                 </p>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2 justify-center md:justify-start">
                   {ytsData.genres.map((genre) => (
                     <span
                       key={genre}

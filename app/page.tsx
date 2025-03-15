@@ -38,7 +38,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Popular Movies</h2>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/app/movie/popular" className="flex items-center">
+              <Link href="/movie/popular" className="flex items-center">
                 View all <ChevronRight className="w-4 h-4 ml-1" />
               </Link>
             </Button>

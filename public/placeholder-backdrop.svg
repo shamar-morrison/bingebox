@@ -1,0 +1,9 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1920" height="1080" fill="#1e293b"/>
+  
+  <!-- Simple backdrop/video icon -->
+  <rect x="760" y="390" width="400" height="225" rx="12" stroke="#94a3b8" stroke-width="16" fill="none"/>
+  <path d="M900 440L1050 502.5L900 565V440Z" fill="#94a3b8" stroke="#94a3b8" stroke-width="8" stroke-linejoin="round"/>
+  
+  <text x="50%" y="90%" dominant-baseline="middle" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="36" fill="#94a3b8">No Backdrop Available</text>
+</svg> 
