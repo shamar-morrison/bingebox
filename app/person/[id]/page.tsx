@@ -19,7 +19,7 @@ export async function generateMetadata({
   const person = await fetchPersonDetails(Number.parseInt(params.id))
 
   return {
-    title: `${person.name || "Person"} | BingeBox`,
+    title: `${person.name || "Person"} | BingeBox - Watch Movies and TV Shows for free`,
     description:
       person.biography?.slice(0, 160) ||
       `View ${person.name}'s movies and TV shows`,
@@ -43,7 +43,7 @@ async function PersonDetails({ id }: { id: number }) {
 
   const profilePath = person.profile_path
     ? `https://image.tmdb.org/t/p/w500${person.profile_path}`
-    : `/placeholder.svg?height=750&width=500&text=${encodeURIComponent(person.name || "Unknown")}`
+    : `/placeholder.svg`
 
   const birthday = person.birthday
     ? new Date(person.birthday).toLocaleDateString("en-US", {

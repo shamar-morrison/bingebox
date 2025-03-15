@@ -12,7 +12,7 @@ import {
 } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
-  title: "Movies | BingeBox",
+  title: "Movies | BingeBox - Watch Movies and TV Shows for free",
   description: "Browse popular, top rated, upcoming, and now playing movie",
 }
 

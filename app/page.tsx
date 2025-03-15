@@ -11,6 +11,12 @@ import {
   fetchPopularMovies,
   fetchTopRatedShows,
 } from "@/lib/tmdb"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "BingeBox - Watch Movies and TV Shows for free",
+  description: "Watch and Download Movies and TV Shows for free",
+}
 
 export default function Home() {
   return (

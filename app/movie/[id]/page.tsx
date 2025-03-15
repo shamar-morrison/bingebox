@@ -24,7 +24,7 @@ export async function generateMetadata({
   const movie = await fetchMovieDetails(Number.parseInt(params.id))
 
   return {
-    title: `${movie.title || "Movie"} | BingeBox`,
+    title: `${movie.title || "Movie"} | BingeBox - Watch Movies and TV Shows for free`,
     description: movie.overview || "Watch this movie on BingeBox",
   }
 }

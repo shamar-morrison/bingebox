@@ -90,15 +90,10 @@ export default function MovieDownloadDialog({
   const openMagnetLink = (hash: string) => {
     if (!ytsData) return
 
-    // Create magnet link
     const encodedTitle = encodeURIComponent(ytsData.title)
-    const magnetLink = `magnet:?xt=urn:btih:${hash}&dn=${encodedTitle}&tr=udp://open.demonii.com:1337/announce&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://glotorrents.pw:6969/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://torrent.gresille.org:80/announce&tr=udp://p4p.arenabg.com:1337&tr=udp://tracker.leechers-paradise.org:6969`
-
-    // Open magnet link
-    window.location.href = magnetLink
+    window.location.href = `magnet:?xt=urn:btih:${hash}&dn=${encodedTitle}&tr=udp://open.demonii.com:1337/announce&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://glotorrents.pw:6969/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://torrent.gresille.org:80/announce&tr=udp://p4p.arenabg.com:1337&tr=udp://tracker.leechers-paradise.org:6969`
   }
 
-  // Filter torrents by type for tab display
   const blurayTorrents =
     ytsData?.torrents.filter((torrent) =>
       torrent.type.toLowerCase().includes("bluray"),

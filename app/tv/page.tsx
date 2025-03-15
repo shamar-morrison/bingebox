@@ -4,11 +4,17 @@ import type { Metadata } from "next"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import MediaGrid from "@/components/media-grid"
-import { fetchPopularShows, fetchTopRatedShows, fetchAiringTodayShows, fetchOnTheAirShows } from "@/lib/tmdb"
+import {
+  fetchPopularShows,
+  fetchTopRatedShows,
+  fetchAiringTodayShows,
+  fetchOnTheAirShows,
+} from "@/lib/tmdb"
 
 export const metadata: Metadata = {
-  title: "TV Shows | BingeBox",
-  description: "Browse popular, top rated, airing today, and on the air TV shows",
+  title: "TV Shows | BingeBox - Watch Movies and TV Shows for free",
+  description:
+    "Browse popular, top rated, airing today, and on the air TV shows",
 }
 
 export default function TVShowsPage() {
@@ -91,4 +97,3 @@ function GridSkeleton() {
     </div>
   )
 }
-
