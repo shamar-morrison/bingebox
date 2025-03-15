@@ -218,7 +218,7 @@ async function MovieDetails({ id }: { id: number }) {
   )
 }
 
-export function MovieDetailsSkeleton() {
+function MovieDetailsSkeleton() {
   return (
     <>
       <div className="relative w-full h-[500px] md:h-[600px]">

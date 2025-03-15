@@ -1,12 +1,13 @@
-import { Suspense } from "react"
-import Link from "next/link"
-import Image from "next/image"
 import { ChevronLeft } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { Suspense } from "react"
 
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { fetchTVDetails, fetchSeasonDetails } from "@/lib/tmdb"
+import { Skeleton } from "@/components/ui/skeleton"
+import { fetchSeasonDetails, fetchTVDetails } from "@/lib/tmdb"
+import { Episode } from "@/lib/types"
 
 interface WatchTVSeasonPageProps {
   params: { id: string; seasonNumber: string }
@@ -36,7 +37,13 @@ export default function WatchTVSeasonPage({ params }: WatchTVSeasonPageProps) {
   )
 }
 
-async function SeasonEpisodes({ id, seasonNumber }: { id: number; seasonNumber: number }) {
+async function SeasonEpisodes({
+  id,
+  seasonNumber,
+}: {
+  id: number
+  seasonNumber: number
+}) {
   const show = await fetchTVDetails(id)
   const seasonDetails = await fetchSeasonDetails(id, seasonNumber)
 
@@ -44,7 +51,9 @@ async function SeasonEpisodes({ id, seasonNumber }: { id: number; seasonNumber: 
     return (
       <div className="p-8 text-center border rounded-lg">
         <h2 className="text-xl font-medium">Season not found</h2>
-        <p className="mt-2 text-muted-foreground">The requested season could not be found.</p>
+        <p className="mt-2 text-muted-foreground">
+          The requested season could not be found.
+        </p>
       </div>
     )
   }
@@ -55,11 +64,13 @@ async function SeasonEpisodes({ id, seasonNumber }: { id: number; seasonNumber: 
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">{show.name}</h1>
-        <h2 className="text-xl font-semibold text-muted-foreground">{seasonDetails.name}</h2>
+        <h2 className="text-xl font-semibold text-muted-foreground">
+          {seasonDetails.name}
+        </h2>
       </div>
 
       <div className="grid gap-4">
-        {episodes.map((episode) => (
+        {episodes.map((episode: Episode) => (
           <Card key={episode.id}>
             <CardHeader className="p-4">
               <CardTitle className="text-lg">
@@ -73,7 +84,7 @@ async function SeasonEpisodes({ id, seasonNumber }: { id: number; seasonNumber: 
                     src={
                       episode.still_path
                         ? `https://image.tmdb.org/t/p/w300${episode.still_path}`
-                        : `/placeholder.svg?height=169&width=300&text=${encodeURIComponent(`Episode ${episode.episode_number}`)}`
+                        : `/placeholder.svg`
                     }
                     alt={episode.name}
                     fill
@@ -82,11 +93,14 @@ async function SeasonEpisodes({ id, seasonNumber }: { id: number; seasonNumber: 
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">
-                    {episode.overview || "No overview available for this episode."}
+                    {episode.overview ||
+                      "No overview available for this episode."}
                   </p>
                   <div className="mt-4">
                     <Button asChild>
-                      <Link href={`/watch/tv/${id}/season/${seasonNumber}/episode/${episode.episode_number}`}>
+                      <Link
+                        href={`/watch/tv/${id}/season/${seasonNumber}/episode/${episode.episode_number}`}
+                      >
                         Watch Episode
                       </Link>
                     </Button>
@@ -134,4 +148,3 @@ function SeasonEpisodesSkeleton() {
     </div>
   )
 }
-

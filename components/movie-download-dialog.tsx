@@ -1,7 +1,8 @@
 "use client"
 
 import { Download, Loader2, Share2 } from "lucide-react"
-import { useEffect, useState } from "react"
+import Image from "next/image"
+import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -35,14 +36,7 @@ export default function MovieDownloadDialog({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    // Only fetch when dialog is opened and we have an IMDB ID
-    if (isOpen && imdbId) {
-      fetchYTSData()
-    }
-  }, [isOpen, imdbId])
-
-  const fetchYTSData = async () => {
+  const fetchYTSData = useCallback(async () => {
     if (!imdbId) {
       setError("No IMDB ID available for this movie")
       return
@@ -71,7 +65,14 @@ export default function MovieDownloadDialog({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [imdbId, setYtsData, setError, setIsLoading])
+
+  useEffect(() => {
+    // Only fetch when dialog is opened and we have an IMDB ID
+    if (isOpen && imdbId) {
+      fetchYTSData()
+    }
+  }, [isOpen, imdbId, fetchYTSData])
 
   const copyMagnetLink = (hash: string) => {
     if (!ytsData) return
@@ -137,10 +138,12 @@ export default function MovieDownloadDialog({
           <>
             <div className="grid gap-4 md:grid-cols-[200px_1fr]">
               <div className="flex justify-center md:block">
-                <img
+                <Image
                   src={ytsData.medium_cover_image}
                   alt={ytsData.title}
-                  className="object-cover rounded-md w-[200px]"
+                  width={200}
+                  height={300}
+                  className="object-cover rounded-md"
                 />
               </div>
               <div className="space-y-2 text-center md:text-left">

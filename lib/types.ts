@@ -76,3 +76,15 @@ export interface VideoResponse {
     type: string
   }[]
 }
+
+export interface Episode {
+  id: number
+  name: string
+  overview: string | null
+  episode_number: number
+  season_number: number
+  still_path: string | null
+  air_date: string | null
+  runtime: number | null
+  vote_average: number | null
+}

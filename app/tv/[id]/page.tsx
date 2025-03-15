@@ -286,7 +286,7 @@ async function TVShowDetails({ id }: { id: number }) {
   )
 }
 
-export function TVShowDetailsSkeleton() {
+function TVShowDetailsSkeleton() {
   return (
     <>
       <div className="relative w-full h-[500px] md:h-[600px]">

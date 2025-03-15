@@ -197,7 +197,7 @@ async function PersonDetails({ id }: { id: number }) {
   )
 }
 
-export function PersonDetailsSkeleton() {
+function PersonDetailsSkeleton() {
   return (
     <div className="container px-4 py-24 mt-16">
       <div className="grid gap-8 md:grid-cols-[300px_1fr]">
