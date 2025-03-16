@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 interface SourceOption {
   name: string
@@ -30,6 +30,23 @@ export default function VidsrcPlayer({
 
   const [selectedSource, setSelectedSource] = useState<SourceOption>(sources[0])
 
+  useEffect(() => {
+    const savedSourceName = localStorage.getItem("selectedVideoSource")
+    if (savedSourceName) {
+      const savedSource = sources.find(
+        (source) => source.name === savedSourceName,
+      )
+      if (savedSource) {
+        setSelectedSource(savedSource)
+      }
+    }
+  }, [])
+
+  const handleSourceChange = (source: SourceOption) => {
+    setSelectedSource(source)
+    localStorage.setItem("selectedVideoSource", source.name)
+  }
+
   const getEmbedUrl = () => {
     // VidLink autoplays by default so the player start muted, this prevents that
     if (mediaType === "movie" && selectedSource.name === "VidLink") {
@@ -53,7 +70,7 @@ export default function VidsrcPlayer({
           {sources.map((source) => (
             <button
               key={source.name}
-              onClick={() => setSelectedSource(source)}
+              onClick={() => handleSourceChange(source)}
               className={`px-3 py-1 text-sm rounded-md transition-colors ${
                 selectedSource.name === source.name
                   ? "bg-primary text-primary-foreground"
