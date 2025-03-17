@@ -85,9 +85,11 @@ export default function MovieDownloadDialog({
 
       const data = await response.json()
 
-      if (data.movie) {
+      if (data.movie && data.movie.title && data.movie.title.trim() !== "") {
+        // We got a valid movie with a title
         setYtsData(data.movie)
       } else {
+        // If we don't have a movie or it has an empty title, show the "not available" state
         setNotAvailable(true)
       }
     } catch (err) {
@@ -150,13 +152,14 @@ export default function MovieDownloadDialog({
     window.location.href = `magnet:?xt=urn:btih:${hash}&dn=${encodedTitle}&tr=udp://open.demonii.com:1337/announce&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://glotorrents.pw:6969/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://torrent.gresille.org:80/announce&tr=udp://p4p.arenabg.com:1337&tr=udp://tracker.leechers-paradise.org:6969`
   }
 
+  // Add extra null checking to prevent "Cannot read properties of undefined (reading 'filter')" error
   const blurayTorrents =
-    ytsData?.torrents.filter((torrent) =>
+    ytsData?.torrents?.filter((torrent) =>
       torrent.type.toLowerCase().includes("bluray"),
     ) || []
 
   const webTorrents =
-    ytsData?.torrents.filter((torrent) =>
+    ytsData?.torrents?.filter((torrent) =>
       torrent.type.toLowerCase().includes("web"),
     ) || []
 
@@ -225,49 +228,61 @@ export default function MovieDownloadDialog({
 
         {ytsData && !isLoading && !error && !notAvailable && (
           <>
-            {/* Show info notice if titles don't match exactly, but don't treat as an error */}
-            {ytsData.title_english.toLowerCase() !== title.toLowerCase() && (
-              <div className="p-2 mb-4 text-sm bg-blue-100 text-blue-700 rounded-md">
-                <p>
-                  Note: The movie title from YTS (&#34;{ytsData.title_english}
-                  &#34;) is slightly different from your search (&#34;{title}
-                  &#34;). This is likely the correct movie, but please verify.
-                </p>
-              </div>
-            )}
+            {/* Only show the title mismatch banner if both titles are non-empty and different */}
+            {ytsData.title_english &&
+              ytsData.title_english.trim() !== "" &&
+              title.trim() !== "" &&
+              ytsData.title_english.toLowerCase() !== title.toLowerCase() && (
+                <div className="p-2 mb-4 text-sm bg-blue-100 text-blue-700 rounded-md">
+                  <p>
+                    Note: The movie title from YTS (&#34;
+                    {ytsData.title_english || ytsData.title}
+                    &#34;) is slightly different from your search (&#34;{title}
+                    &#34;). This is likely the correct movie, but please verify.
+                  </p>
+                </div>
+              )}
             <div className="grid gap-4 md:grid-cols-[200px_1fr]">
               <div className="flex justify-center md:block">
                 <Image
-                  src={ytsData.medium_cover_image}
-                  alt={ytsData.title}
+                  src={ytsData.medium_cover_image || "/placeholder.svg"}
+                  alt={ytsData.title || "Movie poster"}
                   width={200}
                   height={300}
                   className="object-cover rounded-md"
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder.svg"
+                  }}
                 />
               </div>
               <div className="space-y-2 text-center md:text-left">
                 <h3 className="text-xl font-semibold">
-                  {ytsData.title} ({ytsData.year})
+                  {ytsData.title || "Unknown title"} ({ytsData.year || "N/A"})
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Rating: {ytsData.rating}/10 • Runtime: {ytsData.runtime} min
+                  Rating: {ytsData.rating || "N/A"}/10 • Runtime:{" "}
+                  {ytsData.runtime || "N/A"} min
                 </p>
                 <div className="flex flex-wrap gap-2 mt-2 justify-center md:justify-start">
-                  {ytsData.genres.map((genre) => (
+                  {ytsData.genres?.map((genre) => (
                     <span
                       key={genre}
                       className="px-2 py-1 text-xs rounded-full bg-secondary"
                     >
                       {genre}
                     </span>
-                  ))}
+                  )) || (
+                    <span className="text-xs text-muted-foreground">
+                      No genres available
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
             <Separator />
 
-            {ytsData.torrents.length > 0 ? (
+            {(ytsData.torrents?.length || 0) > 0 ? (
               <Tabs defaultValue="all">
                 <TabsList className="mb-4">
                   <TabsTrigger value="all">All</TabsTrigger>
@@ -276,7 +291,7 @@ export default function MovieDownloadDialog({
                 </TabsList>
 
                 <TabsContent value="all" className="space-y-4">
-                  {ytsData.torrents.map((torrent, index) => (
+                  {ytsData.torrents?.map((torrent, index) => (
                     <TorrentItem
                       key={index}
                       torrent={torrent}
@@ -356,19 +371,25 @@ function TorrentItem({
   onCopyMagnet,
   onOpenMagnet,
 }: TorrentItemProps) {
+  // Check if torrent is valid, and use default values if properties are missing
+  if (!torrent) {
+    return null
+  }
+
   return (
     <div className="p-4 border rounded-lg">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h4 className="font-medium">
-            {torrent.quality} • {torrent.type}
+            {torrent.quality || "Unknown"} • {torrent.type || "Unknown"}
           </h4>
           <div className="mt-1 space-y-1 text-sm text-muted-foreground">
             <p>
-              Size: {torrent.size} ({formatFileSize(torrent.size_bytes)})
+              Size: {torrent.size || "Unknown"} (
+              {formatFileSize(torrent.size_bytes || 0)})
             </p>
             <p>
-              Seeds: {torrent.seeds} • Peers: {torrent.peers}
+              Seeds: {torrent.seeds || 0} • Peers: {torrent.peers || 0}
             </p>
             {torrent.video_codec && torrent.audio_channels && (
               <p>

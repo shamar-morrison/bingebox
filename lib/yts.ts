@@ -137,12 +137,26 @@ export async function searchYTSMovieByIMDB(
 
     const data: YTSResponse = await response.json()
 
+    // Check if response is valid and has movie data
     if (data.status !== "ok" || !data.data.movie) {
       console.log(`No movie found on YTS for IMDB ID: ${imdbId}`)
       return null
     }
 
     const movie = data.data.movie
+
+    // Check if this is a valid movie with meaningful data
+    // If title is empty or rating is 0, it might be a placeholder entry
+    if (!movie.title || movie.title.trim() === "" || !movie.year) {
+      console.log(`Found empty movie data for IMDB ID: ${imdbId}`)
+      return null
+    }
+
+    // Ensure torrents is an array
+    if (!movie.torrents || !Array.isArray(movie.torrents)) {
+      console.warn(`Movie found but no torrents array for IMDB ID: ${imdbId}`)
+      movie.torrents = []
+    }
 
     return movie
   } catch (error) {
