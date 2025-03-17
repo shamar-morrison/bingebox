@@ -37,6 +37,20 @@ export default function MovieDownloadDialog({
   const [error, setError] = useState<string | null>(null)
   const [retrying, setRetrying] = useState(false)
 
+  // Clear data when dialog closes
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      // Clear all state when dialog closes
+      setTimeout(() => {
+        setYtsData(null)
+        setError(null)
+        setIsLoading(false)
+        setRetrying(false)
+      }, 500)
+    }
+  }
+
   const fetchYTSData = useCallback(async () => {
     if (!imdbId) {
       setError("No IMDB ID available for this movie")
@@ -46,6 +60,7 @@ export default function MovieDownloadDialog({
     setIsLoading(true)
     setError(null)
     setRetrying(false)
+    setYtsData(null)
 
     try {
       const response = await fetch(`/api/yts/movie?imdbId=${imdbId}`)
@@ -61,7 +76,12 @@ export default function MovieDownloadDialog({
       const data = await response.json()
 
       if (data.movie) {
-        setYtsData(data.movie)
+        // Verify the returned movie matches the expected IMDB ID to prevent mismatches
+        if (data.movie.imdb_code === imdbId) {
+          setYtsData(data.movie)
+        } else {
+          setError(`Incorrect movie data received. Please try again.`)
+        }
       } else {
         setError("No torrent data available for this movie")
       }
@@ -87,7 +107,7 @@ export default function MovieDownloadDialog({
         setIsLoading(false)
       }
     }
-  }, [imdbId, setYtsData, setError, setIsLoading, retrying])
+  }, [imdbId, title, setYtsData, setError, setIsLoading, retrying])
 
   useEffect(() => {
     // Only fetch when dialog is opened and we have an IMDB ID
@@ -128,7 +148,7 @@ export default function MovieDownloadDialog({
     ) || []
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px] md:max-w-[600px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>

@@ -140,7 +140,17 @@ export async function searchYTSMovieByIMDB(
       return null
     }
 
-    return data.data.movies[0]
+    // Verify the IMDB ID of the returned movie matches what was requested
+    // This helps prevent issues where YTS API might return an unrelated movie
+    const movie = data.data.movies[0]
+    if (movie.imdb_code !== imdbId) {
+      console.error(
+        `YTS API returned movie with incorrect IMDB ID. Requested: ${imdbId}, Got: ${movie.imdb_code} (${movie.title})`,
+      )
+      return null
+    }
+
+    return movie
   } catch (error) {
     console.error(`Error fetching from YTS API:`, error)
     return null
