@@ -1,21 +1,25 @@
-import { searchYTSMovieByIMDB } from "@/lib/yts"
+import { searchYTSMovieByIMDBAndTitle } from "@/lib/yts"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const imdbId = searchParams.get("imdbId")
+  const requestedTitle = searchParams.get("title")
 
   if (!imdbId) {
     return NextResponse.json({ error: "IMDB ID is required" }, { status: 400 })
   }
 
   try {
-    const movie = await searchYTSMovieByIMDB(imdbId)
+    const movie = await searchYTSMovieByIMDBAndTitle(
+      imdbId,
+      requestedTitle || "",
+    )
 
     if (!movie) {
       // Add a Cache-Control header to prevent caching of 404 responses
       const response = NextResponse.json(
-        { message: "Movie not found on YTS" },
+        { message: "Movie not found on YTS or title mismatch" },
         { status: 404 },
       )
 

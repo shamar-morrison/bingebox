@@ -38,17 +38,19 @@ export default function MovieDownloadDialog({
   const [retrying, setRetrying] = useState(false)
   const [notAvailable, setNotAvailable] = useState(false)
 
-  // Clear data when dialog closes
   const handleOpenChange = (open: boolean) => {
     // If closing the dialog, immediately clear all state
     if (!open) {
+      setIsOpen(open)
+      // Use immediate state reset instead of setTimeout
       setYtsData(null)
       setError(null)
       setIsLoading(false)
       setRetrying(false)
       setNotAvailable(false)
+    } else {
+      setIsOpen(open)
     }
-    setIsOpen(open)
   }
 
   const fetchYTSData = useCallback(async () => {
@@ -64,7 +66,7 @@ export default function MovieDownloadDialog({
     setNotAvailable(false)
 
     try {
-      // Include the title in the API request for minimal validation
+      // Include the title in the API request for validation
       const encodedTitle = encodeURIComponent(title)
       const response = await fetch(
         `/api/yts/movie?imdbId=${imdbId}&title=${encodedTitle}`,
@@ -79,6 +81,16 @@ export default function MovieDownloadDialog({
           setNotAvailable(true)
           setIsLoading(false)
           return
+        } else if (response.status === 400) {
+          // Could be a title mismatch error
+          const errorData = await response.json()
+          if (errorData.error === "Title mismatch") {
+            throw new Error(
+              `Title mismatch: ${errorData.message}. Please try a different movie or search term.`,
+            )
+          } else {
+            throw new Error(errorData.message || "Invalid request")
+          }
         }
         throw new Error(`Error: ${response.status}`)
       }
@@ -86,10 +98,8 @@ export default function MovieDownloadDialog({
       const data = await response.json()
 
       if (data.movie && data.movie.title && data.movie.title.trim() !== "") {
-        // We got a valid movie with a title
         setYtsData(data.movie)
       } else {
-        // If we don't have a movie or it has an empty title, show the "not available" state
         setNotAvailable(true)
       }
     } catch (err) {
@@ -106,7 +116,7 @@ export default function MovieDownloadDialog({
           fetchYTSData()
         }, 3000)
       } else {
-        setError("Failed to load torrent data. Try again later.")
+        setError(message || "Failed to load torrent data. Try again later.")
       }
       console.error(err)
     } finally {
@@ -152,7 +162,6 @@ export default function MovieDownloadDialog({
     window.location.href = `magnet:?xt=urn:btih:${hash}&dn=${encodedTitle}&tr=udp://open.demonii.com:1337/announce&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://glotorrents.pw:6969/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://torrent.gresille.org:80/announce&tr=udp://p4p.arenabg.com:1337&tr=udp://tracker.leechers-paradise.org:6969`
   }
 
-  // Add extra null checking to prevent "Cannot read properties of undefined (reading 'filter')" error
   const blurayTorrents =
     ytsData?.torrents?.filter((torrent) =>
       torrent.type.toLowerCase().includes("bluray"),

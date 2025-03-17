@@ -166,6 +166,56 @@ export async function searchYTSMovieByIMDB(
 }
 
 /**
+ * Searches for a movie on YTS by IMDB ID and validates against the expected title
+ */
+export async function searchYTSMovieByIMDBAndTitle(
+  imdbId: string,
+  expectedTitle: string,
+): Promise<YTSMovie | null> {
+  const movie = await searchYTSMovieByIMDB(imdbId)
+
+  if (!movie) {
+    return null
+  }
+
+  // If no title provided for validation, just return the movie
+  if (!expectedTitle || expectedTitle.trim() === "") {
+    return movie
+  }
+
+  // Normalize titles for comparison
+  const normalizeTitle = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^\w\s]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+  }
+
+  const movieTitle = movie.title_english || movie.title || ""
+  const normalizedMovie = normalizeTitle(movieTitle)
+  const normalizedExpected = normalizeTitle(expectedTitle)
+
+  if (normalizedMovie === normalizedExpected) {
+    return movie
+  }
+
+  // If one contains the other, it might be a partial match
+  if (
+    normalizedMovie.includes(normalizedExpected) ||
+    normalizedExpected.includes(normalizedMovie)
+  ) {
+    return movie
+  }
+
+  // Titles are too different, this is likely not the correct movie
+  console.warn(
+    `Title mismatch: YTS returned "${movieTitle}" but we expected "${expectedTitle}"`,
+  )
+  return null
+}
+
+/**
  * Format file size to human-readable form
  * Converts from bytes to appropriate unit (KB, MB, GB)
  */
