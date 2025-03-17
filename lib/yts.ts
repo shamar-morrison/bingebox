@@ -51,11 +51,17 @@ export interface YTSResponse {
   status: string
   status_message: string
   data: {
-    movie_count: number
-    limit: number
-    page_number: number
+    movie_count?: number
+    limit?: number
+    page_number?: number
     movies?: YTSMovie[]
     movie?: YTSMovie
+  }
+  "@meta"?: {
+    server_time: number
+    server_timezone: string
+    api_version: number
+    execution_time: string
   }
 }
 
@@ -115,7 +121,7 @@ export async function searchYTSMovieByIMDB(
   imdbId: string,
 ): Promise<YTSMovie | null> {
   try {
-    const url = `${YTS_API_URL}/list_movies.json?query_term=${imdbId}`
+    const url = `${YTS_API_URL}/movie_details.json?imdb_id=${imdbId}`
 
     const response = await fetchWithRetry(
       url,
@@ -131,23 +137,25 @@ export async function searchYTSMovieByIMDB(
 
     const data: YTSResponse = await response.json()
 
-    if (
-      data.status !== "ok" ||
-      !data.data.movies ||
-      data.data.movies.length === 0
-    ) {
+    // Check if response is valid and has movie data
+    if (data.status !== "ok" || !data.data.movie) {
       console.log(`No movie found on YTS for IMDB ID: ${imdbId}`)
       return null
     }
 
-    // Verify the IMDB ID of the returned movie matches what was requested
-    // This helps prevent issues where YTS API might return an unrelated movie
-    const movie = data.data.movies[0]
-    if (movie.imdb_code !== imdbId) {
-      console.error(
-        `YTS API returned movie with incorrect IMDB ID. Requested: ${imdbId}, Got: ${movie.imdb_code} (${movie.title})`,
-      )
+    const movie = data.data.movie
+
+    // Check if this is a valid movie with meaningful data
+    // If title is empty or rating is 0, it might be a placeholder entry
+    if (!movie.title || movie.title.trim() === "" || !movie.year) {
+      console.log(`Found empty movie data for IMDB ID: ${imdbId}`)
       return null
+    }
+
+    // Ensure torrents is an array
+    if (!movie.torrents || !Array.isArray(movie.torrents)) {
+      console.warn(`Movie found but no torrents array for IMDB ID: ${imdbId}`)
+      movie.torrents = []
     }
 
     return movie
@@ -155,6 +163,56 @@ export async function searchYTSMovieByIMDB(
     console.error(`Error fetching from YTS API:`, error)
     return null
   }
+}
+
+/**
+ * Searches for a movie on YTS by IMDB ID and validates against the expected title
+ */
+export async function searchYTSMovieByIMDBAndTitle(
+  imdbId: string,
+  expectedTitle: string,
+): Promise<YTSMovie | null> {
+  const movie = await searchYTSMovieByIMDB(imdbId)
+
+  if (!movie) {
+    return null
+  }
+
+  // If no title provided for validation, just return the movie
+  if (!expectedTitle || expectedTitle.trim() === "") {
+    return movie
+  }
+
+  // Normalize titles for comparison
+  const normalizeTitle = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^\w\s]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+  }
+
+  const movieTitle = movie.title_english || movie.title || ""
+  const normalizedMovie = normalizeTitle(movieTitle)
+  const normalizedExpected = normalizeTitle(expectedTitle)
+
+  if (normalizedMovie === normalizedExpected) {
+    return movie
+  }
+
+  // If one contains the other, it might be a partial match
+  if (
+    normalizedMovie.includes(normalizedExpected) ||
+    normalizedExpected.includes(normalizedMovie)
+  ) {
+    return movie
+  }
+
+  // Titles are too different, this is likely not the correct movie
+  console.warn(
+    `Title mismatch: YTS returned "${movieTitle}" but we expected "${expectedTitle}"`,
+  )
+  return null
 }
 
 /**
