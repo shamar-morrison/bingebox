@@ -1,11 +1,10 @@
-import { CalendarIcon, Clock, Download, Star } from "lucide-react"
+import { CalendarIcon, Clock, Star } from "lucide-react"
 import type { Metadata } from "next"
 import Image from "next/image"
 import { Suspense } from "react"
 
 import CastSection from "@/components/cast-section"
 import MediaRow from "@/components/media-row"
-import MovieDownloadDialog from "@/components/movie-download-dialog"
 import TrailerDialog from "@/components/trailer-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -156,17 +155,6 @@ async function MovieDetails({ id }: { id: number }) {
                   >
                     <Button variant="outline">Watch Trailer</Button>
                   </TrailerDialog>
-
-                  <MovieDownloadDialog
-                    movieId={id}
-                    imdbId={movie.external_ids?.imdb_id}
-                    title={movie.title || "Movie"}
-                  >
-                    <Button variant="outline">
-                      <Download className="w-4 h-4 mr-1" />
-                      Download
-                    </Button>
-                  </MovieDownloadDialog>
                 </div>
               </div>
             </div>
