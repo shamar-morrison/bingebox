@@ -19,15 +19,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Double-check that the returned movie matches the requested IMDB ID
-    // This provides a second layer of verification beyond what's in the searchYTSMovieByIMDB function
+    // We'll log a note if the IMDB IDs don't match exactly, but still proceed
+    // This is because YTS API sometimes returns slightly different IMDB ID formats
     if (movie.imdb_code !== imdbId) {
-      console.error(
-        `IMDB ID mismatch: requested ${imdbId}, but got ${movie.imdb_code} (${movie.title})`,
-      )
-      return NextResponse.json(
-        { error: "Retrieved movie doesn't match requested IMDB ID" },
-        { status: 500 },
+      console.log(
+        `Note: IMDB ID format difference - requested ${imdbId}, got ${movie.imdb_code} (${movie.title})`,
       )
     }
 

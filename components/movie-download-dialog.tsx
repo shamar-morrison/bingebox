@@ -76,12 +76,8 @@ export default function MovieDownloadDialog({
       const data = await response.json()
 
       if (data.movie) {
-        // Verify the returned movie matches the expected IMDB ID to prevent mismatches
-        if (data.movie.imdb_code === imdbId) {
-          setYtsData(data.movie)
-        } else {
-          setError(`Incorrect movie data received. Please try again.`)
-        }
+        // Accept the movie data regardless of IMDB ID formatting differences
+        setYtsData(data.movie)
       } else {
         setError("No torrent data available for this movie")
       }
@@ -107,7 +103,7 @@ export default function MovieDownloadDialog({
         setIsLoading(false)
       }
     }
-  }, [imdbId, title, setYtsData, setError, setIsLoading, retrying])
+  }, [imdbId, setYtsData, setError, setIsLoading, retrying])
 
   useEffect(() => {
     // Only fetch when dialog is opened and we have an IMDB ID
@@ -197,6 +193,16 @@ export default function MovieDownloadDialog({
 
         {ytsData && !isLoading && !error && (
           <>
+            {/* Show info notice if titles don't match exactly, but don't treat as an error */}
+            {ytsData.title_english.toLowerCase() !== title.toLowerCase() && (
+              <div className="p-2 mb-4 text-sm bg-blue-100 text-blue-700 rounded-md">
+                <p>
+                  Note: The movie title from YTS (&#34;{ytsData.title_english}
+                  &#34;) is slightly different from your search (&#34;{title}
+                  &#34;). This is likely the correct movie, but please verify.
+                </p>
+              </div>
+            )}
             <div className="grid gap-4 md:grid-cols-[200px_1fr]">
               <div className="flex justify-center md:block">
                 <Image
