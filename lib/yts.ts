@@ -61,12 +61,68 @@ export interface YTSResponse {
 
 const YTS_API_URL = "https://yts.mx/api/v2"
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit = {},
+  maxRetries = 3,
+  initialDelay = 1000,
+): Promise<Response> {
+  let retries = 0
+  let lastError: Error | null = null
+
+  while (retries < maxRetries) {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        // Increase timeout for potentially slow responses
+        signal: AbortSignal.timeout(10000),
+      })
+
+      if (response.ok) {
+        return response
+      }
+
+      if (response.status >= 500 && response.status < 600) {
+        lastError = new Error(`HTTP error ${response.status}`)
+
+        // If it's specifically a 502, we know the YTS API is having issues
+        if (response.status === 502) {
+          console.warn(
+            `YTS API returned 502 Bad Gateway. Retrying (${retries + 1}/${maxRetries})...`,
+          )
+        }
+      } else {
+        // For other error codes, don't retry
+        return response
+      }
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error))
+    }
+
+    // Exponential backoff
+    const backoffTime = initialDelay * Math.pow(2, retries)
+    await delay(backoffTime)
+    retries++
+  }
+
+  // If we've exhausted all retries, throw the last error
+  throw lastError || new Error("Failed after maximum retries")
+}
+
 export async function searchYTSMovieByIMDB(
   imdbId: string,
 ): Promise<YTSMovie | null> {
   try {
     const url = `${YTS_API_URL}/list_movies.json?query_term=${imdbId}`
-    const response = await fetch(url, { next: { revalidate: 3600 } })
+
+    const response = await fetchWithRetry(
+      url,
+      { next: { revalidate: 3600 } },
+      3, // Max 3 retries
+      1000, // Start with 1s delay, then 2s, then 4s
+    )
 
     if (!response.ok) {
       console.error(`Failed to fetch from YTS API: ${response.status}`)

@@ -35,6 +35,7 @@ export default function MovieDownloadDialog({
   const [ytsData, setYtsData] = useState<YTSMovie | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [retrying, setRetrying] = useState(false)
 
   const fetchYTSData = useCallback(async () => {
     if (!imdbId) {
@@ -44,11 +45,16 @@ export default function MovieDownloadDialog({
 
     setIsLoading(true)
     setError(null)
+    setRetrying(false)
 
     try {
       const response = await fetch(`/api/yts/movie?imdbId=${imdbId}`)
 
       if (!response.ok) {
+        // If we get a 502 error, it's likely a temporary issue with the YTS API
+        if (response.status === 502) {
+          throw new Error("YTS API is temporarily unavailable. Retrying...")
+        }
         throw new Error(`Error: ${response.status}`)
       }
 
@@ -60,12 +66,28 @@ export default function MovieDownloadDialog({
         setError("No torrent data available for this movie")
       }
     } catch (err) {
-      setError("Failed to load torrent data")
+      const message = err instanceof Error ? err.message : String(err)
+
+      if (message.includes("temporarily unavailable")) {
+        setRetrying(true)
+        setError(
+          "YTS API is temporarily unavailable. Retrying automatically...",
+        )
+
+        // Try again after a delay
+        setTimeout(() => {
+          fetchYTSData()
+        }, 3000)
+      } else {
+        setError("Failed to load torrent data. Try again later.")
+      }
       console.error(err)
     } finally {
-      setIsLoading(false)
+      if (!retrying) {
+        setIsLoading(false)
+      }
     }
-  }, [imdbId, setYtsData, setError, setIsLoading])
+  }, [imdbId, setYtsData, setError, setIsLoading, retrying])
 
   useEffect(() => {
     // Only fetch when dialog is opened and we have an IMDB ID
@@ -131,6 +153,25 @@ export default function MovieDownloadDialog({
                 IMDB ID is required to fetch torrent information.
               </p>
             )}
+            {error.includes("temporarily unavailable") && (
+              <div className="mt-4">
+                <Loader2 className="w-6 h-6 mx-auto text-primary animate-spin" />
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Retrying automatically...
+                </p>
+              </div>
+            )}
+            {error &&
+              !error.includes("temporarily unavailable") &&
+              !retrying && (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={fetchYTSData}
+                >
+                  Try Again
+                </Button>
+              )}
           </div>
         )}
 

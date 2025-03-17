@@ -19,7 +19,15 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json({ movie })
+    const response = NextResponse.json({ movie })
+
+    // Cache successful responses for 2 hours on client and 12 hours on CDN
+    response.headers.set(
+      "Cache-Control",
+      "public, s-maxage=43200, stale-while-revalidate=7200, max-age=7200",
+    )
+
+    return response
   } catch (error) {
     console.error("Error fetching from YTS API:", error)
     return NextResponse.json(
