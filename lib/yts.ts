@@ -51,11 +51,17 @@ export interface YTSResponse {
   status: string
   status_message: string
   data: {
-    movie_count: number
-    limit: number
-    page_number: number
+    movie_count?: number
+    limit?: number
+    page_number?: number
     movies?: YTSMovie[]
     movie?: YTSMovie
+  }
+  "@meta"?: {
+    server_time: number
+    server_timezone: string
+    api_version: number
+    execution_time: string
   }
 }
 
@@ -115,7 +121,7 @@ export async function searchYTSMovieByIMDB(
   imdbId: string,
 ): Promise<YTSMovie | null> {
   try {
-    const url = `${YTS_API_URL}/list_movies.json?query_term=${imdbId}`
+    const url = `${YTS_API_URL}/movie_details.json?imdb_id=${imdbId}`
 
     const response = await fetchWithRetry(
       url,
@@ -131,25 +137,12 @@ export async function searchYTSMovieByIMDB(
 
     const data: YTSResponse = await response.json()
 
-    if (
-      data.status !== "ok" ||
-      !data.data.movies ||
-      data.data.movies.length === 0
-    ) {
+    if (data.status !== "ok" || !data.data.movie) {
       console.log(`No movie found on YTS for IMDB ID: ${imdbId}`)
       return null
     }
 
-    // Get the first movie returned by the API - this should be the most relevant match
-    const movie = data.data.movies[0]
-
-    // Instead of strictly comparing IMDB IDs, we'll simply log if they don't match exactly
-    // but still return the movie data since the YTS API search should be returning relevant results
-    if (movie.imdb_code !== imdbId) {
-      console.log(
-        `Note: YTS API returned a movie with a different IMDB ID format. Requested: ${imdbId}, Got: ${movie.imdb_code} (${movie.title})`,
-      )
-    }
+    const movie = data.data.movie
 
     return movie
   } catch (error) {

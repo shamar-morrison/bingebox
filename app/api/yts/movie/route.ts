@@ -13,34 +13,40 @@ export async function GET(request: NextRequest) {
     const movie = await searchYTSMovieByIMDB(imdbId)
 
     if (!movie) {
-      return NextResponse.json(
+      // Add a Cache-Control header to prevent caching of 404 responses
+      const response = NextResponse.json(
         { message: "Movie not found on YTS" },
         { status: 404 },
       )
-    }
 
-    // We'll log a note if the IMDB IDs don't match exactly, but still proceed
-    // This is because YTS API sometimes returns slightly different IMDB ID formats
-    if (movie.imdb_code !== imdbId) {
-      console.log(
-        `Note: IMDB ID format difference - requested ${imdbId}, got ${movie.imdb_code} (${movie.title})`,
-      )
+      response.headers.set("Cache-Control", "no-store, max-age=0")
+
+      return response
     }
 
     const response = NextResponse.json({ movie })
 
-    // Cache successful responses for 2 hours on client and 12 hours on CDN
+    // Set shorter cache times for now until we confirm this is working correctly
     response.headers.set(
       "Cache-Control",
-      "public, s-maxage=43200, stale-while-revalidate=7200, max-age=7200",
+      "public, s-maxage=14400, stale-while-revalidate=3600, max-age=3600",
     )
+
+    // Add a unique cache key based on the IMDB ID - since we're using an exact endpoint
+    // we can be confident that the IMDB ID alone is sufficient for cache identification
+    response.headers.set("X-Cache-Key", `yts-movie-${imdbId}`)
 
     return response
   } catch (error) {
     console.error("Error fetching from YTS API:", error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: "Failed to fetch movie data" },
       { status: 500 },
     )
+
+    // Don't cache errors
+    response.headers.set("Cache-Control", "no-store, max-age=0")
+
+    return response
   }
 }

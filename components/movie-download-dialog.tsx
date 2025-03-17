@@ -36,19 +36,19 @@ export default function MovieDownloadDialog({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [retrying, setRetrying] = useState(false)
+  const [notAvailable, setNotAvailable] = useState(false)
 
   // Clear data when dialog closes
   const handleOpenChange = (open: boolean) => {
-    setIsOpen(open)
+    // If closing the dialog, immediately clear all state
     if (!open) {
-      // Clear all state when dialog closes
-      setTimeout(() => {
-        setYtsData(null)
-        setError(null)
-        setIsLoading(false)
-        setRetrying(false)
-      }, 500)
+      setYtsData(null)
+      setError(null)
+      setIsLoading(false)
+      setRetrying(false)
+      setNotAvailable(false)
     }
+    setIsOpen(open)
   }
 
   const fetchYTSData = useCallback(async () => {
@@ -61,14 +61,24 @@ export default function MovieDownloadDialog({
     setError(null)
     setRetrying(false)
     setYtsData(null)
+    setNotAvailable(false)
 
     try {
-      const response = await fetch(`/api/yts/movie?imdbId=${imdbId}`)
+      // Include the title in the API request for minimal validation
+      const encodedTitle = encodeURIComponent(title)
+      const response = await fetch(
+        `/api/yts/movie?imdbId=${imdbId}&title=${encodedTitle}`,
+      )
 
       if (!response.ok) {
         // If we get a 502 error, it's likely a temporary issue with the YTS API
         if (response.status === 502) {
           throw new Error("YTS API is temporarily unavailable. Retrying...")
+        } else if (response.status === 404) {
+          // Movie not found on YTS - set a specific state for this
+          setNotAvailable(true)
+          setIsLoading(false)
+          return
         }
         throw new Error(`Error: ${response.status}`)
       }
@@ -76,10 +86,9 @@ export default function MovieDownloadDialog({
       const data = await response.json()
 
       if (data.movie) {
-        // Accept the movie data regardless of IMDB ID formatting differences
         setYtsData(data.movie)
       } else {
-        setError("No torrent data available for this movie")
+        setNotAvailable(true)
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
@@ -103,7 +112,15 @@ export default function MovieDownloadDialog({
         setIsLoading(false)
       }
     }
-  }, [imdbId, setYtsData, setError, setIsLoading, retrying])
+  }, [
+    imdbId,
+    title,
+    setYtsData,
+    setError,
+    setIsLoading,
+    setRetrying,
+    setNotAvailable,
+  ])
 
   useEffect(() => {
     // Only fetch when dialog is opened and we have an IMDB ID
@@ -161,7 +178,22 @@ export default function MovieDownloadDialog({
           </div>
         )}
 
-        {error && !isLoading && (
+        {notAvailable && !isLoading && (
+          <div className="p-6 text-center border rounded-lg">
+            <p className="text-muted-foreground">
+              This movie is not available on YTS.mx yet.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              YTS typically adds new movies when they become available in high
+              quality. Check back later or try another source.
+            </p>
+            <Button variant="outline" className="mt-4" onClick={fetchYTSData}>
+              Check Again
+            </Button>
+          </div>
+        )}
+
+        {error && !isLoading && !notAvailable && (
           <div className="p-6 text-center border rounded-lg">
             <p className="text-muted-foreground">{error}</p>
             {!imdbId && (
@@ -191,7 +223,7 @@ export default function MovieDownloadDialog({
           </div>
         )}
 
-        {ytsData && !isLoading && !error && (
+        {ytsData && !isLoading && !error && !notAvailable && (
           <>
             {/* Show info notice if titles don't match exactly, but don't treat as an error */}
             {ytsData.title_english.toLowerCase() !== title.toLowerCase() && (
