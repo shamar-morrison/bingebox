@@ -3,7 +3,16 @@
 import type React from "react"
 
 import { debounce } from "lodash"
-import { Film, Home, Menu, Search, Star, Tv, User } from "lucide-react"
+import {
+  Download,
+  Film,
+  Home,
+  Menu,
+  Search,
+  Star,
+  Tv,
+  User,
+} from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -135,6 +144,7 @@ export default function Header() {
     { label: "Movies", href: "/movie", icon: Film },
     { label: "TV Shows", href: "/tv", icon: Tv },
     { label: "Discover", href: "/discover", icon: Search },
+    { label: "Torrents", href: "/torrents", icon: Download },
   ]
 
   return (
@@ -152,7 +162,7 @@ export default function Header() {
             <span className="text-xl font-bold">BingeBox</span>
           </Link>
 
-          <nav className="hidden md:flex">
+          <nav className="hidden lg:flex">
             <ul className="flex items-center gap-6">
               {navItems.map((item) => (
                 <li key={item.href}>
@@ -173,7 +183,7 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="relative hidden md:block" ref={searchRef}>
+          <div className="relative hidden lg:block" ref={searchRef}>
             <form onSubmit={handleSearch} className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -305,7 +315,7 @@ export default function Header() {
 
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button variant="ghost" size="icon" className="lg:hidden">
                 <Menu className="w-5 h-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>

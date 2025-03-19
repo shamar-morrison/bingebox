@@ -8,7 +8,12 @@ export function ThemeProvider({
   ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
   return (
-    <NextThemesProvider {...props} defaultTheme={"dark"}>
+    <NextThemesProvider
+      {...props}
+      defaultTheme="dark"
+      enableSystem={false}
+      disableTransitionOnChange
+    >
       {children}
     </NextThemesProvider>
   )
