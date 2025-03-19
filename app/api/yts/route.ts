@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 
-// Cache duration in seconds (24 hours)
-const CACHE_MAX_AGE = 60 * 60 * 24
-
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const endpoint = searchParams.get("endpoint") || "list_movies"
@@ -36,16 +33,9 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json()
 
-    // Don't cache responses for search queries to ensure fresh results
-    const headers: HeadersInit = {}
-
-    // Only apply caching for non-search requests
-    if (!query_term) {
-      headers["Cache-Control"] =
-        `public, max-age=${CACHE_MAX_AGE}, s-maxage=${CACHE_MAX_AGE * 2}`
-      headers["Vary"] = "Origin, Accept-Encoding"
-    } else {
-      headers["Cache-Control"] = "no-store, max-age=0"
+    // Always set Cache-Control to no-store to prevent caching
+    const headers: HeadersInit = {
+      "Cache-Control": "no-store, max-age=0",
     }
 
     return NextResponse.json(data, { headers })

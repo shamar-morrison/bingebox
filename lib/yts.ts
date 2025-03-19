@@ -30,15 +30,7 @@ export async function fetchMovies(
   if (genre) url += `&genre=${encodeURIComponent(genre)}`
   url += `&sort_by=${sort_by}&order_by=${order_by}`
 
-  // If there's a search query, don't use caching to ensure fresh results
-  const fetchOptions: RequestInit = query
-    ? { cache: "no-store" }
-    : {
-        next: { revalidate: 3600 },
-        cache: "force-cache",
-      }
-
-  const response = await fetch(url, fetchOptions)
+  const response = await fetch(url, { cache: "no-store" })
 
   if (!response.ok) {
     throw new Error("Failed to fetch movies from YTS API")
@@ -52,12 +44,7 @@ export async function fetchMovieDetails(
 ): Promise<YTSMovieDetailsResponse> {
   const url = `/api/yts?endpoint=movie_details&movie_id=${movieId}`
 
-  const response = await fetch(url, {
-    // Use Next.js cache techniques - revalidate every hour
-    next: { revalidate: 3600 },
-    // Use browser cache first, if available
-    cache: "force-cache",
-  })
+  const response = await fetch(url, { cache: "no-store" })
 
   if (!response.ok) {
     throw new Error("Failed to fetch movie details from YTS API")
