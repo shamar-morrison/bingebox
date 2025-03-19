@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
     const data = await response.json()
 
     // Always set Cache-Control to no-store to prevent caching
+    // using caching causes search not to work when deployed to prod
     const headers: HeadersInit = {
       "Cache-Control": "no-store, max-age=0",
     }
