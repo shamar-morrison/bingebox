@@ -135,6 +135,7 @@ export default function Header() {
     { label: "Movies", href: "/movie", icon: Film },
     { label: "TV Shows", href: "/tv", icon: Tv },
     { label: "Discover", href: "/discover", icon: Search },
+    { label: "Torrents", href: "/torrents", icon: Film },
   ]
 
   return (
