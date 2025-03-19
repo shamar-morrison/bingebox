@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { createMagnetLink } from "@/lib/yts"
 import { Movie } from "@/lib/yts-types"
-import { Download, Film, Star } from "lucide-react"
+import { Download, Star } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 
@@ -108,34 +108,56 @@ interface DownloadDialogProps {
 function DownloadDialog({ movie, isOpen, onClose }: DownloadDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-auto">
         <DialogHeader className="mb-4">
-          <DialogTitle className="flex items-center gap-2">
-            <Film className="w-5 h-5" />
-            <span>Download {movie.title_long}</span>
+          <DialogTitle className="leading-7">
+            Download {movie.title_long}
           </DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4">
           {movie.torrents.map((torrent, index) => (
-            <div key={index} className="bg-muted p-3 rounded-md">
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center">
-                  <Badge variant="outline" className="mr-2">
-                    {torrent.quality}
-                  </Badge>
+            <div key={index} className="border rounded-md p-3">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <p className="font-medium">{torrent.quality}</p>
                   <span className="text-xs text-muted-foreground">
-                    {torrent.size}
+                    ({torrent.size})
                   </span>
                 </div>
-                <div className="text-xs text-muted-foreground text-right">
-                  Seeds: <span className="text-green-500">{torrent.seeds}</span>{" "}
-                  • Peers:{" "}
-                  <span className="text-blue-500">{torrent.peers}</span>
+
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <div>
+                    Seeds:{" "}
+                    <span className="text-green-500 font-medium">
+                      {torrent.seeds}
+                    </span>
+                  </div>
+                  <div>
+                    Peers:{" "}
+                    <span className="text-blue-500 font-medium">
+                      {torrent.peers}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-x-3 gap-y-1 mb-3 text-xs">
+                <Badge variant="outline" className="h-5">
+                  {torrent.type === "bluray" ? "BLURAY" : "WEB"}
+                </Badge>
+                <Badge variant="outline" className="h-5">
+                  {torrent.video_codec.toUpperCase()}
+                </Badge>
+                <Badge variant="outline" className="h-5">
+                  {`${torrent.bit_depth}-BIT`}
+                </Badge>
+                <Badge variant="outline" className="h-5">
+                  {torrent.audio_channels}
+                </Badge>
+              </div>
+
+              <div className="flex gap-2 mt-3">
                 <Button size="sm" variant="outline" asChild className="flex-1">
                   <a
                     href={torrent.url}
@@ -147,12 +169,7 @@ function DownloadDialog({ movie, isOpen, onClose }: DownloadDialogProps) {
                   </a>
                 </Button>
 
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  asChild
-                  className="flex-1"
-                >
+                <Button size="sm" variant="default" asChild className="flex-1">
                   <a
                     href={createMagnetLink({
                       hash: torrent.hash,
