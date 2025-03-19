@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { createMagnetLink } from "@/lib/yts"
 import { Movie } from "@/lib/yts-types"
-import { Download, Star } from "lucide-react"
+import { Download, Magnet, Star } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 
@@ -86,7 +86,7 @@ export default function TorrentMovieCard({ movie }: TorrentMovieCardProps) {
           className="w-full mt-2"
           onClick={() => setShowDownloadModal(true)}
         >
-          <Download className="w-3 h-3 mr-1" /> Download
+          <Download className="w-3 h-3" /> Download
         </Button>
       </CardContent>
 
@@ -110,7 +110,7 @@ function DownloadDialog({ movie, isOpen, onClose }: DownloadDialogProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md max-h-[85vh] overflow-auto">
         <DialogHeader className="mb-4">
-          <DialogTitle className="leading-7">
+          <DialogTitle className="leading-7 mt-2">
             Download {movie.title_long}
           </DialogTitle>
         </DialogHeader>
@@ -165,7 +165,7 @@ function DownloadDialog({ movie, isOpen, onClose }: DownloadDialogProps) {
                     rel="noopener noreferrer"
                     download
                   >
-                    <Download className="w-3 h-3 mr-1" /> Torrent
+                    <Download className="w-3 h-3" /> Torrent
                   </a>
                 </Button>
 
@@ -177,7 +177,7 @@ function DownloadDialog({ movie, isOpen, onClose }: DownloadDialogProps) {
                       quality: torrent.quality,
                     })}
                   >
-                    <Download className="w-3 h-3 mr-1" /> Magnet
+                    <Magnet className="w-3 h-3" /> Magnet
                   </a>
                 </Button>
               </div>
