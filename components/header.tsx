@@ -3,7 +3,16 @@
 import type React from "react"
 
 import { debounce } from "lodash"
-import { Film, Home, Menu, Search, Star, Tv, User } from "lucide-react"
+import {
+  Download,
+  Film,
+  Home,
+  Menu,
+  Search,
+  Star,
+  Tv,
+  User,
+} from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -135,7 +144,7 @@ export default function Header() {
     { label: "Movies", href: "/movie", icon: Film },
     { label: "TV Shows", href: "/tv", icon: Tv },
     { label: "Discover", href: "/discover", icon: Search },
-    { label: "Torrents", href: "/torrents", icon: Film },
+    { label: "Torrents", href: "/torrents", icon: Download },
   ]
 
   return (

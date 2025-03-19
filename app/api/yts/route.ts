@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
   const genre = searchParams.get("genre") || ""
   const sort_by = searchParams.get("sort_by") || "date_added"
   const order_by = searchParams.get("order_by") || "desc"
-  const movie_id = searchParams.get("movie_id") || ""
 
   let url = `https://yts.mx/api/v2/${endpoint}.json?`
 
@@ -26,14 +25,6 @@ export async function GET(request: NextRequest) {
     if (minimum_rating) url += `&minimum_rating=${minimum_rating}`
     if (genre) url += `&genre=${genre}`
     url += `&sort_by=${sort_by}&order_by=${order_by}`
-  } else if (endpoint === "movie_details") {
-    if (!movie_id) {
-      return NextResponse.json(
-        { error: "Movie ID is required for movie_details endpoint" },
-        { status: 400 },
-      )
-    }
-    url += `&movie_id=${movie_id}`
   }
 
   try {
