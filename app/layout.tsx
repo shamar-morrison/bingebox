@@ -28,8 +28,7 @@ export default function RootLayout({
         <NextTopLoader color="#e11d48" showSpinner={false} />
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
           disableTransitionOnChange
         >
           <div className="flex flex-col min-h-screen">
