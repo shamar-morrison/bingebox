@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 interface SourceOption {
   name: string
   baseUrl: string
+  autoplay?: boolean
 }
 
 interface VidsrcPlayerProps {
@@ -27,9 +28,15 @@ export default function VidsrcPlayer({
   const searchParams = useSearchParams()
 
   const sources: SourceOption[] = [
-    { name: "VidLink", baseUrl: "https://vidlink.pro" },
+    { name: "VidLink", baseUrl: "https://vidlink.pro", autoplay: false },
     { name: "Embed", baseUrl: "https://embed.su/embed" },
-    { name: "VidSrc", baseUrl: "https://vidsrc.to/embed" },
+    { name: "VidSrcDev", baseUrl: "https://vidsrc.dev/embed" },
+    { name: "VidSrcTo", baseUrl: "https://vidsrc.to/embed" },
+    { name: "AutoEmbed", baseUrl: "https://player.autoembed.cc/embed" },
+    {
+      name: "VidSrcICU",
+      baseUrl: "https://vidsrc.icu/embed",
+    },
   ]
 
   const [selectedSource, setSelectedSource] = useState<SourceOption>(sources[0])
@@ -56,10 +63,10 @@ export default function VidsrcPlayer({
   }
 
   const getEmbedUrl = () => {
-    // VidLink autoplays by default so the player start muted, this prevents that
-    if (mediaType === "movie" && selectedSource.name === "VidLink") {
+    // certain sources autoplays by default so the player starts muted, this prevents that
+    if (mediaType === "movie" && !selectedSource.autoplay) {
       return `${selectedSource.baseUrl}/movie/${tmdbId}?autoplay=false`
-    } else if (mediaType === "tv" && selectedSource.name === "VidLink") {
+    } else if (mediaType === "tv" && !selectedSource.autoplay) {
       return `${selectedSource.baseUrl}/tv/${tmdbId}/${seasonNumber}/${episodeNumber}?autoplay=false`
     }
 
