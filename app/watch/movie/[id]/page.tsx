@@ -10,6 +10,7 @@ import { fetchMovieDetails } from "@/lib/tmdb"
 
 interface WatchMoviePageProps {
   params: { id: string }
+  searchParams: { source?: string }
 }
 
 export async function generateMetadata({
@@ -26,8 +27,13 @@ export async function generateMetadata({
   }
 }
 
-export default function WatchMoviePage({ params }: WatchMoviePageProps) {
+export default function WatchMoviePage({
+  params,
+  searchParams,
+}: WatchMoviePageProps) {
   const movieId = Number.parseInt(params.id)
+  const source = searchParams.source
+  const sourceParam = source ? `?source=${source}` : ""
 
   return (
     <main className="min-h-screen bg-background pt-16">
@@ -35,7 +41,7 @@ export default function WatchMoviePage({ params }: WatchMoviePageProps) {
         <div className="flex items-center justify-between mb-4">
           <Button variant="ghost" size="sm" asChild className="text-white">
             <Link
-              href={`/movie/${movieId}`}
+              href={`/movie/${movieId}${sourceParam}`}
               className="flex items-center gap-1"
             >
               <ChevronLeft className="w-4 h-4" />

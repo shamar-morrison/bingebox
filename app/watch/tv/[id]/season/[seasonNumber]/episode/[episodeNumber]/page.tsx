@@ -15,6 +15,7 @@ import {
 
 interface WatchTVEpisodePageProps {
   params: { id: string; seasonNumber: string; episodeNumber: string }
+  searchParams: { source?: string }
 }
 
 export async function generateMetadata({
@@ -42,10 +43,13 @@ export async function generateMetadata({
 
 export default function WatchTVEpisodePage({
   params,
+  searchParams,
 }: WatchTVEpisodePageProps) {
   const showId = Number.parseInt(params.id)
   const seasonNumber = Number.parseInt(params.seasonNumber)
   const episodeNumber = Number.parseInt(params.episodeNumber)
+  const source = searchParams.source
+  const sourceParam = source ? `?source=${source}` : ""
 
   return (
     <main className="min-h-screen bg-background pt-16">
@@ -53,7 +57,7 @@ export default function WatchTVEpisodePage({
         <div className="flex items-center justify-between mb-4">
           <Button variant="ghost" size="sm" asChild>
             <Link
-              href={`/watch/tv/${showId}/season/${seasonNumber}`}
+              href={`/watch/tv/${showId}/season/${seasonNumber}${sourceParam}`}
               className="flex items-center gap-1"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -68,6 +72,7 @@ export default function WatchTVEpisodePage({
           id={showId}
           seasonNumber={seasonNumber}
           episodeNumber={episodeNumber}
+          source={source}
         />
       </Suspense>
     </main>
@@ -78,10 +83,12 @@ async function EpisodePlayer({
   id,
   seasonNumber,
   episodeNumber,
+  source,
 }: {
   id: number
   seasonNumber: number
   episodeNumber: number
+  source?: string
 }) {
   const show = await fetchTVDetails(id)
   const episodeDetails = await fetchEpisodeDetails(
@@ -111,24 +118,26 @@ async function EpisodePlayer({
   const episodes = seasonDetails.episodes || []
   const totalEpisodes = episodes.length
 
+  const sourceParam = source ? `?source=${source}` : ""
+
   // Previous episode - either previous in current season or last of previous season
   let prevEpisodeLink = null
   if (episodeNumber > 1) {
     // Previous episode in current season
-    prevEpisodeLink = `/watch/tv/${id}/season/${seasonNumber}/episode/${episodeNumber - 1}`
+    prevEpisodeLink = `/watch/tv/${id}/season/${seasonNumber}/episode/${episodeNumber - 1}${sourceParam}`
   } else if (seasonNumber > 1) {
     // Last episode of previous season
-    prevEpisodeLink = `/watch/tv/${id}/season/${seasonNumber - 1}/episode/1`
+    prevEpisodeLink = `/watch/tv/${id}/season/${seasonNumber - 1}/episode/1${sourceParam}`
   }
 
   // Next episode - either next in current season or first of next season
   let nextEpisodeLink = null
   if (episodeNumber < totalEpisodes) {
     // Next episode in current season
-    nextEpisodeLink = `/watch/tv/${id}/season/${seasonNumber}/episode/${episodeNumber + 1}`
+    nextEpisodeLink = `/watch/tv/${id}/season/${seasonNumber}/episode/${episodeNumber + 1}${sourceParam}`
   } else if (show.seasons && show.seasons.length > seasonNumber) {
     // First episode of next season
-    nextEpisodeLink = `/watch/tv/${id}/season/${seasonNumber + 1}/episode/1`
+    nextEpisodeLink = `/watch/tv/${id}/season/${seasonNumber + 1}/episode/1${sourceParam}`
   }
 
   return (
@@ -180,6 +189,7 @@ async function EpisodePlayer({
           currentEpisodeNumber={episodeNumber}
           seasons={show.seasons || []}
           episodes={episodes}
+          source={source}
         />
 
         <div className="mt-6 space-y-4">

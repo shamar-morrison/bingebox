@@ -11,18 +11,27 @@ import { Episode } from "@/lib/types"
 
 interface WatchTVSeasonPageProps {
   params: { id: string; seasonNumber: string }
+  searchParams: { source?: string }
 }
 
-export default function WatchTVSeasonPage({ params }: WatchTVSeasonPageProps) {
+export default function WatchTVSeasonPage({
+  params,
+  searchParams,
+}: WatchTVSeasonPageProps) {
   const showId = Number.parseInt(params.id)
   const seasonNumber = Number.parseInt(params.seasonNumber)
+  const source = searchParams.source
+  const sourceParam = source ? `?source=${source}` : ""
 
   return (
     <main className="min-h-screen">
       <div className="container px-4 py-24 mt-16">
         <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" size="sm" asChild>
-            <Link href={`/tv/${showId}`} className="flex items-center gap-1">
+            <Link
+              href={`/tv/${showId}${sourceParam}`}
+              className="flex items-center gap-1"
+            >
               <ChevronLeft className="w-4 h-4" />
               Back to show details
             </Link>
@@ -30,7 +39,11 @@ export default function WatchTVSeasonPage({ params }: WatchTVSeasonPageProps) {
         </div>
 
         <Suspense fallback={<SeasonEpisodesSkeleton />}>
-          <SeasonEpisodes id={showId} seasonNumber={seasonNumber} />
+          <SeasonEpisodes
+            id={showId}
+            seasonNumber={seasonNumber}
+            source={source}
+          />
         </Suspense>
       </div>
     </main>
@@ -40,12 +53,15 @@ export default function WatchTVSeasonPage({ params }: WatchTVSeasonPageProps) {
 async function SeasonEpisodes({
   id,
   seasonNumber,
+  source,
 }: {
   id: number
   seasonNumber: number
+  source?: string
 }) {
   const show = await fetchTVDetails(id)
   const seasonDetails = await fetchSeasonDetails(id, seasonNumber)
+  const sourceParam = source ? `?source=${source}` : ""
 
   if (!seasonDetails) {
     return (
@@ -99,7 +115,7 @@ async function SeasonEpisodes({
                   <div className="mt-4">
                     <Button asChild>
                       <Link
-                        href={`/watch/tv/${id}/season/${seasonNumber}/episode/${episode.episode_number}`}
+                        href={`/watch/tv/${id}/season/${seasonNumber}/episode/${episode.episode_number}${sourceParam}`}
                       >
                         Watch Episode
                       </Link>

@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
 interface SourceOption {
@@ -22,6 +23,9 @@ export default function VidsrcPlayer({
   episodeNumber,
   title,
 }: VidsrcPlayerProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
   const sources: SourceOption[] = [
     { name: "VidLink", baseUrl: "https://vidlink.pro" },
     { name: "Embed", baseUrl: "https://embed.su/embed" },
@@ -31,20 +35,24 @@ export default function VidsrcPlayer({
   const [selectedSource, setSelectedSource] = useState<SourceOption>(sources[0])
 
   useEffect(() => {
-    const savedSourceName = localStorage.getItem("selectedVideoSource")
-    if (savedSourceName) {
-      const savedSource = sources.find(
-        (source) => source.name === savedSourceName,
+    const sourceParam = searchParams.get("source")
+
+    if (sourceParam) {
+      const sourceFromUrl = sources.find(
+        (source) => source.name.toLowerCase() === sourceParam.toLowerCase(),
       )
-      if (savedSource) {
-        setSelectedSource(savedSource)
+      if (sourceFromUrl) {
+        setSelectedSource(sourceFromUrl)
       }
     }
-  }, [])
+  }, [searchParams])
 
   const handleSourceChange = (source: SourceOption) => {
     setSelectedSource(source)
-    localStorage.setItem("selectedVideoSource", source.name)
+
+    const currentPath = window.location.pathname
+    const newUrl = `${currentPath}?source=${source.name.toLowerCase()}`
+    router.push(newUrl)
   }
 
   const getEmbedUrl = () => {

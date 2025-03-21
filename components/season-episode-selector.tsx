@@ -24,6 +24,7 @@ interface SeasonEpisodeSelectorProps {
     name: string
     episode_number: number
   }[]
+  source?: string
 }
 
 export function SeasonEpisodeSelector({
@@ -32,16 +33,18 @@ export function SeasonEpisodeSelector({
   currentEpisodeNumber,
   seasons,
   episodes,
+  source,
 }: SeasonEpisodeSelectorProps) {
   const router = useRouter()
+  const sourceParam = source ? `?source=${source}` : ""
 
   const handleSeasonChange = (value: string) => {
-    router.push(`/watch/tv/${showId}/season/${value}/episode/1`)
+    router.push(`/watch/tv/${showId}/season/${value}/episode/1${sourceParam}`)
   }
 
   const handleEpisodeChange = (value: string) => {
     router.push(
-      `/watch/tv/${showId}/season/${currentSeasonNumber}/episode/${value}`,
+      `/watch/tv/${showId}/season/${currentSeasonNumber}/episode/${value}${sourceParam}`,
     )
   }
 
