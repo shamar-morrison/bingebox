@@ -1,5 +1,12 @@
 "use client"
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -62,6 +69,15 @@ export default function VidsrcPlayer({
     router.push(newUrl)
   }
 
+  const handleSelectChange = (value: string) => {
+    const source = sources.find(
+      (source) => source.name.toLowerCase() === value.toLowerCase(),
+    )
+    if (source) {
+      handleSourceChange(source)
+    }
+  }
+
   const getEmbedUrl = () => {
     // certain sources autoplays by default so the player starts muted, this prevents that
     if (mediaType === "movie" && !selectedSource.autoplay) {
@@ -81,7 +97,8 @@ export default function VidsrcPlayer({
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium">Source:</span>
-        <div className="flex gap-2">
+
+        <div className="hidden md:flex gap-2">
           {sources.map((source) => (
             <button
               key={source.name}
@@ -95,6 +112,24 @@ export default function VidsrcPlayer({
               {source.name}
             </button>
           ))}
+        </div>
+
+        <div className="md:hidden flex-1">
+          <Select
+            value={selectedSource.name.toLowerCase()}
+            onValueChange={handleSelectChange}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select source" />
+            </SelectTrigger>
+            <SelectContent>
+              {sources.map((source) => (
+                <SelectItem key={source.name} value={source.name.toLowerCase()}>
+                  {source.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
