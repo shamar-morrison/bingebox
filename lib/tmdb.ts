@@ -169,8 +169,6 @@ export const discoverMovies = async (
     .map(([key, value]) => `&${key}=${encodeURIComponent(String(value))}`)
     .join("")
 
-  console.log("TMDB Movie API Request:", `/discover/movie?${queryParams}`)
-
   return fetchFromTMDB<MediaResponse>(`/discover/movie?${queryParams}`)
 }
 
