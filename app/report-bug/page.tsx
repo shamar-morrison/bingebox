@@ -9,10 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 import { toast } from "sonner"
-import { Label } from "@/components/ui/label"
 
 export default function ReportBugPage() {
   const [formState, setFormState] = useState({
@@ -31,14 +31,30 @@ export default function ReportBugPage() {
     setFormState((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSubmitting(true)
 
     try {
-      // The form will be automatically handled by Netlify when submitted
+      // Use FormData to ensure form-name is included
+      const form = e.currentTarget
+      const formData = new FormData(form)
+
+      // Post to the static HTML file for Netlify Forms
+      const response = await fetch("/__forms.html", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(formData as any).toString(),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Form submission failed: ${response.status}`)
+      }
+
       setSubmitted(true)
+      toast.success("Bug report submitted successfully!")
     } catch (error) {
+      console.error("Form submission error:", error)
       toast.error("Failed to submit bug report. Please try again.")
     } finally {
       setSubmitting(false)
@@ -47,7 +63,7 @@ export default function ReportBugPage() {
 
   if (submitted) {
     return (
-      <div className="flex items-center justify-center py-16 pt-32">
+      <div className="flex items-center justify-center py-16">
         <div className="container max-w-xl">
           <Card className={"bg-transparent"}>
             <CardHeader>
@@ -69,7 +85,7 @@ export default function ReportBugPage() {
   }
 
   return (
-    <div className="flex items-center justify-center py-16 pt-32">
+    <div className="flex items-center justify-center py-16">
       <div className="container max-w-xl">
         <Card className={"bg-transparent"}>
           <CardHeader>
