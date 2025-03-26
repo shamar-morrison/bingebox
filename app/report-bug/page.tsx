@@ -63,8 +63,8 @@ export default function ReportBugPage() {
 
   if (submitted) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="container max-w-xl">
+      <div className="flex items-center justify-center px-4 py-28">
+        <div className="w-full max-w-xl">
           <Card className={"bg-transparent"}>
             <CardHeader>
               <CardTitle>Thank You!</CardTitle>
@@ -85,8 +85,8 @@ export default function ReportBugPage() {
   }
 
   return (
-    <div className="flex items-center justify-center py-16">
-      <div className="container max-w-xl">
+    <div className="flex items-center justify-center py-28 px-4">
+      <div className="w-full max-w-xl">
         <Card className={"bg-transparent"}>
           <CardHeader>
             <CardTitle>Report a Bug</CardTitle>
