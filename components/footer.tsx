@@ -1,5 +1,5 @@
-import Link from "next/link"
 import { Film } from "lucide-react"
+import Link from "next/link"
 
 export default function Footer() {
   return (
@@ -102,6 +102,14 @@ export default function Footer() {
                     className="text-muted-foreground hover:text-primary"
                   >
                     Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/report-bug"
+                    className="text-muted-foreground hover:text-primary"
+                  >
+                    Report a Bug
                   </Link>
                 </li>
               </ul>
