@@ -146,9 +146,17 @@ async function MovieSearchResults({
     return <NoResults />
   }
 
+  const movieResults = results.results.filter(
+    (item) => !item.media_type || item.media_type === "movie",
+  )
+
+  if (movieResults.length === 0) {
+    return <NoResults />
+  }
+
   return (
     <MediaGrid
-      items={results.results.map((item) => ({ ...item, media_type: "movie" }))}
+      items={movieResults.map((item) => ({ ...item, media_type: "movie" }))}
     />
   )
 }
@@ -166,9 +174,17 @@ async function TVSearchResults({
     return <NoResults />
   }
 
+  const tvResults = results.results.filter(
+    (item) => !item.media_type || item.media_type === "tv",
+  )
+
+  if (tvResults.length === 0) {
+    return <NoResults />
+  }
+
   return (
     <MediaGrid
-      items={results.results.map((item) => ({ ...item, media_type: "tv" }))}
+      items={tvResults.map((item) => ({ ...item, media_type: "tv" }))}
     />
   )
 }
@@ -186,9 +202,18 @@ async function PersonSearchResults({
     return <NoResults />
   }
 
+  const personResults = results.results.filter((item) => {
+    // The API might return other types, so explicitly filter for persons
+    return item.media_type === "person" || !item.media_type
+  })
+
+  if (personResults.length === 0) {
+    return <NoResults />
+  }
+
   return (
     <MediaGrid
-      items={results.results.map((item) => ({ ...item, media_type: "person" }))}
+      items={personResults.map((item) => ({ ...item, media_type: "person" }))}
     />
   )
 }

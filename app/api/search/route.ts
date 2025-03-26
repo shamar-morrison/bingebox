@@ -15,16 +15,7 @@ export async function GET(request: Request) {
 
   try {
     const searchResults = await searchMulti(query)
-
-    // Filter and limit results
-    const results = searchResults.results
-      .filter(
-        (item) =>
-          item.media_type === "movie" ||
-          item.media_type === "tv" ||
-          item.media_type === "person",
-      )
-      .slice(0, limit)
+    const results = searchResults.results.slice(0, limit)
 
     return NextResponse.json({ results })
   } catch (error) {

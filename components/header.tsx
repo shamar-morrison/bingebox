@@ -122,7 +122,9 @@ export default function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+      router.push(
+        `/search?q=${encodeURIComponent(searchQuery.trim())}&type=multi`,
+      )
       setShowResults(false)
       setIsSheetOpen(false)
     }
@@ -297,7 +299,7 @@ export default function Header() {
                         className="w-full"
                         onClick={() => {
                           router.push(
-                            `/search?q=${encodeURIComponent(searchQuery.trim())}`,
+                            `/search?q=${encodeURIComponent(searchQuery.trim())}&type=multi`,
                           )
                           setShowResults(false)
                         }}
