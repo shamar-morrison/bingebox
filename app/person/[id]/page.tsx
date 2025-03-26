@@ -1,4 +1,4 @@
-import { CalendarIcon, MapPin } from "lucide-react"
+import { CalendarIcon, MapPin, User } from "lucide-react"
 import type { Metadata } from "next"
 import Image from "next/image"
 import { Suspense } from "react"
@@ -43,7 +43,7 @@ async function PersonDetails({ id }: { id: number }) {
 
   const profilePath = person.profile_path
     ? `https://image.tmdb.org/t/p/w500${person.profile_path}`
-    : `/placeholder.svg`
+    : ``
 
   const birthday = person.birthday
     ? new Date(person.birthday).toLocaleDateString("en-US", {
@@ -74,14 +74,19 @@ async function PersonDetails({ id }: { id: number }) {
       <div className="container px-4 py-24 mt-16">
         <div className="grid gap-8 md:grid-cols-[300px_1fr]">
           <div>
-            <div className="overflow-hidden rounded-lg shadow-lg">
-              <Image
-                src={profilePath || "/placeholder.svg"}
-                alt={person.name || "Person"}
-                width={300}
-                height={450}
-                className="object-cover w-full"
-              />
+            <div className="overflow-hidden rounded-lg shadow-lg relative aspect-[2/3]">
+              {person.profile_path ? (
+                <Image
+                  src={profilePath}
+                  alt={person.name || "Person"}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                  <User className="h-16 w-16 text-muted-foreground" />
+                </div>
+              )}
             </div>
 
             <div className="mt-6 space-y-4">

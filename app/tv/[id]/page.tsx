@@ -1,4 +1,4 @@
-import { CalendarIcon, Clock, Star } from "lucide-react"
+import { CalendarIcon, Clock, Star, Tv } from "lucide-react"
 import type { Metadata } from "next"
 import Image from "next/image"
 import { Suspense } from "react"
@@ -55,7 +55,7 @@ async function TVShowDetails({ id }: { id: number }) {
 
   const posterPath = show.poster_path
     ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
-    : "/placeholder.svg"
+    : null
 
   const firstAirDate = show.first_air_date
     ? new Date(show.first_air_date).toLocaleDateString("en-US", {
@@ -96,12 +96,18 @@ async function TVShowDetails({ id }: { id: number }) {
           <div className="container px-4">
             <div className="grid items-start gap-8 md:grid-cols-[300px_1fr]">
               <div className="relative hidden overflow-hidden rounded-lg shadow-lg md:block aspect-[2/3]">
-                <Image
-                  src={posterPath || "/placeholder.svg"}
-                  alt={show.name || "TV Show poster"}
-                  fill
-                  className="object-cover"
-                />
+                {posterPath ? (
+                  <Image
+                    src={posterPath}
+                    alt={show.name || "TV show poster"}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                    <Tv className="h-16 w-16 text-muted-foreground" />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -197,16 +203,20 @@ async function TVShowDetails({ id }: { id: number }) {
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-4 md:grid-cols-[200px_1fr]">
-                        {season.poster_path && (
-                          <div className="relative overflow-hidden rounded-md aspect-[2/3]">
+                        <div className="relative overflow-hidden rounded-md aspect-[2/3]">
+                          {season.poster_path ? (
                             <Image
                               src={`https://image.tmdb.org/t/p/w300${season.poster_path}`}
                               alt={season.name}
                               fill
                               className="object-cover"
                             />
-                          </div>
-                        )}
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                              <Tv className="h-10 w-10 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
                         <div className="space-y-2">
                           {season.air_date && (
                             <p className="text-sm">

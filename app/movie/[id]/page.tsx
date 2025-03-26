@@ -1,4 +1,4 @@
-import { CalendarIcon, Clock, Star } from "lucide-react"
+import { CalendarIcon, Clock, Film, Star } from "lucide-react"
 import type { Metadata } from "next"
 import Image from "next/image"
 import { Suspense } from "react"
@@ -45,11 +45,11 @@ async function MovieDetails({ id }: { id: number }) {
 
   const backdropPath = movie.backdrop_path
     ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
-    : "/placeholder-backdrop.svg"
+    : null
 
   const posterPath = movie.poster_path
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-    : "/placeholder.svg"
+    : null
 
   const releaseDate = movie.release_date
     ? new Date(movie.release_date).toLocaleDateString("en-US", {
@@ -78,13 +78,19 @@ async function MovieDetails({ id }: { id: number }) {
     <>
       <div className="relative w-full min-h-[500px] md:min-h-[600px]">
         <div className="absolute inset-0">
-          <Image
-            src={backdropPath || "/placeholder.svg"}
-            alt={""}
-            fill
-            priority
-            className="object-cover"
-          />
+          {backdropPath ? (
+            <Image
+              src={backdropPath}
+              alt={""}
+              fill
+              priority
+              className="object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-muted flex items-center justify-center">
+              <Film className="h-24 w-24 text-muted-foreground opacity-25" />
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         </div>
 
@@ -92,12 +98,18 @@ async function MovieDetails({ id }: { id: number }) {
           <div className="container px-4">
             <div className="grid items-start gap-8 md:grid-cols-[300px_1fr]">
               <div className="relative hidden overflow-hidden rounded-lg shadow-lg md:block aspect-[2/3]">
-                <Image
-                  src={posterPath || "/placeholder.svg"}
-                  alt={movie.title || "Movie poster"}
-                  fill
-                  className="object-cover"
-                />
+                {posterPath ? (
+                  <Image
+                    src={posterPath}
+                    alt={movie.title || "Movie poster"}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                    <Film className="h-16 w-16 text-muted-foreground" />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">

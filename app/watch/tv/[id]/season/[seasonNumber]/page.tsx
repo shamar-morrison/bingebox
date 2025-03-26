@@ -1,4 +1,4 @@
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, Play } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Suspense } from "react"
@@ -96,16 +96,18 @@ async function SeasonEpisodes({
             <CardContent className="p-4 pt-0">
               <div className="grid gap-4 md:grid-cols-[200px_1fr]">
                 <div className="relative overflow-hidden rounded-md aspect-video bg-muted">
-                  <Image
-                    src={
-                      episode.still_path
-                        ? `https://image.tmdb.org/t/p/w300${episode.still_path}`
-                        : `/placeholder.svg`
-                    }
-                    alt={episode.name}
-                    fill
-                    className="object-cover"
-                  />
+                  {episode.still_path ? (
+                    <Image
+                      src={`https://image.tmdb.org/t/p/w300${episode.still_path}`}
+                      alt={episode.name}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Play className="h-10 w-10 text-muted-foreground" />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">

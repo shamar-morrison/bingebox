@@ -1,4 +1,4 @@
-import { Info, Play } from "lucide-react"
+import { Film, Info, Play, Tv } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -16,7 +16,7 @@ export default async function FeaturedMedia() {
 
   const backdropPath = featured.backdrop_path
     ? `https://image.tmdb.org/t/p/original${featured.backdrop_path}`
-    : `/placeholder.svg?height=1080&width=1920&text=${encodeURIComponent(featured.title || featured.name || "Featured Media")}`
+    : null
 
   const mediaType = featured.media_type!
   const detailsPath =
@@ -27,20 +27,30 @@ export default async function FeaturedMedia() {
       ? `/watch/movie/${featured.id}`
       : `/watch/tv/${featured.id}/season/1/episode/1`
 
-  const title = featured.title || featured.name || "backdrop"
+  const title = featured.title || featured.name || "Featured Media"
   const overview = featured.overview || "No overview available"
 
   return (
     <div className="relative w-full h-[500px] md:h-[600px] lg:h-[700px]">
       <div className="absolute inset-0">
         <div className="w-full h-full bg-muted">
-          <Image
-            src={backdropPath || "/placeholder.svg"}
-            alt={title}
-            fill
-            priority
-            className="object-cover"
-          />
+          {backdropPath ? (
+            <Image
+              src={backdropPath}
+              alt={title}
+              fill
+              priority
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              {mediaType === "movie" ? (
+                <Film className="h-24 w-24 text-muted-foreground opacity-25" />
+              ) : (
+                <Tv className="h-24 w-24 text-muted-foreground opacity-25" />
+              )}
+            </div>
+          )}
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/10" />
       </div>
