@@ -18,6 +18,8 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchTVDetails } from "@/lib/tmdb"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 interface TVShowPageProps {
   params: { id: string }
@@ -158,7 +160,9 @@ async function TVShowDetails({ id }: { id: number }) {
 
                 <div className="flex flex-wrap gap-3 pt-2">
                   <Button asChild>
-                    <a href={`/watch/tv/${id}/season/1/episode/1`}>Watch Now</a>
+                    <Link href={`/watch/tv/${id}/season/1/episode/1`}>
+                      Watch Now
+                    </Link>
                   </Button>
 
                   <TrailerDialog
@@ -237,12 +241,19 @@ async function TVShowDetails({ id }: { id: number }) {
                             {season.overview ||
                               "No overview available for this season."}
                           </p>
-                          <Button size="sm" asChild>
-                            <a
+                          <Button
+                            size="sm"
+                            asChild
+                            className={cn(
+                              !season.episode_count &&
+                                "pointer-events-none opacity-50",
+                            )}
+                          >
+                            <Link
                               href={`/watch/tv/${id}/season/${season.season_number}`}
                             >
                               Watch Season
-                            </a>
+                            </Link>
                           </Button>
                         </div>
                       </div>

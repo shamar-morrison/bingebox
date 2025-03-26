@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchMovieDetails } from "@/lib/tmdb"
+import Link from "next/link"
 
 interface MoviePageProps {
   params: { id: string }
@@ -157,7 +158,7 @@ async function MovieDetails({ id }: { id: number }) {
 
                 <div className="flex flex-wrap gap-3 pt-2">
                   <Button asChild>
-                    <a href={`/watch/movie/${id}`}>Watch Now</a>
+                    <Link href={`/watch/movie/${id}`}>Watch Now</Link>
                   </Button>
 
                   <TrailerDialog
