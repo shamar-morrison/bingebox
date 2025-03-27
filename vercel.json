@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/yts/**/*.ts": {
-      "maxDuration": 30
-    }
-  }
-}
