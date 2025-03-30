@@ -223,15 +223,15 @@ export default function MediaFilters({ mediaType }: MediaFiltersProps) {
   }, [searchParams])
 
   return (
-    <div className="flex flex-wrap gap-3 mb-8 items-center">
+    <div className="flex flex-wrap gap-x-4 gap-y-3 mb-8 items-center justify-between sm:justify-start sm:gap-3">
       {/* Genre Filter */}
-      <div className="relative">
+      <div className="relative w-[calc(50%-8px)] sm:w-auto">
         <Select
           value={selectedGenre}
           onValueChange={(value) => applyFilter("with_genres", value)}
           disabled={isLoading}
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <SelectValue placeholder="Genre" />
           </SelectTrigger>
           <SelectContent>
@@ -246,13 +246,13 @@ export default function MediaFilters({ mediaType }: MediaFiltersProps) {
       </div>
 
       {/* Year Filter */}
-      <div className="relative">
+      <div className="relative w-[calc(50%-8px)] sm:w-auto">
         <Select
           value={selectedYear}
           onValueChange={(value) => applyFilter("year", value)}
           disabled={isLoading}
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <SelectValue placeholder="Year" />
           </SelectTrigger>
           <SelectContent>
@@ -266,7 +266,7 @@ export default function MediaFilters({ mediaType }: MediaFiltersProps) {
       </div>
 
       {/* Language Filter */}
-      <div className="relative">
+      <div className="relative w-[calc(50%-8px)] sm:w-auto">
         <Select
           value={selectedLanguage}
           onValueChange={(value) =>
@@ -274,7 +274,7 @@ export default function MediaFilters({ mediaType }: MediaFiltersProps) {
           }
           disabled={isLoading}
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <SelectValue placeholder="Language" />
           </SelectTrigger>
           <SelectContent>
@@ -288,13 +288,13 @@ export default function MediaFilters({ mediaType }: MediaFiltersProps) {
       </div>
 
       {/* Rating Filter */}
-      <div className="relative">
+      <div className="relative w-[calc(50%-8px)] sm:w-auto">
         <Select
           value={selectedRating}
           onValueChange={(value) => applyFilter("vote_average.gte", value)}
           disabled={isLoading}
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <SelectValue placeholder="Quality" />
           </SelectTrigger>
           <SelectContent>
