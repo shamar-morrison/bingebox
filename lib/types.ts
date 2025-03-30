@@ -21,6 +21,7 @@ export interface MediaItem {
   genre_ids?: number[]
   genres?: { id: number; name: string }[]
   runtime?: number
+  original_language?: string
   credits?: {
     cast: Cast[]
     crew: {

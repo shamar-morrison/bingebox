@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchMovieDetails } from "@/lib/tmdb"
+import { getLanguageName } from "@/lib/utils"
 import Link from "next/link"
 
 interface MoviePageProps {
@@ -143,6 +144,14 @@ async function MovieDetails({ id }: { id: number }) {
                     <Clock className="w-4 h-4 text-muted-foreground" />
                     <span>{runtime}</span>
                   </div>
+
+                  {movie.original_language &&
+                    movie.original_language !== "en" && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground">Language:</span>
+                        <span>{getLanguageName(movie.original_language)}</span>
+                      </div>
+                    )}
                 </div>
 
                 {director && (

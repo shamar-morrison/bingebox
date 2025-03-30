@@ -18,8 +18,8 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchTVDetails } from "@/lib/tmdb"
+import { cn, getLanguageName } from "@/lib/utils"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
 
 interface TVShowPageProps {
   params: { id: string }
@@ -145,6 +145,14 @@ async function TVShowDetails({ id }: { id: number }) {
                       {seasons.length === 1 ? "Season" : "Seasons"}
                     </span>
                   </div>
+
+                  {show.original_language &&
+                    show.original_language !== "en" && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground">Language:</span>
+                        <span>{getLanguageName(show.original_language)}</span>
+                      </div>
+                    )}
                 </div>
 
                 {creator && (
