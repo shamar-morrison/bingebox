@@ -1,4 +1,12 @@
-import type { MediaItem, MediaResponse, VideoResponse } from "./types"
+import type {
+  EpisodeDetails,
+  GenresResponse,
+  MediaItem,
+  MediaResponse,
+  PersonDetails,
+  SeasonDetails,
+  VideoResponse,
+} from "./types"
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY
 const TMDB_BASE_URL = "https://api.themoviedb.org/3"
@@ -117,8 +125,10 @@ export const searchPerson = async (
   )
 }
 
-export const fetchPersonDetails = async (id: number): Promise<any> => {
-  return fetchFromTMDB<any>(
+export const fetchPersonDetails = async (
+  id: number,
+): Promise<PersonDetails> => {
+  return fetchFromTMDB<PersonDetails>(
     `/person/${id}?append_to_response=movie_credits,tv_credits`,
   )
 }
@@ -126,16 +136,16 @@ export const fetchPersonDetails = async (id: number): Promise<any> => {
 export const fetchSeasonDetails = async (
   tvId: number,
   seasonNumber: number,
-): Promise<any> => {
-  return fetchFromTMDB<any>(`/tv/${tvId}/season/${seasonNumber}`)
+): Promise<SeasonDetails> => {
+  return fetchFromTMDB<SeasonDetails>(`/tv/${tvId}/season/${seasonNumber}`)
 }
 
 export const fetchEpisodeDetails = async (
   tvId: number,
   seasonNumber: number,
   episodeNumber: number,
-): Promise<any> => {
-  return fetchFromTMDB<any>(
+): Promise<EpisodeDetails> => {
+  return fetchFromTMDB<EpisodeDetails>(
     `/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}`,
   )
 }
@@ -158,8 +168,10 @@ export interface DiscoverParams {
   with_original_language?: string
 }
 
-export const fetchGenres = async (mediaType: "movie" | "tv"): Promise<any> => {
-  return fetchFromTMDB<any>(`/genre/${mediaType}/list`)
+export const fetchGenres = async (
+  mediaType: "movie" | "tv",
+): Promise<GenresResponse> => {
+  return fetchFromTMDB<GenresResponse>(`/genre/${mediaType}/list`)
 }
 
 export const discoverMovies = async (

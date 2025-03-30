@@ -89,3 +89,88 @@ export interface Episode {
   runtime: number | null
   vote_average: number | null
 }
+
+export interface PersonDetails {
+  id: number
+  name: string
+  biography: string
+  birthday: string | null
+  deathday: string | null
+  place_of_birth: string | null
+  profile_path: string | null
+  known_for_department: string
+  gender: number
+  popularity: number
+  imdb_id: string | null
+  homepage: string | null
+  movie_credits?: {
+    cast: MediaItem[]
+    crew: {
+      id: number
+      department: string
+      job: string
+      title: string
+      poster_path: string | null
+    }[]
+  }
+  tv_credits?: {
+    cast: MediaItem[]
+    crew: {
+      id: number
+      department: string
+      job: string
+      name: string
+      poster_path: string | null
+    }[]
+  }
+}
+
+export interface SeasonDetails {
+  id: number
+  name: string
+  overview: string
+  poster_path: string | null
+  season_number: number
+  air_date: string | null
+  episodes: Episode[]
+}
+
+export interface EpisodeDetails extends Episode {
+  crew: {
+    id: number
+    name: string
+    job: string
+    department: string
+    profile_path: string | null
+  }[]
+  guest_stars: {
+    id: number
+    name: string
+    character: string
+    profile_path: string | null
+  }[]
+  images?: {
+    stills: {
+      file_path: string
+      height: number
+      width: number
+      aspect_ratio: number
+    }[]
+  }
+  videos?: {
+    results: {
+      id: string
+      key: string
+      name: string
+      site: string
+      type: string
+    }[]
+  }
+}
+
+export interface GenresResponse {
+  genres: {
+    id: number
+    name: string
+  }[]
+}
