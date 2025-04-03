@@ -35,7 +35,15 @@ async function fetchFromTMDB<T>(endpoint: string): Promise<T> {
 }
 
 export const fetchTrending = async (): Promise<MediaResponse> => {
-  return fetchFromTMDB<MediaResponse>("/trending/all/day")
+  const response = await fetchFromTMDB<MediaResponse>("/trending/all/day")
+
+  if (response.results) {
+    response.results = response.results.filter(
+      (item) => item.media_type !== "person",
+    )
+  }
+
+  return response
 }
 
 export const fetchPopularMovies = async (): Promise<MediaResponse> => {
