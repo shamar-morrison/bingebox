@@ -72,7 +72,7 @@ export default function TorrentMovieCard({ movie }: TorrentMovieCardProps) {
             </span>
           </p>
           <div className="flex flex-wrap gap-1 mb-2">
-            {movie.genres.slice(0, 3).map((genre) => (
+            {movie.genres?.slice(0, 3).map((genre) => (
               <Badge key={genre} variant="outline" className="text-xs">
                 {genre}
               </Badge>
