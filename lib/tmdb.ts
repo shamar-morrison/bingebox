@@ -4,6 +4,7 @@ import type {
   MediaItem,
   MediaResponse,
   PersonDetails,
+  ReviewResponse,
   SeasonDetails,
   VideoResponse,
 } from "./types"
@@ -200,4 +201,14 @@ export const discoverTV = async (
     .join("")
 
   return fetchFromTMDB<MediaResponse>(`/discover/tv?${queryParams}`)
+}
+
+export const fetchMovieReviews = async (
+  id: number,
+): Promise<ReviewResponse> => {
+  return fetchFromTMDB<ReviewResponse>(`/movie/${id}/reviews`)
+}
+
+export const fetchTVReviews = async (id: number): Promise<ReviewResponse> => {
+  return fetchFromTMDB<ReviewResponse>(`/tv/${id}/reviews`)
 }
