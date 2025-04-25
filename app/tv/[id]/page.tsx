@@ -83,15 +83,18 @@ function TVShowDetailsSkeleton() {
           <div className="flex space-x-4 border-b">
             <Skeleton className="h-10 w-24" />
             <Skeleton className="h-10 w-20" />
-            <Skeleton className="h-10 w-28" />
+            <Skeleton className="h-10 w-32" />
             <Skeleton className="h-10 w-24" />
           </div>
           <div className="space-y-6">
             <Skeleton className="h-8 w-1/4" />
             <Skeleton className="h-px w-full" />
-            <div className="space-y-2">
+            <div className="space-y-2 border rounded-md divide-y">
               {[...Array(2)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
+                <div key={i} className="flex justify-between items-center p-4">
+                  <Skeleton className="h-6 w-1/2" />
+                  <Skeleton className="h-4 w-4" />
+                </div>
               ))}
             </div>
           </div>
