@@ -26,7 +26,7 @@ export default function MovieDetailsClient({
   id,
   initialData,
 }: MovieDetailsClientProps) {
-  const [movie] = useState<MediaItem>(initialData) // Keep movie data static for now
+  const [movie] = useState<MediaItem>(initialData)
   const [reviews, setReviews] = useState<Review[] | null>(null)
   const [isLoadingReviews, startReviewLoad] = useTransition()
   const [reviewsFetched, setReviewsFetched] = useState(false)
