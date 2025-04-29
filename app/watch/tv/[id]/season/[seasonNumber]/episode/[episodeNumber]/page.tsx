@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, ChevronLeft } from "lucide-react"
 import type { Metadata } from "next"
+import Image from "next/image"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -111,9 +112,31 @@ async function EpisodePlayer({
     )
   }
 
-  const episodeTitle = `${show.name} - S${seasonNumber}E${episodeNumber} - ${episodeDetails.name}`
+  const episodeTitle = `${show.name || "TV Show"} - S${seasonNumber}E${episodeNumber} - ${episodeDetails.name || "Untitled Episode"}`
   const episodeOverview =
     episodeDetails.overview || "No overview available for this episode."
+  const posterPath = show.poster_path
+    ? `https://image.tmdb.org/t/p/w185${show.poster_path}`
+    : "/placeholder.svg"
+  const showFirstAirDate = show.first_air_date
+  const episodeAirDate = episodeDetails.air_date
+  const cast = show.credits?.cast || []
+
+  const formattedShowDate = showFirstAirDate
+    ? new Date(showFirstAirDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : null
+
+  const formattedEpisodeDate = episodeAirDate
+    ? new Date(episodeAirDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : null
 
   const episodes = seasonDetails.episodes || []
   const totalEpisodes = episodes.length
@@ -164,7 +187,7 @@ async function EpisodePlayer({
               </Link>
             </Button>
           ) : (
-            <div></div>
+            <div></div> // Placeholder to maintain layout
           )}
 
           {nextEpisodeLink ? (
@@ -179,7 +202,7 @@ async function EpisodePlayer({
               </Link>
             </Button>
           ) : (
-            <div></div>
+            <div></div> // Placeholder to maintain layout
           )}
         </div>
 
@@ -192,9 +215,48 @@ async function EpisodePlayer({
           source={source}
         />
 
-        <div className="mt-6 space-y-4">
-          <h1 className="text-2xl font-bold">{episodeTitle}</h1>
-          <p className="text-muted-foreground">{episodeOverview}</p>
+        <div className="mt-6 flex flex-col md:flex-row gap-6">
+          <div className="hidden md:block flex-shrink-0 w-48">
+            {posterPath && (
+              <Image
+                src={posterPath}
+                alt={`${show.name || "TV Show"} Poster`}
+                width={185}
+                height={278}
+                className="rounded-lg object-cover"
+              />
+            )}
+          </div>
+
+          <div className="flex-grow space-y-4 text-foreground">
+            <h1 className="text-2xl font-bold">{episodeTitle}</h1>
+            <p className="text-muted-foreground">{episodeOverview}</p>
+
+            <div className="hidden md:block space-y-2">
+              {formattedEpisodeDate && (
+                <p className="text-sm">
+                  <span className="font-semibold">Aired:</span>{" "}
+                  {formattedEpisodeDate}
+                </p>
+              )}
+              {formattedShowDate && (
+                <p className="text-sm">
+                  <span className="font-semibold">Show First Aired:</span>{" "}
+                  {formattedShowDate}
+                </p>
+              )}
+              {cast.length > 0 && (
+                <p className="text-sm">
+                  <span className="font-semibold">Cast:</span>{" "}
+                  {cast
+                    .slice(0, 10)
+                    .map((c) => c.name)
+                    .join(", ")}
+                  {cast.length > 10 ? ", ..." : ""}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

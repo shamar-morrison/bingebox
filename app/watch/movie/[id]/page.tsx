@@ -1,5 +1,6 @@
 import { ChevronLeft } from "lucide-react"
 import type { Metadata } from "next"
+import Image from "next/image"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -62,14 +63,60 @@ async function MoviePlayer({ id }: { id: number }) {
   const movie = await fetchMovieDetails(id)
 
   const title = movie.title || "Untitled Movie"
+  const posterPath = movie.poster_path
+    ? `https://image.tmdb.org/t/p/w185${movie.poster_path}`
+    : "/placeholder.svg"
+  const releaseDate = movie.release_date
+  const cast = movie.credits?.cast || []
+
+  const formattedDate = releaseDate
+    ? new Date(releaseDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : null
 
   return (
     <div className="container px-4 pb-16">
       <div className="max-w-5xl mx-auto">
         <VidsrcPlayer tmdbId={id} mediaType="movie" title={title} />
-        <div className="mt-6 space-y-4 text-foreground">
-          <h1 className="text-2xl font-bold">{title}</h1>
-          <p className="text-gray-400">{movie.overview}</p>
+        <div className="mt-6 flex flex-col md:flex-row gap-6">
+          <div className="hidden md:block flex-shrink-0 w-48">
+            {posterPath && (
+              <Image
+                src={posterPath}
+                alt={`${title} Poster`}
+                width={185}
+                height={278}
+                className="rounded-lg object-cover"
+              />
+            )}
+          </div>
+
+          <div className="flex-grow space-y-4 text-foreground">
+            <h1 className="text-2xl font-bold">{title}</h1>
+            <p className="text-gray-400">{movie.overview}</p>
+
+            <div className="hidden md:block space-y-2">
+              {formattedDate && (
+                <p className="text-sm">
+                  <span className="font-semibold">Release Date:</span>{" "}
+                  {formattedDate}
+                </p>
+              )}
+              {cast.length > 0 && (
+                <p className="text-sm">
+                  <span className="font-semibold">Cast:</span>{" "}
+                  {cast
+                    .slice(0, 10)
+                    .map((c) => c.name)
+                    .join(", ")}
+                  {cast.length > 10 ? ", ..." : ""}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
