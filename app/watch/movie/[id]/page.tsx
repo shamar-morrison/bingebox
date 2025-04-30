@@ -106,14 +106,21 @@ async function MoviePlayer({ id }: { id: number }) {
                 </p>
               )}
               {cast.length > 0 && (
-                <p className="text-sm">
+                <div className="text-sm">
                   <span className="font-semibold">Cast:</span>{" "}
-                  {cast
-                    .slice(0, 10)
-                    .map((c) => c.name)
-                    .join(", ")}
-                  {cast.length > 10 ? ", ..." : ""}
-                </p>
+                  {cast.slice(0, 10).map((person, index) => (
+                    <span key={person.id}>
+                      <Link
+                        href={`/person/${person.id}`}
+                        className="hover:underline"
+                      >
+                        {person.name}
+                      </Link>
+                      {index < cast.slice(0, 10).length - 1 ? ", " : ""}
+                    </span>
+                  ))}
+                  {cast.length > 10 ? <span>, ...</span> : ""}
+                </div>
               )}
             </div>
           </div>
