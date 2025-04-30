@@ -163,7 +163,12 @@ export default function MovieDetailsClient({
                 {director && (
                   <div className="text-sm">
                     <span className="text-muted-foreground">Director: </span>
-                    <span>{director.name}</span>
+                    <Link
+                      href={`/person/${director.id}`}
+                      className="hover:underline"
+                    >
+                      {director.name}
+                    </Link>
                   </div>
                 )}
 

@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchPersonDetails } from "@/lib/tmdb"
+import type { MediaItem } from "@/lib/types"
 
 interface PersonPageProps {
   params: { id: string }
@@ -58,16 +59,39 @@ async function PersonDetails({ id }: { id: number }) {
       ? new Date().getFullYear() - new Date(person.birthday).getFullYear()
       : null
 
-  const movieCredits = person.movie_credits?.cast || []
-  const tvCredits = person.tv_credits?.cast || []
+  const movieCastCredits = person.movie_credits?.cast || []
+  const movieCrewCredits = person.movie_credits?.crew || []
+  const tvCastCredits = person.tv_credits?.cast || []
 
-  // Sort credits by popularity
-  const sortedMovieCredits = [...movieCredits].sort(
+  // Sort acting credits by popularity
+  const sortedMovieCastCredits = [...movieCastCredits].sort(
     (a, b) => (b.popularity || 0) - (a.popularity || 0),
   )
-  const sortedTVCredits = [...tvCredits].sort(
+  const sortedTVCastCredits = [...tvCastCredits].sort(
     (a, b) => (b.popularity || 0) - (a.popularity || 0),
   )
+
+  const directedMovies: MediaItem[] = movieCrewCredits
+    .filter((credit) => credit.job === "Director")
+    // Map to a structure similar to MediaItem for MediaGrid compatibility
+    .map((credit) => ({
+      // Fields guaranteed by crew type
+      id: credit.id,
+      title: credit.title,
+      poster_path: credit.poster_path,
+      // Add required MediaItem fields with defaults
+      media_type: "movie",
+      backdrop_path: null, // Default missing fields
+      overview: "",
+      vote_average: 0,
+      // Add any other potentially missing required fields from MediaItem type
+      genre_ids: [],
+      popularity: 0,
+      release_date: "",
+      name: credit.title, // Use title for name if needed
+    }))
+    // Sort directed movies by title
+    .sort((a, b) => (a.title || "").localeCompare(b.title || ""))
 
   return (
     <>
@@ -157,11 +181,11 @@ async function PersonDetails({ id }: { id: number }) {
 
               <TabsContent value="movies" className="mt-6">
                 <h2 className="text-xl font-semibold mb-4">
-                  Movie Appearances
+                  Movie Appearances (Acting)
                 </h2>
-                {sortedMovieCredits.length > 0 ? (
+                {sortedMovieCastCredits.length > 0 ? (
                   <MediaGrid
-                    items={sortedMovieCredits.map((item) => ({
+                    items={sortedMovieCastCredits.map((item) => ({
                       ...item,
                       media_type: "movie",
                     }))}
@@ -169,19 +193,31 @@ async function PersonDetails({ id }: { id: number }) {
                 ) : (
                   <div className="p-8 text-center border rounded-lg">
                     <p className="text-muted-foreground">
-                      No movie credits found.
+                      No acting movie credits found.
                     </p>
+                  </div>
+                )}
+
+                {/* Directed Movies Section */}
+                {directedMovies.length > 0 && (
+                  <div className="mt-12">
+                    {" "}
+                    <h2 className="text-xl font-semibold mb-4">
+                      Directed Movies
+                    </h2>
+                    <Separator className="mb-6" />
+                    <MediaGrid items={directedMovies} />
                   </div>
                 )}
               </TabsContent>
 
               <TabsContent value="tv" className="mt-6">
                 <h2 className="text-xl font-semibold mb-4">
-                  TV Show Appearances
+                  TV Show Appearances (Acting)
                 </h2>
-                {sortedTVCredits.length > 0 ? (
+                {sortedTVCastCredits.length > 0 ? (
                   <MediaGrid
-                    items={sortedTVCredits.map((item) => ({
+                    items={sortedTVCastCredits.map((item) => ({
                       ...item,
                       media_type: "tv",
                     }))}
@@ -189,7 +225,7 @@ async function PersonDetails({ id }: { id: number }) {
                 ) : (
                   <div className="p-8 text-center border rounded-lg">
                     <p className="text-muted-foreground">
-                      No TV credits found.
+                      No acting TV credits found.
                     </p>
                   </div>
                 )}
