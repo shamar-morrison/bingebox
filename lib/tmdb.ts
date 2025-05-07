@@ -12,7 +12,10 @@ import type {
 const TMDB_API_KEY = process.env.TMDB_API_KEY
 const TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
-async function fetchFromTMDB<T>(endpoint: string): Promise<T> {
+async function fetchFromTMDB<T>(
+  endpoint: string,
+  revalidateInSeconds = 3600, // Default to 1 hour
+): Promise<T> {
   if (!TMDB_API_KEY) {
     console.error("TMDB_API_KEY is not defined in environment variables")
     return { results: [] } as unknown as T
@@ -21,7 +24,9 @@ async function fetchFromTMDB<T>(endpoint: string): Promise<T> {
   const url = `${TMDB_BASE_URL}${endpoint}${endpoint.includes("?") ? "&" : "?"}api_key=${TMDB_API_KEY}`
 
   try {
-    const response = await fetch(url, { next: { revalidate: 3600 } })
+    const response = await fetch(url, {
+      next: { revalidate: revalidateInSeconds },
+    })
 
     if (!response.ok) {
       console.error(`Failed to fetch from TMDB: ${response.status}`)
@@ -180,7 +185,10 @@ export interface DiscoverParams {
 export const fetchGenres = async (
   mediaType: "movie" | "tv",
 ): Promise<GenresResponse> => {
-  return fetchFromTMDB<GenresResponse>(`/genre/${mediaType}/list`)
+  return fetchFromTMDB<GenresResponse>(
+    `/genre/${mediaType}/list`,
+    604800, // Revalidate every 7 days
+  )
 }
 
 export const discoverMovies = async (
