@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarIcon, Clock, Star, Tv } from "lucide-react"
+import { CalendarIcon, Clock, InfoIcon, Star, Tv } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useTransition } from "react"
@@ -152,6 +152,15 @@ export default function TVShowDetailsClient({
                       {seasons.length === 1 ? "Season" : "Seasons"}
                     </span>
                   </div>
+
+                  {(show.status === "Ended" ||
+                    show.status === "Canceled" ||
+                    show.status === "Cancelled") && (
+                    <div className="flex items-center gap-1">
+                      <InfoIcon className="w-4 h-4 text-muted-foreground" />
+                      <span>Status: {show.status}</span>
+                    </div>
+                  )}
 
                   {show.original_language &&
                     show.original_language !== "en" && (
