@@ -2,6 +2,11 @@
 
 import type React from "react"
 
+import { AuthStatus } from "@/components/auth/AuthStatus"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { debounce } from "lodash"
 import {
   Download,
@@ -16,12 +21,7 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
-
-import { ThemeToggle } from "@/components/theme-toggle"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { ElementType, Suspense, useEffect, useRef, useState } from "react"
 
 interface SearchResult {
   id: number
@@ -34,6 +34,13 @@ interface SearchResult {
   first_air_date?: string
   vote_average?: number
   number_of_seasons?: number
+}
+
+// Define a type for navigation items
+interface NavItem {
+  label: string
+  href: string
+  icon: ElementType
 }
 
 export default function Header() {
@@ -141,7 +148,7 @@ export default function Header() {
     return new Date(dateString).getFullYear()
   }
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { label: "Home", href: "/", icon: Home },
     { label: "Movies", href: "/movie", icon: Film },
     { label: "TV Shows", href: "/tv", icon: Tv },
@@ -184,7 +191,7 @@ export default function Header() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <div className="relative hidden lg:block" ref={searchRef}>
             <form onSubmit={handleSearch} className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -314,6 +321,13 @@ export default function Header() {
           </div>
 
           <ThemeToggle />
+          <Suspense
+            fallback={
+              <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse dark:bg-gray-700"></div>
+            }
+          >
+            <AuthStatus />
+          </Suspense>
 
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
@@ -341,32 +355,39 @@ export default function Header() {
                     <Input
                       type="search"
                       placeholder="Search..."
-                      className="w-full pl-8"
+                      className="w-full pl-8 bg-secondary/50"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={handleSearchInputFocus}
                     />
                   </form>
 
                   <ul className="space-y-4">
-                    {navItems.map((item) => {
-                      const Icon = item.icon
-                      return (
-                        <li key={item.href}>
-                          <Link
-                            href={item.href}
-                            className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary ${
-                              pathname === item.href
-                                ? "text-primary"
-                                : "text-muted-foreground"
-                            }`}
-                            onClick={() => setIsSheetOpen(false)}
-                          >
-                            <Icon className="w-4 h-4" />
-                            {item.label}
-                          </Link>
-                        </li>
-                      )
-                    })}
+                    {navItems.map((item) => (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          onClick={() => setIsSheetOpen(false)}
+                          className={`flex items-center gap-3 rounded-md p-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground ${
+                            pathname === item.href
+                              ? "bg-accent text-accent-foreground"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          <item.icon className="h-5 w-5" />
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                    <li className="pt-2 border-t border-border mt-2">
+                      <Suspense
+                        fallback={
+                          <div className="w-full h-10 bg-gray-300 rounded-md animate-pulse dark:bg-gray-700 mt-2"></div>
+                        }
+                      >
+                        <AuthStatusMobile />
+                      </Suspense>
+                    </li>
                   </ul>
                 </nav>
               </div>
@@ -376,4 +397,8 @@ export default function Header() {
       </div>
     </header>
   )
+}
+
+const AuthStatusMobile = () => {
+  return <AuthStatus />
 }
