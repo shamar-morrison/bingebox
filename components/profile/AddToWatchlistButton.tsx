@@ -236,7 +236,7 @@ export function AddToWatchlistButton({
             : buttonText}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">{dropdownItems}</DropdownMenuContent>
+      <DropdownMenuContent align="start">{dropdownItems}</DropdownMenuContent>
     </DropdownMenu>
   )
 }
