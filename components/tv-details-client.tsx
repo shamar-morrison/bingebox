@@ -7,6 +7,7 @@ import { useState, useTransition } from "react"
 
 import CastSection from "@/components/cast-section"
 import MediaRow from "@/components/media-row"
+import { AddToWatchlistButton } from "@/components/profile/AddToWatchlistButton"
 import ReviewSection from "@/components/review-section"
 import TrailerDialog from "@/components/trailer-dialog"
 import {
@@ -196,6 +197,8 @@ export default function TVShowDetailsClient({
                   >
                     <Button variant="outline">Watch Trailer</Button>
                   </TrailerDialog>
+
+                  <AddToWatchlistButton mediaItem={show} mediaType="tv" />
                 </div>
               </div>
             </div>
