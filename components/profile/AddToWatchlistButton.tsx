@@ -179,16 +179,16 @@ export function AddToWatchlistButton({
       key="watching"
       onClick={() => handleSetStatus("watching")}
     >
-      <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> Add to Watching
+      <CheckCircle className="h-4 w-4 text-green-500" /> Add to Watching
     </DropdownMenuItem>,
     <DropdownMenuItem
       key="should-watch"
       onClick={() => handleSetStatus("should-watch")}
     >
-      <ListPlus className="mr-2 h-4 w-4 text-blue-500" /> Add to Should Watch
+      <ListPlus className="h-4 w-4 text-blue-500" /> Add to Should Watch
     </DropdownMenuItem>,
     <DropdownMenuItem key="dropped" onClick={() => handleSetStatus("dropped")}>
-      <XCircle className="mr-2 h-4 w-4 text-red-500" /> Add to Dropped
+      <XCircle className="h-4 w-4 text-red-500" /> Add to Dropped
     </DropdownMenuItem>,
   ]
 
@@ -225,9 +225,9 @@ export function AddToWatchlistButton({
       <DropdownMenuTrigger asChild>
         <Button variant="outline" disabled={isLoading} className="w-[150px]">
           {isLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <ButtonIcon className="mr-2 h-4 w-4" />
+            <ButtonIcon className="h-4 w-4" />
           )}
           {isLoading
             ? currentStatus

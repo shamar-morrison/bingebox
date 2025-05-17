@@ -177,7 +177,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-6 min-h-[calc(100vh-var(--header-height)-var(--footer-height))]">
+    <div className="container mx-auto pt-24 py-8 px-4 md:px-6 min-h-[calc(100vh-var(--header-height)-var(--footer-height))]">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Your Profile</h1>
         <p className="text-muted-foreground">
