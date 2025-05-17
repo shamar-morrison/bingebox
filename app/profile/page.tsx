@@ -10,7 +10,6 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
 
-// Interface for the structure of items fetched from /api/watchlist
 interface WatchlistItem {
   media_id: number
   media_type: "movie" | "tv"
@@ -44,7 +43,7 @@ function WatchlistContent() {
       } catch (err: any) {
         console.error("Error fetching watchlist:", err)
         setError(err.message || "An unexpected error occurred.")
-        setItems([]) // Clear items on error
+        setItems([])
       } finally {
         setIsLoading(false)
       }
@@ -114,7 +113,7 @@ function WatchlistContent() {
         {items.map((item) => {
           const posterUrl = item.poster_path
             ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-            : "/placeholder-image.png" // Fallback image
+            : "/placeholder.svg"
 
           const watchPath =
             item.media_type === "movie"
