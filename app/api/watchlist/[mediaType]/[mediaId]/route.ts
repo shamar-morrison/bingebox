@@ -1,15 +1,15 @@
 import { WatchlistStatusType } from "@/components/profile/AddToWatchlistButton"
-import { auth } from "@/lib/auth" // better-auth instance
+import { auth } from "@/lib/auth"
 import { supabase } from "@/lib/supabase-client"
-import { headers } from "next/headers" // Import headers
+import { headers } from "next/headers"
 import { NextResponse } from "next/server"
 
-// GET /api/watchlist/[mediaType]/[mediaId]
 // Fetches the watchlist status for a specific media item for the logged-in user
-export async function GET(
-  request: Request, // request object is not directly used for headers here, but kept for convention
-  { params }: { params: { mediaType: string; mediaId: string } },
-) {
+export async function GET({
+  params,
+}: {
+  params: { mediaType: string; mediaId: string }
+}) {
   const sessionData = await auth.api.getSession({ headers: await headers() })
   const userId = sessionData?.user?.id
 
@@ -51,7 +51,6 @@ export async function GET(
   }
 }
 
-// POST /api/watchlist/[mediaType]/[mediaId]
 // Adds or updates a media item in the user's watchlist
 export async function POST(
   request: Request,

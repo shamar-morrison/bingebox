@@ -11,7 +11,7 @@ import {
 import { useAuth } from "@/context/AuthContext"
 import { MediaItem } from "@/lib/types"
 import { CheckCircle, ListPlus, Loader2, Trash2, XCircle } from "lucide-react"
-import { useRouter } from "next/navigation" // For redirecting to login
+import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
