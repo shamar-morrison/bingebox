@@ -141,7 +141,7 @@ export default function WatchlistDropdown({
       <DropdownMenuTrigger asChild>
         <Button variant="outline" disabled={isChecking || isLoading}>
           {getButtonIcon()}
-          <span className="ml-2">{getButtonText()}</span>
+          <span>{getButtonText()}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
@@ -194,7 +194,7 @@ export default function WatchlistDropdown({
               onClick={() => updateWatchlistStatus(null)}
               className="cursor-pointer text-destructive"
             >
-              <X className="w-4 h-4 mr-2" />
+              <X className="w-4 h-4" />
               <span>Remove from List</span>
             </DropdownMenuItem>
           </>
