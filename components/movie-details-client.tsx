@@ -1,7 +1,6 @@
 "use client"
 
 import { CalendarIcon, Clock, Film, Star } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { useState, useTransition } from "react"
 
@@ -87,12 +86,10 @@ export default function MovieDetailsClient({
       <div className="relative w-full min-h-[500px] md:min-h-[600px]">
         <div className="absolute inset-0">
           {backdropPath ? (
-            <Image
+            <img
               src={backdropPath}
               alt={""}
-              fill
-              priority
-              className="object-cover"
+              className="object-cover absolute top-0 left-0 w-full h-full"
             />
           ) : (
             <div className="absolute inset-0 bg-muted flex items-center justify-center">
@@ -107,11 +104,10 @@ export default function MovieDetailsClient({
             <div className="grid items-start gap-8 md:grid-cols-[300px_1fr]">
               <div className="relative hidden overflow-hidden rounded-lg shadow-lg md:block aspect-[2/3]">
                 {posterPath ? (
-                  <Image
+                  <img
                     src={posterPath}
                     alt={movie.title || "Movie poster"}
-                    fill
-                    className="object-cover"
+                    className="object-cover absolute top-0 left-0 w-full h-full"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-muted">

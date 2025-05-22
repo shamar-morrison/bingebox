@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { MediaItem } from "@/lib/types"
 import { Play, User } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 
 function MediaCard({ item }: { item: MediaItem }) {
@@ -45,12 +44,10 @@ function MediaCard({ item }: { item: MediaItem }) {
     <Card className="overflow-hidden">
       <Link href={detailsPath}>
         <div className="relative aspect-[2/3] group">
-          <Image
+          <img
             src={imagePath}
             alt={title}
-            fill
-            className="object-cover transition-all group-hover:scale-105 group-hover:opacity-75"
-            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+            className="object-cover transition-all group-hover:scale-105 group-hover:opacity-75 absolute top-0 left-0 w-full h-full"
           />
           {!item.poster_path && !item.profile_path && (
             <div className="absolute inset-0 flex items-center justify-center bg-muted group">

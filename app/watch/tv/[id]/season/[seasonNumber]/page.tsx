@@ -1,5 +1,4 @@
 import { ChevronLeft, Play } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -97,11 +96,10 @@ async function SeasonEpisodes({
               <div className="grid gap-4 md:grid-cols-[200px_1fr]">
                 <div className="relative overflow-hidden rounded-md aspect-video bg-muted">
                   {episode.still_path ? (
-                    <Image
+                    <img
                       src={`https://image.tmdb.org/t/p/w300${episode.still_path}`}
                       alt={episode.name}
-                      fill
-                      className="object-cover"
+                      className="object-cover absolute top-0 left-0 w-full h-full"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">

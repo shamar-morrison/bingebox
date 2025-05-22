@@ -1,7 +1,6 @@
 "use client"
 
 import { CalendarIcon, Clock, InfoIcon, Star, Tv } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { useState, useTransition } from "react"
 
@@ -91,12 +90,10 @@ export default function TVShowDetailsClient({
     <>
       <div className="relative w-full min-h-[500px] md:min-h-[600px]">
         <div className="absolute inset-0">
-          <Image
+          <img
             src={backdropPath || "/placeholder.svg"}
             alt={show.name || "TV Show backdrop"}
-            fill
-            priority
-            className="object-cover"
+            className="object-cover absolute top-0 left-0 w-full h-full"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         </div>
@@ -106,11 +103,10 @@ export default function TVShowDetailsClient({
             <div className="grid items-start gap-8 md:grid-cols-[300px_1fr]">
               <div className="relative hidden overflow-hidden rounded-lg shadow-lg md:block aspect-[2/3]">
                 {posterPath ? (
-                  <Image
+                  <img
                     src={posterPath}
                     alt={show.name || "TV show poster"}
-                    fill
-                    className="object-cover"
+                    className="object-cover absolute top-0 left-0 w-full h-full"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-muted">
@@ -238,11 +234,10 @@ export default function TVShowDetailsClient({
                       <div className="grid gap-4 md:grid-cols-[200px_1fr]">
                         <div className="relative overflow-hidden rounded-md aspect-[2/3]">
                           {season.poster_path ? (
-                            <Image
+                            <img
                               src={`https://image.tmdb.org/t/p/w300${season.poster_path}`}
                               alt={season.name}
-                              fill
-                              className="object-cover"
+                              className="object-cover absolute top-0 left-0 w-full h-full"
                             />
                           ) : (
                             <div className="absolute inset-0 flex items-center justify-center bg-muted">

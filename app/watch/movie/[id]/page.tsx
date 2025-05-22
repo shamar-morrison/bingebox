@@ -1,6 +1,5 @@
 import { ChevronLeft } from "lucide-react"
 import type { Metadata } from "next"
-import Image from "next/image"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -84,7 +83,7 @@ async function MoviePlayer({ id }: { id: number }) {
         <div className="mt-6 flex flex-col md:flex-row gap-6">
           <div className="hidden md:block flex-shrink-0 w-48">
             {posterPath && (
-              <Image
+              <img
                 src={posterPath}
                 alt={`${title} Poster`}
                 width={185}

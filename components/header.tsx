@@ -13,7 +13,6 @@ import {
   Tv,
   User,
 } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
@@ -219,11 +218,10 @@ export default function Header() {
                         >
                           <div className="flex-shrink-0 h-16 w-12 relative bg-muted rounded overflow-hidden">
                             {result.poster_path || result.profile_path ? (
-                              <Image
+                              <img
                                 src={`https://image.tmdb.org/t/p/w92${result.poster_path || result.profile_path}`}
                                 alt={result.title || result.name || "Media"}
-                                fill
-                                className="object-cover"
+                                className="object-cover absolute top-0 left-0 w-full h-full"
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-muted">

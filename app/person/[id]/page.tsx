@@ -1,6 +1,5 @@
 import { CalendarIcon, MapPin, User } from "lucide-react"
 import type { Metadata } from "next"
-import Image from "next/image"
 import { Suspense } from "react"
 
 import MediaGrid from "@/components/media-grid"
@@ -100,11 +99,10 @@ async function PersonDetails({ id }: { id: number }) {
           <div>
             <div className="overflow-hidden rounded-lg shadow-lg relative aspect-[2/3]">
               {person.profile_path ? (
-                <Image
+                <img
                   src={profilePath}
                   alt={person.name || "Person"}
-                  fill
-                  className="object-cover"
+                  className="object-cover absolute top-0 left-0 w-full h-full"
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-muted">

@@ -1,5 +1,4 @@
 import { Film, Info, Play, Tv } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -35,12 +34,10 @@ export default async function FeaturedMedia() {
       <div className="absolute inset-0">
         <div className="w-full h-full bg-muted">
           {backdropPath ? (
-            <Image
+            <img
               src={backdropPath}
               alt={title}
-              fill
-              priority
-              className="object-cover"
+              className="object-cover absolute top-0 left-0 w-full h-full"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
