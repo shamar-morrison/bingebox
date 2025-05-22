@@ -123,9 +123,17 @@ export default function MovieDetailsClient({
 
                 <div className="flex flex-wrap gap-2">
                   {genres.map((genre) => (
-                    <Badge key={genre.id} variant="secondary">
-                      {genre.name}
-                    </Badge>
+                    <Link
+                      key={genre.id}
+                      href={`/discover?media_type=movie&with_genres=${genre.id}`}
+                    >
+                      <Badge
+                        variant="secondary"
+                        className="cursor-pointer hover:bg-secondary/80 transition-colors"
+                      >
+                        {genre.name}
+                      </Badge>
+                    </Link>
                   ))}
                 </div>
 
