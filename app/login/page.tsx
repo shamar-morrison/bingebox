@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { createClient } from "@/lib/supabase/client"
 import { Loader2 } from "lucide-react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -111,7 +110,13 @@ export default function LoginPage() {
 
             <Separator className="my-6" />
 
+            {/* Temporary message - signup disabled */}
             <div className="text-center text-sm text-muted-foreground">
+              New user registrations are currently disabled.
+            </div>
+
+            {/* Original signup link - commented out */}
+            {/* <div className="text-center text-sm text-muted-foreground">
               Don&#39;t have an account?{" "}
               <Link
                 href="/signup"
@@ -119,7 +124,7 @@ export default function LoginPage() {
               >
                 Sign up
               </Link>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
       </div>

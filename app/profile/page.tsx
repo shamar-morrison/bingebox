@@ -11,7 +11,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useUser } from "@/lib/hooks/use-user"
 import { createClient } from "@/lib/supabase/client"
-import { Film, User, X } from "lucide-react"
+import { Film, Play, User, X } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -112,40 +112,67 @@ export default function ProfilePage() {
     }
 
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {items.map((item) => (
-          <div key={item.id} className="relative group">
-            <Link
-              href={`/${item.media_type}/${item.media_id}`}
-              className="block relative overflow-hidden rounded-lg shadow-lg aspect-[2/3] hover:scale-105 transition-transform"
-            >
-              {item.poster_path ? (
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-                  alt={item.title}
-                  className="object-cover w-full h-full"
-                />
-              ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center">
-                  <Film className="w-8 h-8 text-muted-foreground" />
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        {items.map((item) => {
+          const detailsPath = `/${item.media_type}/${item.media_id}`
+          const watchPath =
+            item.media_type === "movie"
+              ? `/watch/movie/${item.media_id}`
+              : `/watch/tv/${item.media_id}/season/1/episode/1`
+
+          return (
+            <Card key={item.id} className="overflow-hidden group relative">
+              <Link href={detailsPath}>
+                <div className="relative aspect-[2/3]">
+                  {item.poster_path ? (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
+                      alt={item.title}
+                      className="object-cover transition-all group-hover:scale-105 group-hover:opacity-75 absolute top-0 left-0 w-full h-full"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                      <Film className="h-10 w-10 text-muted-foreground transition-all group-hover:scale-105 group-hover:opacity-75" />
+                    </div>
+                  )}
                 </div>
-              )}
-            </Link>
+              </Link>
 
-            <Button
-              variant="destructive"
-              size="icon"
-              className="absolute top-2 right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={() => removeFromWatchlist(item.id)}
-            >
-              <X className="w-3 h-3" />
-            </Button>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                onClick={() => removeFromWatchlist(item.id)}
+              >
+                <X className="w-3 h-3" />
+              </Button>
 
-            <h3 className="mt-2 text-sm font-medium text-center line-clamp-2">
-              {item.title}
-            </h3>
-          </div>
-        ))}
+              <CardContent className="p-3">
+                <Link href={detailsPath}>
+                  <h3 className="font-medium line-clamp-1 mb-1">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    {item.media_type === "movie" ? "Movie" : "TV Show"}
+                  </p>
+                </Link>
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="sm"
+                  className="w-full"
+                >
+                  <Link
+                    href={watchPath}
+                    className="flex items-center justify-center gap-1"
+                  >
+                    <Play className="w-3 h-3" /> Watch Now
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
     )
   }
@@ -170,19 +197,30 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="watching" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="watching">
-                  Watching ({watchlists.watching.length})
+              <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsTrigger value="watching" className="text-xs sm:text-sm">
+                  <span className="hidden sm:inline">Watching</span>
+                  <span className="sm:hidden">Watch</span>
+                  <span className="ml-1">({watchlists.watching.length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="should_watch">
-                  Should Watch ({watchlists.should_watch.length})
+                <TabsTrigger
+                  value="should_watch"
+                  className="text-xs sm:text-sm"
+                >
+                  <span className="hidden sm:inline">Should Watch</span>
+                  <span className="sm:hidden">Should</span>
+                  <span className="ml-1">
+                    ({watchlists.should_watch.length})
+                  </span>
                 </TabsTrigger>
-                <TabsTrigger value="dropped">
-                  Dropped ({watchlists.dropped.length})
+                <TabsTrigger value="dropped" className="text-xs sm:text-sm">
+                  <span className="hidden sm:inline">Dropped</span>
+                  <span className="sm:hidden">Drop</span>
+                  <span className="ml-1">({watchlists.dropped.length})</span>
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="watching" className="mt-6">
+              <TabsContent value="watching">
                 {isLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
@@ -195,7 +233,7 @@ export default function ProfilePage() {
                 )}
               </TabsContent>
 
-              <TabsContent value="should_watch" className="mt-6">
+              <TabsContent value="should_watch">
                 {isLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
@@ -208,7 +246,7 @@ export default function ProfilePage() {
                 )}
               </TabsContent>
 
-              <TabsContent value="dropped" className="mt-6">
+              <TabsContent value="dropped">
                 {isLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
