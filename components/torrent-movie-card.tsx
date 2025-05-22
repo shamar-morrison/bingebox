@@ -12,7 +12,6 @@ import {
 import { createMagnetLink } from "@/lib/yts"
 import { Movie } from "@/lib/yts-types"
 import { Download, Magnet, Star } from "lucide-react"
-import Image from "next/image"
 import { useState } from "react"
 
 interface TorrentMovieCardProps {
@@ -34,12 +33,10 @@ export default function TorrentMovieCard({ movie }: TorrentMovieCardProps) {
   return (
     <Card className="overflow-hidden group h-full flex flex-col">
       <div className="relative aspect-[2/3] overflow-hidden">
-        <Image
+        <img
           src={movie.medium_cover_image || "/placeholder.svg"}
           alt={movie.title}
-          fill
-          className="object-cover transition-all group-hover:scale-105 group-hover:opacity-75"
-          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+          className="object-cover transition-all group-hover:scale-105 group-hover:opacity-75 absolute top-0 left-0 w-full h-full"
         />
         <div className="absolute top-2 right-2 flex flex-col gap-1">
           {is3DAvailable && (
