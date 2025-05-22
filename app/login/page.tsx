@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { createClient } from "@/lib/supabase/client"
 import { Loader2 } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -21,7 +21,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
+
+  const redirectTo = searchParams.get("redirect") || "/"
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,7 +46,7 @@ export default function LoginPage() {
         toast.error(error.message)
       } else {
         toast.success("Welcome back!")
-        router.push("/")
+        router.push(redirectTo)
         router.refresh()
       }
     } catch (error) {

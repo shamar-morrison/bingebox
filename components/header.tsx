@@ -20,10 +20,6 @@ import { useEffect, useRef, useState } from "react"
 
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { useUser } from "@/lib/hooks/use-user"
-import { createClient } from "@/lib/supabase/client"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +27,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { isProtectedRoute } from "@/lib/auth-config"
+import { useUser } from "@/lib/hooks/use-user"
+import { createClient } from "@/lib/supabase/client"
 
 interface SearchResult {
   id: number
@@ -63,8 +64,12 @@ export default function Header() {
     if (error) {
       console.error("Error signing out:", error)
     } else {
-      router.push("/")
-      router.refresh()
+      if (isProtectedRoute(pathname)) {
+        router.push("/login")
+      } else {
+        // Stay on current page, just refresh to update auth state
+        router.refresh()
+      }
     }
   }
 
