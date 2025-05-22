@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import WatchlistDropdown from "@/components/watchlist-dropdown"
 import { MediaItem, Review, ReviewResponse } from "@/lib/types"
 import { getLanguageName } from "@/lib/utils"
 
@@ -192,6 +193,13 @@ export default function MovieDetailsClient({
                   >
                     <Button variant="outline">Watch Trailer</Button>
                   </TrailerDialog>
+
+                  <WatchlistDropdown
+                    mediaId={id}
+                    mediaType="movie"
+                    title={movie.title || "Movie"}
+                    posterPath={movie.poster_path}
+                  />
                 </div>
               </div>
             </div>

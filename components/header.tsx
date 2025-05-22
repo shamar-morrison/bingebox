@@ -7,6 +7,7 @@ import {
   Download,
   Film,
   Home,
+  LogOut,
   Menu,
   Search,
   Star,
@@ -21,6 +22,15 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useUser } from "@/lib/hooks/use-user"
+import { createClient } from "@/lib/supabase/client"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface SearchResult {
   id: number
@@ -45,6 +55,18 @@ export default function Header() {
   const searchRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
+  const { user, loading } = useUser()
+  const supabase = createClient()
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error("Error signing out:", error)
+    } else {
+      router.push("/")
+      router.refresh()
+    }
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -310,6 +332,35 @@ export default function Header() {
               </div>
             )}
           </div>
+
+          {!loading &&
+            (user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="w-4 h-4" />
+                    <span className="sr-only">User menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">
+                      <User className="w-4 h-4 mr-2" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button asChild>
+                <Link href="/login">Sign in</Link>
+              </Button>
+            ))}
 
           <ThemeToggle />
 
