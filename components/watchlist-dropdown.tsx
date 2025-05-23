@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useUser } from "@/lib/hooks/use-user"
 import { createClient } from "@/lib/supabase/client"
-import { Check, Heart, ListPlus, Loader2, X } from "lucide-react"
+import { Check, Heart, ListPlus, Loader2, ThumbsDown, X } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -189,7 +189,7 @@ export default function WatchlistDropdown({
           className="cursor-pointer"
         >
           <div className="flex items-center w-full">
-            <X className="w-4 h-4 mr-2 text-gray-500" />
+            <ThumbsDown className="w-4 h-4 mr-2 text-gray-500" />
             <span>Dropped</span>
             {currentStatus === "dropped" && (
               <Check className="w-4 h-4 ml-auto" />
