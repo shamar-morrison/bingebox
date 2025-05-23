@@ -46,8 +46,6 @@ export default function VidsrcPlayer({
     },
   ]
 
-  console.log("")
-
   const [selectedSource, setSelectedSource] = useState<SourceOption>(sources[0])
 
   useEffect(() => {
