@@ -12,6 +12,7 @@ import {
 import { useUser } from "@/lib/hooks/use-user"
 import { createClient } from "@/lib/supabase/client"
 import { Check, Heart, ListPlus, Loader2, X } from "lucide-react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -35,6 +36,14 @@ export default function WatchlistDropdown({
   const [isLoading, setIsLoading] = useState(false)
   const [isChecking, setIsChecking] = useState(true)
   const supabase = createClient()
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const getCurrentUrl = () => {
+    const queryString = searchParams.toString()
+    return pathname + (queryString ? `?${queryString}` : "")
+  }
 
   useEffect(() => {
     if (user) {
@@ -69,6 +78,7 @@ export default function WatchlistDropdown({
   const updateWatchlistStatus = async (status: WatchlistStatus) => {
     if (!user) {
       toast.error("Please sign in to use watchlists")
+      router.push(`/login?redirect=${encodeURIComponent(getCurrentUrl())}`)
       return
     }
 

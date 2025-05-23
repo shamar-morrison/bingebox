@@ -15,7 +15,7 @@ import {
   User,
 } from "lucide-react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -56,8 +56,14 @@ export default function Header() {
   const searchRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const { user, loading } = useUser()
   const supabase = createClient()
+
+  const getCurrentUrl = () => {
+    const queryString = searchParams.toString()
+    return pathname + (queryString ? `?${queryString}` : "")
+  }
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut()
@@ -363,7 +369,11 @@ export default function Header() {
               </DropdownMenu>
             ) : (
               <Button asChild>
-                <Link href="/login">Sign in</Link>
+                <Link
+                  href={`/login?redirect=${encodeURIComponent(getCurrentUrl())}`}
+                >
+                  Sign in
+                </Link>
               </Button>
             ))}
 
