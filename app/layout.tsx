@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import NextTopLoader from "nextjs-toploader"
 import type React from "react"
+import { Suspense } from "react"
 import { Toaster } from "sonner"
 import "./globals.css"
 
@@ -35,7 +36,9 @@ export default function RootLayout({
           <UserProvider>
             <div className="flex flex-col min-h-screen">
               <ScrollToTop />
-              <Header />
+              <Suspense fallback={<HeaderSkeleton />}>
+                <Header />
+              </Suspense>
               <div className="flex-1">{children}</div>
               <Footer />
             </div>
@@ -44,5 +47,24 @@ export default function RootLayout({
         <Toaster richColors position="bottom-right" />
       </body>
     </html>
+  )
+}
+
+function HeaderSkeleton() {
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md shadow-md">
+      <div className="container flex items-center justify-between h-16 px-4">
+        <div className="flex items-center gap-8">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-primary rounded" />
+            <span className="text-xl font-bold">BingeBox</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="w-[220px] h-10 bg-muted rounded hidden lg:block" />
+          <div className="w-10 h-10 bg-muted rounded" />
+        </div>
+      </div>
+    </header>
   )
 }
