@@ -178,34 +178,69 @@ async function PersonDetails({ id }: { id: number }) {
               </TabsList>
 
               <TabsContent value="movies" className="mt-6">
-                <h2 className="text-xl font-semibold mb-4">
-                  Movie Appearances (Acting)
-                </h2>
-                {sortedMovieCastCredits.length > 0 ? (
-                  <MediaGrid
-                    items={sortedMovieCastCredits.map((item) => ({
-                      ...item,
-                      media_type: "movie",
-                    }))}
-                  />
-                ) : (
-                  <div className="p-8 text-center border rounded-lg">
-                    <p className="text-muted-foreground">
-                      No acting movie credits found.
-                    </p>
-                  </div>
-                )}
+                {person.known_for_department === "Directing" ? (
+                  <>
+                    {/* Directed Movies Section - First for Directors */}
+                    {directedMovies.length > 0 && (
+                      <div className="mb-12">
+                        <h2 className="text-xl font-semibold mb-4">
+                          Directed Movies
+                        </h2>
+                        <MediaGrid items={directedMovies} />
+                      </div>
+                    )}
 
-                {/* Directed Movies Section */}
-                {directedMovies.length > 0 && (
-                  <div className="mt-12">
-                    {" "}
+                    {/* Movie Appearances Section - Second for Directors */}
                     <h2 className="text-xl font-semibold mb-4">
-                      Directed Movies
+                      Movie Appearances (Acting)
                     </h2>
-                    <Separator className="mb-6" />
-                    <MediaGrid items={directedMovies} />
-                  </div>
+                    {sortedMovieCastCredits.length > 0 ? (
+                      <MediaGrid
+                        items={sortedMovieCastCredits.map((item) => ({
+                          ...item,
+                          media_type: "movie",
+                        }))}
+                      />
+                    ) : (
+                      <div className="p-8 text-center border rounded-lg">
+                        <p className="text-muted-foreground">
+                          No acting movie credits found.
+                        </p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {/* Movie Appearances Section - First for Actors */}
+                    <h2 className="text-xl font-semibold mb-4">
+                      Movie Appearances (Acting)
+                    </h2>
+                    {sortedMovieCastCredits.length > 0 ? (
+                      <MediaGrid
+                        items={sortedMovieCastCredits.map((item) => ({
+                          ...item,
+                          media_type: "movie",
+                        }))}
+                      />
+                    ) : (
+                      <div className="p-8 text-center border rounded-lg">
+                        <p className="text-muted-foreground">
+                          No acting movie credits found.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Directed Movies Section - Second for Actors */}
+                    {directedMovies.length > 0 && (
+                      <div className="mt-12">
+                        <h2 className="text-xl font-semibold mb-4">
+                          Directed Movies
+                        </h2>
+                        <Separator className="mb-6" />
+                        <MediaGrid items={directedMovies} />
+                      </div>
+                    )}
+                  </>
                 )}
               </TabsContent>
 
