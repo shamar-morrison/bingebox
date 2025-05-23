@@ -8,8 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { useRememberMe } from "@/lib/hooks/use-remember-me"
 import { createClient } from "@/lib/supabase/client"
 import { Loader2 } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -20,6 +23,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const { rememberMe, setRememberMe } = useRememberMe()
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -70,9 +74,9 @@ export default function LoginPage() {
           <CardContent>
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
+                <Label htmlFor="email" className="text-sm font-medium">
                   Email
-                </label>
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -85,9 +89,9 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">
+                <Label htmlFor="password" className="text-sm font-medium">
                   Password
-                </label>
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -97,6 +101,21 @@ export default function LoginPage() {
                   disabled={isLoading}
                   required
                 />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="remember-me"
+                  checked={rememberMe}
+                  onCheckedChange={(checked: boolean) => setRememberMe(checked)}
+                  disabled={isLoading}
+                />
+                <Label
+                  htmlFor="remember-me"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Remember me for 30 days
+                </Label>
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>

@@ -350,13 +350,13 @@ export default function Header() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
                     <Link href="/profile">
-                      <User className="w-4 h-4 mr-2" />
+                      <User className="w-4 h-4" />
                       Profile
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="w-4 h-4 mr-2" />
+                    <LogOut className="w-4 h-4" />
                     Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>

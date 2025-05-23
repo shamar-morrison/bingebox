@@ -8,11 +8,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { signOut } from "@/lib/auth-utils"
+import { useRememberMe } from "@/lib/hooks/use-remember-me"
 import { useUser } from "@/lib/hooks/use-user"
 import { createClient } from "@/lib/supabase/client"
-import { Film, Play, User, X } from "lucide-react"
+import { Film, LogOut, Play, Settings, User, X } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -28,6 +33,7 @@ type WatchlistItem = {
 
 export default function ProfilePage() {
   const { user, loading } = useUser()
+  const { rememberMe, setRememberMe } = useRememberMe()
   const [watchlists, setWatchlists] = useState<{
     watching: WatchlistItem[]
     should_watch: WatchlistItem[]
@@ -38,6 +44,8 @@ export default function ProfilePage() {
     dropped: [],
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [isSigningOut, setIsSigningOut] = useState(false)
+  const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
@@ -87,6 +95,24 @@ export default function ProfilePage() {
     } catch (error) {
       console.error("Error removing from watchlist:", error)
       toast.error("Failed to remove from watchlist")
+    }
+  }
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true)
+    try {
+      const { error } = await signOut()
+      if (error) {
+        toast.error("Failed to sign out")
+      } else {
+        toast.success("Signed out successfully")
+        router.push("/")
+        router.refresh()
+      }
+    } catch (error) {
+      toast.error("An error occurred while signing out")
+    } finally {
+      setIsSigningOut(false)
     }
   }
 
@@ -181,86 +207,148 @@ export default function ProfilePage() {
     <div className="min-h-screen pt-24 pb-16">
       <div className="container px-4">
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <User className="w-6 h-6 text-primary" />
-            <h1 className="text-3xl font-bold">My Profile</h1>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <User className="w-6 h-6 text-primary" />
+                <h1 className="text-3xl font-bold">My Profile</h1>
+              </div>
+              <p className="text-muted-foreground">
+                Welcome back, {user.email}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+              className="flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              {isSigningOut ? "Signing out..." : "Sign out"}
+            </Button>
           </div>
-          <p className="text-muted-foreground">Welcome back, {user.email}</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>My Watchlists</CardTitle>
-            <CardDescription>
-              Manage your movie and TV show collections
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="watching" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="watching" className="text-xs sm:text-sm">
-                  <span className="hidden sm:inline">Watching</span>
-                  <span className="sm:hidden">Watch</span>
-                  <span className="ml-1">({watchlists.watching.length})</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="should_watch"
-                  className="text-xs sm:text-sm"
-                >
-                  <span className="hidden sm:inline">Should Watch</span>
-                  <span className="sm:hidden">Should</span>
-                  <span className="ml-1">
-                    ({watchlists.should_watch.length})
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger value="dropped" className="text-xs sm:text-sm">
-                  <span className="hidden sm:inline">Dropped</span>
-                  <span className="sm:hidden">Drop</span>
-                  <span className="ml-1">({watchlists.dropped.length})</span>
-                </TabsTrigger>
-              </TabsList>
+        <div className="grid gap-6 lg:grid-cols-4">
+          <div className="lg:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Account Settings
+                </CardTitle>
+                <CardDescription>
+                  Manage your account preferences
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="remember-me-setting"
+                    checked={rememberMe}
+                    onCheckedChange={(checked: boolean) =>
+                      setRememberMe(checked)
+                    }
+                  />
+                  <Label
+                    htmlFor="remember-me-setting"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Remember me for 30 days
+                  </Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {rememberMe
+                    ? "Your session will persist for 30 days even after closing the browser."
+                    : "Your session will end when you close the browser."}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
 
-              <TabsContent value="watching">
-                {isLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
-                    <p className="mt-4 text-muted-foreground">
-                      Loading watchlist...
-                    </p>
-                  </div>
-                ) : (
-                  renderWatchlistItems(watchlists.watching)
-                )}
-              </TabsContent>
+          <div className="lg:col-span-3">
+            <Card>
+              <CardHeader>
+                <CardTitle>My Watchlists</CardTitle>
+                <CardDescription>
+                  Manage your movie and TV show collections
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="watching" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 mb-6">
+                    <TabsTrigger
+                      value="watching"
+                      className="text-xs sm:text-sm"
+                    >
+                      <span className="hidden sm:inline">Watching</span>
+                      <span className="sm:hidden">Watch</span>
+                      <span className="ml-1">
+                        ({watchlists.watching.length})
+                      </span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="should_watch"
+                      className="text-xs sm:text-sm"
+                    >
+                      <span className="hidden sm:inline">Should Watch</span>
+                      <span className="sm:hidden">Should</span>
+                      <span className="ml-1">
+                        ({watchlists.should_watch.length})
+                      </span>
+                    </TabsTrigger>
+                    <TabsTrigger value="dropped" className="text-xs sm:text-sm">
+                      <span className="hidden sm:inline">Dropped</span>
+                      <span className="sm:hidden">Drop</span>
+                      <span className="ml-1">
+                        ({watchlists.dropped.length})
+                      </span>
+                    </TabsTrigger>
+                  </TabsList>
 
-              <TabsContent value="should_watch">
-                {isLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
-                    <p className="mt-4 text-muted-foreground">
-                      Loading watchlist...
-                    </p>
-                  </div>
-                ) : (
-                  renderWatchlistItems(watchlists.should_watch)
-                )}
-              </TabsContent>
+                  <TabsContent value="watching">
+                    {isLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
+                        <p className="mt-4 text-muted-foreground">
+                          Loading watchlist...
+                        </p>
+                      </div>
+                    ) : (
+                      renderWatchlistItems(watchlists.watching)
+                    )}
+                  </TabsContent>
 
-              <TabsContent value="dropped">
-                {isLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
-                    <p className="mt-4 text-muted-foreground">
-                      Loading watchlist...
-                    </p>
-                  </div>
-                ) : (
-                  renderWatchlistItems(watchlists.dropped)
-                )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                  <TabsContent value="should_watch">
+                    {isLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
+                        <p className="mt-4 text-muted-foreground">
+                          Loading watchlist...
+                        </p>
+                      </div>
+                    ) : (
+                      renderWatchlistItems(watchlists.should_watch)
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="dropped">
+                    {isLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
+                        <p className="mt-4 text-muted-foreground">
+                          Loading watchlist...
+                        </p>
+                      </div>
+                    ) : (
+                      renderWatchlistItems(watchlists.dropped)
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   )
