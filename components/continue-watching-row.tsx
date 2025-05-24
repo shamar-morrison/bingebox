@@ -26,6 +26,7 @@ export default function ContinueWatchingRow() {
       .filter((item) => {
         let watched: number | undefined
         let duration: number | undefined
+        let satisfiesMinWatchRequirement = false // Flag to check if min watch time or S1E1+ condition is met
 
         if (item.type === "tv") {
           if (
@@ -36,27 +37,44 @@ export default function ContinueWatchingRow() {
             const episodeKey = `s${item.last_season_watched}e${item.last_episode_watched}`
             const episodeData: EpisodeProgress | undefined =
               item.show_progress[episodeKey]
+
             if (episodeData && episodeData.progress) {
               watched = episodeData.progress.watched
               duration = episodeData.progress.duration
+
+              const lastSeasonNum = parseInt(item.last_season_watched, 10)
+              const lastEpisodeNum = parseInt(item.last_episode_watched, 10)
+
+              const isBeyondS1E1 =
+                lastSeasonNum > 1 || (lastSeasonNum === 1 && lastEpisodeNum > 1)
+
+              if (isBeyondS1E1) {
+                satisfiesMinWatchRequirement = true // If past S1E1, it's eligible
+              } else if (typeof watched === "number") {
+                // For S1E1, check MIN_WATCH_SECONDS
+                satisfiesMinWatchRequirement = watched > MIN_WATCH_SECONDS
+              }
             }
           }
         } else {
           // For movies and other types (if any in future)
           watched = item.progress?.watched
           duration = item.progress?.duration
+          if (typeof watched === "number") {
+            satisfiesMinWatchRequirement = watched > MIN_WATCH_SECONDS
+          }
         }
 
         if (
           typeof watched !== "number" ||
           typeof duration !== "number" ||
-          duration === 0
+          duration === 0 // also check duration is not zero to prevent division by zero
         ) {
-          return false // Skip if progress data is incomplete
+          return false // Skip if progress data is incomplete or duration is zero
         }
         const progressPercent = (watched / duration) * 100
         return (
-          watched > MIN_WATCH_SECONDS && progressPercent < MAX_PROGRESS_PERCENT
+          satisfiesMinWatchRequirement && progressPercent < MAX_PROGRESS_PERCENT
         )
       })
       .sort((a, b) => (b.last_updated || 0) - (a.last_updated || 0)) // Sort by most recently updated
