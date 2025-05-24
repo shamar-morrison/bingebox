@@ -31,6 +31,7 @@ import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { isProtectedRoute } from "@/lib/auth-config"
 import { useUser } from "@/lib/hooks/use-user"
+import { useWatchProgressManager } from "@/lib/hooks/use-watch-progress-manager"
 import { createClient } from "@/lib/supabase/client"
 
 interface SearchResult {
@@ -58,6 +59,7 @@ export default function Header() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { user, loading } = useUser()
+  const { handleSignOut: watchProgressSignOut } = useWatchProgressManager()
   const supabase = createClient()
 
   const getCurrentUrl = () => {
@@ -66,16 +68,24 @@ export default function Header() {
   }
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      console.error("Error signing out:", error)
-    } else {
-      if (isProtectedRoute(pathname)) {
-        router.push("/login")
+    try {
+      // First, handle watch progress sync
+      await watchProgressSignOut()
+
+      // Then sign out from Supabase
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error("Error signing out:", error)
       } else {
-        // Stay on current page, just refresh to update auth state
-        router.refresh()
+        if (isProtectedRoute(pathname)) {
+          router.push("/login")
+        } else {
+          // Stay on current page, just refresh to update auth state
+          router.refresh()
+        }
       }
+    } catch (error) {
+      console.error("Error during sign out process:", error)
     }
   }
 
