@@ -6,7 +6,6 @@ const REMEMBER_ME_COOKIE = "supabase-remember-me"
 export function useRememberMe() {
   const [rememberMe, setRememberMeState] = useState<boolean>(true)
 
-  // Read initial preference
   useEffect(() => {
     const getInitialPreference = (): boolean => {
       // Check localStorage first

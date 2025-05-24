@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import type {
   EpisodeProgress,
   MediaItem as VidLinkMediaItem,
-} from "@/lib/hooks/use-vidlink-progress" // Renamed to avoid conflict
+} from "@/lib/hooks/use-vidlink-progress"
 import { Film, Play, Tv } from "lucide-react"
 import Link from "next/link"
 
@@ -17,7 +17,7 @@ export default function ContinueWatchingMediaCard({
   const title = item.title || "Untitled"
   const posterPath = item.poster_path
     ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-    : `` // Fallback for missing poster
+    : `/placeholder.svg` // Fallback for missing poster
 
   let itemMediaType: "movie" | "tv"
   switch (item.type) {

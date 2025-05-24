@@ -1,7 +1,7 @@
 "use client"
 
 import ContinueWatchingMediaCard from "@/components/continue-watching-media-card"
-import { Skeleton } from "@/components/ui/skeleton" // For loading state
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   useVidlinkProgress,
   type EpisodeProgress,
@@ -9,15 +9,14 @@ import {
 } from "@/lib/hooks/use-vidlink-progress"
 import { useMemo } from "react"
 
-// Define a minimum watch time in seconds to be considered for "Continue Watching"
+// minimum watch time in seconds to be considered for "Continue Watching"
 const MIN_WATCH_SECONDS = 60 // e.g., 1 minute
-// Define a maximum progress percentage to avoid showing nearly completed items (e.g. > 95%)
+// maximum progress percentage to avoid showing nearly completed items (e.g. > 95%)
 const MAX_PROGRESS_PERCENT = 95
 
 export default function ContinueWatchingRow() {
   const { progressData } = useVidlinkProgress()
 
-  // Call useMemo unconditionally at the top.
   const itemsToDisplay = useMemo(() => {
     // If progressData is null (still loading) or an empty object (loaded, but no data)
     if (!progressData || Object.keys(progressData).length === 0) {
@@ -84,7 +83,6 @@ export default function ContinueWatchingRow() {
     return null // Don't render the section if there's nothing to show
   }
 
-  // If there are items to display
   return (
     <div className="container px-4 mt-8">
       <section className="pb-8">
@@ -104,7 +102,6 @@ export default function ContinueWatchingRow() {
   )
 }
 
-// Basic skeleton for the row, similar to what might be in app/page.tsx
 function RowSkeleton({ count = 8 }: { count?: number }) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8">

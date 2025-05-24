@@ -42,9 +42,6 @@ export function useVidlinkProgress() {
   )
 
   useEffect(() => {
-    console.log(
-      "[useVidlinkProgress] Hook initialized and attempting to load from localStorage.",
-    )
     const storedProgress = localStorage.getItem(VIDLINK_PROGRESS_STORAGE_KEY)
     if (storedProgress) {
       try {
@@ -75,7 +72,6 @@ export function useVidlinkProgress() {
 
       if (event.data?.type === "MEDIA_DATA") {
         const newMediaData = event.data.data as VidLinkProgressData
-        // console.log("[useVidlinkProgress] Received MEDIA_DATA:", newMediaData) // Remove a previously added console.log
         setProgressData((prevData) => {
           const updatedData = { ...prevData, ...newMediaData }
           localStorage.setItem(
@@ -89,7 +85,6 @@ export function useVidlinkProgress() {
 
     window.addEventListener("message", handleMessage)
 
-    // Cleanup listener on component unmount
     return () => {
       window.removeEventListener("message", handleMessage)
     }
