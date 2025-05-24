@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useVidlinkProgress } from "@/lib/hooks/use-vidlink-progress"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -31,6 +32,8 @@ export default function VidsrcPlayer({
   episodeNumber,
   title,
 }: VidsrcPlayerProps) {
+  useVidlinkProgress()
+
   const router = useRouter()
   const searchParams = useSearchParams()
 

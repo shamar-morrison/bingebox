@@ -1,15 +1,16 @@
-import { Suspense } from "react"
-import Link from "next/link"
 import { ChevronRight } from "lucide-react"
+import Link from "next/link"
+import { Suspense } from "react"
 
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import ContinueWatchingRow from "@/components/continue-watching-row"
 import FeaturedMedia from "@/components/featured-media"
 import MediaRow from "@/components/media-row"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
-  fetchTrending,
   fetchPopularMovies,
   fetchTopRatedShows,
+  fetchTrending,
 } from "@/lib/tmdb"
 import type { Metadata } from "next"
 
@@ -24,6 +25,8 @@ export default function Home() {
       <Suspense fallback={<FeaturedMediaSkeleton />}>
         <FeaturedMedia />
       </Suspense>
+
+      <ContinueWatchingRow />
 
       <div className="container px-4 mt-8 space-y-8">
         <section>
