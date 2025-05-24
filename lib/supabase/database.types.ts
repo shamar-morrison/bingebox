@@ -9,6 +9,57 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      watch_progress: {
+        Row: {
+          backdrop_path: string | null
+          created_at: string | null
+          duration_seconds: number
+          id: string
+          last_episode_watched: string | null
+          last_season_watched: string | null
+          media_id: string
+          media_type: string
+          poster_path: string | null
+          show_progress: Json | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          watched_seconds: number
+        }
+        Insert: {
+          backdrop_path?: string | null
+          created_at?: string | null
+          duration_seconds?: number
+          id?: string
+          last_episode_watched?: string | null
+          last_season_watched?: string | null
+          media_id: string
+          media_type: string
+          poster_path?: string | null
+          show_progress?: Json | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          watched_seconds?: number
+        }
+        Update: {
+          backdrop_path?: string | null
+          created_at?: string | null
+          duration_seconds?: number
+          id?: string
+          last_episode_watched?: string | null
+          last_season_watched?: string | null
+          media_id?: string
+          media_type?: string
+          poster_path?: string | null
+          show_progress?: Json | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          watched_seconds?: number
+        }
+        Relationships: []
+      }
       watchlists: {
         Row: {
           added_at: string

@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useUser } from "./use-user"
+import { useWatchProgressSync } from "./use-watch-progress-sync"
 
 const VIDLINK_PROGRESS_STORAGE_KEY = "vidLinkProgress"
 
@@ -32,40 +34,78 @@ export interface MediaItem {
 }
 
 // The overall structure stored in localStorage
-interface VidLinkProgressData {
+export interface VidLinkProgressData {
   [mediaId: string]: MediaItem
 }
 
 export function useVidlinkProgress() {
+  const { user } = useUser()
+  const { loadAccountData, saveToAccount } = useWatchProgressSync()
   const [progressData, setProgressData] = useState<VidLinkProgressData | null>(
     null,
   )
+  const [isDataLoaded, setIsDataLoaded] = useState(false)
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const lastSavedDataRef = useRef<VidLinkProgressData>({})
 
-  useEffect(() => {
-    const storedProgress = localStorage.getItem(VIDLINK_PROGRESS_STORAGE_KEY)
-    if (storedProgress) {
-      try {
-        setProgressData(JSON.parse(storedProgress))
-      } catch (error) {
-        console.error(
-          "[useVidlinkProgress] Error parsing VidLink progress from localStorage:",
-          error,
-        )
-        localStorage.removeItem(VIDLINK_PROGRESS_STORAGE_KEY) // Clear corrupted data
+  // Auto-save debounced function
+  const debouncedSaveToAccount = useCallback(
+    (data: VidLinkProgressData) => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
       }
-    } else {
-      // Initialize to empty object if nothing is in localStorage after first load attempt
-      setProgressData({})
+
+      saveTimeoutRef.current = setTimeout(() => {
+        if (user && data) {
+          saveToAccount(data)
+          lastSavedDataRef.current = { ...data }
+        }
+      }, 2000) // Save 2 seconds after last update
+    },
+    [user, saveToAccount],
+  )
+
+  // Load initial data
+  useEffect(() => {
+    const loadInitialData = async () => {
+      if (user) {
+        // User is logged in, load from account
+        const accountData = await loadAccountData()
+        if (accountData) {
+          setProgressData(accountData)
+          setIsDataLoaded(true)
+          return
+        }
+      }
+
+      // Load from localStorage (either user not logged in or no account data)
+      const storedProgress = localStorage.getItem(VIDLINK_PROGRESS_STORAGE_KEY)
+      if (storedProgress) {
+        try {
+          const parsed = JSON.parse(storedProgress)
+          setProgressData(parsed)
+          lastSavedDataRef.current = { ...parsed }
+        } catch (error) {
+          console.error(
+            "[useVidlinkProgress] Error parsing VidLink progress from localStorage:",
+            error,
+          )
+          localStorage.removeItem(VIDLINK_PROGRESS_STORAGE_KEY)
+        }
+      } else {
+        setProgressData({})
+      }
+      setIsDataLoaded(true)
     }
 
-    // Event listener for VidLink messages
-    const handleMessage = (event: MessageEvent) => {
-      // Looser origin check for debugging - REMOVE or make more specific for production
-      // if (!event.origin.includes('vidlink')) {
-      //   console.log("[useVidlinkProgress] Message from other origin:", event.origin)
-      //   return
-      // }
+    loadInitialData()
+  }, [user, loadAccountData])
 
+  // Handle VidLink messages and auto-save
+  useEffect(() => {
+    if (!isDataLoaded) return
+
+    const handleMessage = (event: MessageEvent) => {
       if (event.origin !== "https://vidlink.pro") {
         return
       }
@@ -74,21 +114,81 @@ export function useVidlinkProgress() {
         const newMediaData = event.data.data as VidLinkProgressData
         setProgressData((prevData) => {
           const updatedData = { ...prevData, ...newMediaData }
+
+          // Always save to localStorage
           localStorage.setItem(
             VIDLINK_PROGRESS_STORAGE_KEY,
             JSON.stringify(updatedData),
           )
+
+          // If user is logged in, debounce save to account
+          if (user) {
+            debouncedSaveToAccount(updatedData)
+          }
+
           return updatedData
         })
       }
     }
 
     window.addEventListener("message", handleMessage)
-
     return () => {
       window.removeEventListener("message", handleMessage)
     }
-  }, [])
+  }, [user, debouncedSaveToAccount, isDataLoaded])
+
+  // Save to account when user stops watching (component unmount, page unload, etc.)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (user && progressData && Object.keys(progressData).length > 0) {
+        // Check if there are unsaved changes
+        const currentDataStr = JSON.stringify(progressData)
+        const lastSavedDataStr = JSON.stringify(lastSavedDataRef.current)
+
+        if (currentDataStr !== lastSavedDataStr) {
+          // Use sendBeacon for reliable saving during page unload
+          const blob = new Blob(
+            [
+              JSON.stringify({
+                action: "save_progress",
+                data: progressData,
+                userId: user.id,
+              }),
+            ],
+            { type: "application/json" },
+          )
+
+          // If sendBeacon is not available, try synchronous save
+          if ("sendBeacon" in navigator) {
+            navigator.sendBeacon("/api/save-progress", blob)
+          } else {
+            // Fallback: immediate save (might not complete if page unloads)
+            saveToAccount(progressData)
+          }
+        }
+      }
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+
+      // Save any pending changes when component unmounts
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+
+      if (user && progressData && Object.keys(progressData).length > 0) {
+        const currentDataStr = JSON.stringify(progressData)
+        const lastSavedDataStr = JSON.stringify(lastSavedDataRef.current)
+
+        if (currentDataStr !== lastSavedDataStr) {
+          saveToAccount(progressData)
+        }
+      }
+    }
+  }, [user, progressData, saveToAccount])
 
   const getMediaProgress = useCallback(
     (mediaId: string | number): MediaItem | undefined => {
@@ -97,11 +197,15 @@ export function useVidlinkProgress() {
     [progressData],
   )
 
-  // Optional: A function to manually clear progress if needed for testing or user action
   const clearAllProgress = useCallback(() => {
     localStorage.removeItem(VIDLINK_PROGRESS_STORAGE_KEY)
-    setProgressData({}) // Set to empty object after clearing
+    setProgressData({})
+    lastSavedDataRef.current = {}
   }, [])
 
-  return { progressData, getMediaProgress, clearAllProgress }
+  return {
+    progressData: isDataLoaded ? progressData : null,
+    getMediaProgress,
+    clearAllProgress,
+  }
 }
