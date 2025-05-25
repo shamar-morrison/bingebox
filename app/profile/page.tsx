@@ -15,7 +15,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Film, Play, User, X } from "lucide-react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { Suspense, useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
 type WatchlistItem = {
@@ -28,7 +28,7 @@ type WatchlistItem = {
   added_at: string
 }
 
-export default function ProfilePage() {
+function ProfileContent() {
   const { user, loading } = useUser()
   const searchParams = useSearchParams()
   const tabFromUrl = searchParams.get("tab")
@@ -52,13 +52,7 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true)
   const supabase = createClient()
 
-  useEffect(() => {
-    if (user) {
-      fetchWatchlists()
-    }
-  }, [user])
-
-  const fetchWatchlists = async () => {
+  const fetchWatchlists = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("watchlists")
@@ -86,7 +80,13 @@ export default function ProfilePage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    if (user) {
+      fetchWatchlists()
+    }
+  }, [user, fetchWatchlists])
 
   const removeFromWatchlist = async (id: string) => {
     try {
@@ -279,5 +279,43 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+function ProfileLoadingFallback() {
+  return (
+    <div className="min-h-screen pt-24 pb-16">
+      <div className="container px-4">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <User className="w-6 h-6 text-primary" />
+            <h1 className="text-3xl font-bold">My Profile</h1>
+          </div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>My Watchlists</CardTitle>
+            <CardDescription>
+              Manage your movie and TV show collections
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8">
+              <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading profile...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<ProfileLoadingFallback />}>
+      <ProfileContent />
+    </Suspense>
   )
 }
