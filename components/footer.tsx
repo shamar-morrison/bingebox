@@ -112,6 +112,16 @@ export default function Footer() {
                     Report a Bug
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="https://ko-fi.com/bingebox"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-primary"
+                  >
+                    Support Us ❤️
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
