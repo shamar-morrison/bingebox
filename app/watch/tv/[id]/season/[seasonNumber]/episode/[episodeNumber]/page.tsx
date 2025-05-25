@@ -148,8 +148,13 @@ async function EpisodePlayer({
     // Previous episode in current season
     prevEpisodeLink = `/watch/tv/${id}/season/${seasonNumber}/episode/${episodeNumber - 1}${sourceParam}`
   } else if (seasonNumber > 1) {
-    // Last episode of previous season
-    prevEpisodeLink = `/watch/tv/${id}/season/${seasonNumber - 1}/episode/1${sourceParam}`
+    // Last episode of previous season - need to fetch previous season details
+    const prevSeasonDetails = await fetchSeasonDetails(id, seasonNumber - 1)
+    const prevSeasonEpisodes = prevSeasonDetails?.episodes || []
+    const lastEpisodeNumber = prevSeasonEpisodes.length
+    if (lastEpisodeNumber > 0) {
+      prevEpisodeLink = `/watch/tv/${id}/season/${seasonNumber - 1}/episode/${lastEpisodeNumber}${sourceParam}`
+    }
   }
 
   // Next episode - either next in current season or first of next season
