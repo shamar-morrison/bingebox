@@ -14,6 +14,7 @@ import { useUser } from "@/lib/hooks/use-user"
 import { createClient } from "@/lib/supabase/client"
 import { Film, Play, User, X } from "lucide-react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -29,6 +30,16 @@ type WatchlistItem = {
 
 export default function ProfilePage() {
   const { user, loading } = useUser()
+  const searchParams = useSearchParams()
+  const tabFromUrl = searchParams.get("tab")
+
+  const defaultTab =
+    tabFromUrl === "favorites" ||
+    tabFromUrl === "should_watch" ||
+    tabFromUrl === "dropped"
+      ? tabFromUrl
+      : "favorites"
+
   const [watchlists, setWatchlists] = useState<{
     favorites: WatchlistItem[]
     should_watch: WatchlistItem[]
@@ -197,7 +208,7 @@ export default function ProfilePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="favorites" className="w-full">
+            <Tabs defaultValue={defaultTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="favorites" className="text-xs sm:text-sm">
                   <span className="hidden sm:inline">Favorites</span>

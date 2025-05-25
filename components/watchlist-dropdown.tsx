@@ -107,7 +107,12 @@ export default function WatchlistDropdown({
         })
 
         if (error) throw error
-        toast.success(`Added to ${status.replace("_", " ")} list`)
+        toast.success(`Added to ${status.replace("_", " ")} list`, {
+          action: {
+            label: "View List",
+            onClick: () => router.push(`/profile?tab=${status}`),
+          },
+        })
       } else {
         // Update existing entry
         const { error } = await supabase
@@ -117,7 +122,12 @@ export default function WatchlistDropdown({
           .eq("media_type", mediaType)
 
         if (error) throw error
-        toast.success(`Moved to ${status.replace("_", " ")} list`)
+        toast.success(`Moved to ${status.replace("_", " ")} list`, {
+          action: {
+            label: "View List",
+            onClick: () => router.push(`/profile?tab=${status}`),
+          },
+        })
       }
 
       setCurrentStatus(status)
