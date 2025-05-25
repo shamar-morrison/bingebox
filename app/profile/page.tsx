@@ -1,5 +1,6 @@
 "use client"
 
+import ContinueWatchingRow from "@/components/continue-watching-row"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -20,7 +21,7 @@ type WatchlistItem = {
   id: string
   media_id: number
   media_type: string
-  status: "watching" | "should_watch" | "dropped"
+  status: "favorites" | "should_watch" | "dropped"
   title: string
   poster_path: string | null
   added_at: string
@@ -29,11 +30,11 @@ type WatchlistItem = {
 export default function ProfilePage() {
   const { user, loading } = useUser()
   const [watchlists, setWatchlists] = useState<{
-    watching: WatchlistItem[]
+    favorites: WatchlistItem[]
     should_watch: WatchlistItem[]
     dropped: WatchlistItem[]
   }>({
-    watching: [],
+    favorites: [],
     should_watch: [],
     dropped: [],
   })
@@ -61,11 +62,11 @@ export default function ProfilePage() {
           return acc
         },
         {
-          watching: [] as WatchlistItem[],
+          favorites: [] as WatchlistItem[],
           should_watch: [] as WatchlistItem[],
           dropped: [] as WatchlistItem[],
         },
-      ) || { watching: [], should_watch: [], dropped: [] }
+      ) || { favorites: [], should_watch: [], dropped: [] }
 
       setWatchlists(grouped)
     } catch (error) {
@@ -196,12 +197,12 @@ export default function ProfilePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="watching" className="w-full">
+            <Tabs defaultValue="favorites" className="w-full">
               <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="watching" className="text-xs sm:text-sm">
-                  <span className="hidden sm:inline">Watching</span>
-                  <span className="sm:hidden">Watch</span>
-                  <span className="ml-1">({watchlists.watching.length})</span>
+                <TabsTrigger value="favorites" className="text-xs sm:text-sm">
+                  <span className="hidden sm:inline">Favorites</span>
+                  <span className="sm:hidden">Favs</span>
+                  <span className="ml-1">({watchlists.favorites.length})</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="should_watch"
@@ -220,7 +221,7 @@ export default function ProfilePage() {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="watching">
+              <TabsContent value="favorites">
                 {isLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
@@ -229,7 +230,7 @@ export default function ProfilePage() {
                     </p>
                   </div>
                 ) : (
-                  renderWatchlistItems(watchlists.watching)
+                  renderWatchlistItems(watchlists.favorites)
                 )}
               </TabsContent>
 
@@ -261,6 +262,10 @@ export default function ProfilePage() {
             </Tabs>
           </CardContent>
         </Card>
+
+        <div className="mt-12">
+          <ContinueWatchingRow />
+        </div>
       </div>
     </div>
   )

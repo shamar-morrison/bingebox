@@ -104,7 +104,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      watchlist_status: "watching" | "should_watch" | "dropped"
+      watchlist_status: "favorites" | "should_watch" | "dropped"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -220,7 +220,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      watchlist_status: ["watching", "should_watch", "dropped"],
+      watchlist_status: ["favorites", "should_watch", "dropped"],
     },
   },
 } as const

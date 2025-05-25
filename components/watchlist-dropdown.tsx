@@ -23,7 +23,7 @@ interface WatchlistDropdownProps {
   posterPath?: string | null
 }
 
-type WatchlistStatus = "watching" | "should_watch" | "dropped" | null
+type WatchlistStatus = "favorites" | "should_watch" | "dropped" | null
 
 export default function WatchlistDropdown({
   mediaId,
@@ -159,13 +159,13 @@ export default function WatchlistDropdown({
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
-          onClick={() => updateWatchlistStatus("watching")}
+          onClick={() => updateWatchlistStatus("favorites")}
           className="cursor-pointer"
         >
           <div className="flex items-center w-full">
             <Heart className="w-4 h-4 mr-2 text-red-500" />
-            <span>Watching</span>
-            {currentStatus === "watching" && (
+            <span>Favorites</span>
+            {currentStatus === "favorites" && (
               <Check className="w-4 h-4 ml-auto" />
             )}
           </div>
