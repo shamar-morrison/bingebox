@@ -11,6 +11,7 @@ import Header from "@/components/header"
 import ScrollToTop from "@/components/scroll-to-top"
 import { ThemeProvider } from "@/components/theme-provider"
 import { UserProvider } from "@/lib/hooks/use-user"
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -39,7 +40,10 @@ export default function RootLayout({
               <Suspense fallback={<HeaderSkeleton />}>
                 <Header />
               </Suspense>
-              <div className="flex-1">{children}</div>
+              <div className="flex-1">
+                {children}
+                <Analytics />
+              </div>
               <Footer />
             </div>
           </UserProvider>
