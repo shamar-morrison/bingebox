@@ -136,6 +136,14 @@ export default function VidsrcPlayer({
         </div>
       </div>
 
+      {selectedSource.name === "VidLink" && (
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground">
+            Your watch progress is being recorded.
+          </p>
+        </div>
+      )}
+
       <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
         <iframe
           src={getEmbedUrl()}
