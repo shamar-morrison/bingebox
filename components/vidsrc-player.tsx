@@ -14,7 +14,7 @@ import { useEffect, useState } from "react"
 interface SourceOption {
   name: string
   baseUrl: string
-  autoplay?: boolean
+  query?: Record<string, any>
 }
 
 interface VidsrcPlayerProps {
@@ -38,9 +38,25 @@ export default function VidsrcPlayer({
   const searchParams = useSearchParams()
 
   const sources: SourceOption[] = [
-    { name: "VidLink", baseUrl: "https://vidlink.pro", autoplay: false },
-    { name: "Embed", baseUrl: "https://embed.su/embed" },
-    { name: "VidSrcDev", baseUrl: "https://vidsrc.dev/embed" },
+    {
+      name: "VidLink",
+      baseUrl: "https://vidlink.pro",
+      query: { autoplay: "false" },
+    },
+    {
+      name: "VidJoy",
+      baseUrl: "https://vidjoy.pro/embed",
+      query: { adFree: "true" },
+    },
+    {
+      name: "VidFast",
+      baseUrl: "https://vidfast.pro",
+      query: { autoplay: "false" },
+    },
+    {
+      name: "Embed",
+      baseUrl: "https://embed.su/embed",
+    },
     { name: "VidSrcTo", baseUrl: "https://vidsrc.to/embed" },
     { name: "AutoEmbed", baseUrl: "https://player.autoembed.cc/embed" },
     {
@@ -82,17 +98,15 @@ export default function VidsrcPlayer({
   }
 
   const getEmbedUrl = () => {
-    // certain sources autoplays by default so the player starts muted, this prevents that
-    if (mediaType === "movie" && !selectedSource.autoplay) {
-      return `${selectedSource.baseUrl}/movie/${tmdbId}?autoplay=false`
-    } else if (mediaType === "tv" && !selectedSource.autoplay) {
-      return `${selectedSource.baseUrl}/tv/${tmdbId}/${seasonNumber}/${episodeNumber}?autoplay=false`
-    }
+    const queryString = Object.entries(selectedSource.query || {})
+      .map(([key, value]) => `${key}=${value}`)
+      .join("&")
+    const query = queryString ? `?${queryString}` : ""
 
     if (mediaType === "movie") {
-      return `${selectedSource.baseUrl}/movie/${tmdbId}`
+      return `${selectedSource.baseUrl}/movie/${tmdbId}${query}`
     } else {
-      return `${selectedSource.baseUrl}/tv/${tmdbId}/${seasonNumber}/${episodeNumber}`
+      return `${selectedSource.baseUrl}/tv/${tmdbId}/${seasonNumber}/${episodeNumber}${query}`
     }
   }
 
