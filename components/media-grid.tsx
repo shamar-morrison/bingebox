@@ -43,7 +43,7 @@ function MediaCard({ item }: { item: MediaItem }) {
   return (
     <Card className="overflow-hidden">
       <Link href={detailsPath}>
-        <div className="relative aspect-[2/3] group">
+        <div className="relative aspect-[2/3] group overflow-hidden">
           <img
             src={imagePath}
             alt={title}

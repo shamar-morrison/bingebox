@@ -135,7 +135,7 @@ function ProfileContent() {
           return (
             <Card key={item.id} className="overflow-hidden group relative">
               <Link href={detailsPath}>
-                <div className="relative aspect-[2/3]">
+                <div className="relative aspect-[2/3] overflow-hidden">
                   {item.poster_path ? (
                     <img
                       src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}

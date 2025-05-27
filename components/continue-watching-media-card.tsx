@@ -68,7 +68,10 @@ export default function ContinueWatchingMediaCard({
 
   return (
     <Card className="overflow-hidden flex flex-col h-full">
-      <Link href={detailsPath} className="block relative group aspect-[2/3]">
+      <Link
+        href={detailsPath}
+        className="block relative group aspect-[2/3] overflow-hidden"
+      >
         <img
           src={posterPath}
           alt={title}
