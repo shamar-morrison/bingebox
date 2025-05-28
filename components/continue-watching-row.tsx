@@ -74,24 +74,12 @@ export default function ContinueWatchingRow() {
         }
         const progressPercent = (watched / duration) * 100
 
-        // For TV shows beyond S1E1, always show them regardless of current episode progress
-        // For movies and S1E1, apply the MAX_PROGRESS_PERCENT rule
+        // For TV shows, always show them regardless of current episode progress
+        // since finishing any episode indicates investment in the show
+        // For movies, apply the MAX_PROGRESS_PERCENT rule
         if (item.type === "tv") {
-          const lastSeasonNum = parseInt(item.last_season_watched || "1", 10)
-          const lastEpisodeNum = parseInt(item.last_episode_watched || "1", 10)
-          const isBeyondS1E1 =
-            lastSeasonNum > 1 || (lastSeasonNum === 1 && lastEpisodeNum > 1)
-
-          if (isBeyondS1E1) {
-            // Show TV shows past S1E1 regardless of current episode progress
-            return satisfiesMinWatchRequirement
-          } else {
-            // For S1E1, apply the completion percentage rule
-            return (
-              satisfiesMinWatchRequirement &&
-              progressPercent < MAX_PROGRESS_PERCENT
-            )
-          }
+          // Show all TV shows regardless of current episode progress
+          return satisfiesMinWatchRequirement
         } else {
           // For movies, always apply the completion percentage rule
           return (
