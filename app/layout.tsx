@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import NextTopLoader from "nextjs-toploader"
 import type React from "react"
@@ -8,6 +8,7 @@ import "./globals.css"
 
 import Footer from "@/components/footer"
 import Header from "@/components/header"
+import PWAPrompt from "@/components/pwa-prompt"
 import ScrollToTop from "@/components/scroll-to-top"
 import { ThemeProvider } from "@/components/theme-provider"
 import { UserProvider } from "@/lib/hooks/use-user"
@@ -19,6 +20,36 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "BingeBox",
   description: "Watch your favorite movie and TV shows",
+  keywords: ["movies", "tv shows", "entertainment", "streaming", "watch"],
+  authors: [{ name: "BingeBox Team" }],
+  creator: "BingeBox",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "BingeBox",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: "BingeBox",
+    title: "BingeBox",
+    description: "Watch your favorite movie and TV shows",
+  },
+  twitter: {
+    card: "summary",
+    title: "BingeBox",
+    description: "Watch your favorite movie and TV shows",
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: "#e11d48",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 }
 
 export default function RootLayout({
@@ -28,6 +59,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="BingeBox" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+        <meta name="msapplication-TileColor" content="#e11d48" />
+      </head>
       <body className={inter.className}>
         <NextTopLoader color="#e11d48" showSpinner={false} />
         <ThemeProvider
@@ -44,6 +84,7 @@ export default function RootLayout({
               <div className="flex-1">{children}</div>
               <Footer />
             </div>
+            <PWAPrompt />
           </UserProvider>
         </ThemeProvider>
         <Analytics />
