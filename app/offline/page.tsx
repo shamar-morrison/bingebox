@@ -1,7 +1,21 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Wifi, WifiOff } from "lucide-react"
 
 export default function OfflinePage() {
+  const handleTryAgain = () => {
+    if (typeof window !== "undefined") {
+      window.location.reload()
+    }
+  }
+
+  const handleGoBack = () => {
+    if (typeof window !== "undefined") {
+      window.history.back()
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="text-center space-y-6 max-w-md">
@@ -23,16 +37,12 @@ export default function OfflinePage() {
         </div>
 
         <div className="space-y-4">
-          <Button onClick={() => window.location.reload()} className="w-full">
+          <Button onClick={handleTryAgain} className="w-full">
             <Wifi className="mr-2 h-4 w-4" />
             Try again
           </Button>
 
-          <Button
-            variant="outline"
-            onClick={() => window.history.back()}
-            className="w-full"
-          >
+          <Button variant="outline" onClick={handleGoBack} className="w-full">
             Go back
           </Button>
         </div>
