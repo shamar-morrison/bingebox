@@ -14,7 +14,7 @@ import { useUser } from "@/lib/hooks/use-user"
 import { createClient } from "@/lib/supabase/client"
 import { Film, Play, User, X } from "lucide-react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -32,6 +32,8 @@ function ProfileContent() {
   const { user, loading } = useUser()
   const searchParams = useSearchParams()
   const tabFromUrl = searchParams.get("tab")
+  const router = useRouter()
+  const pathname = usePathname()
 
   const defaultTab =
     tabFromUrl === "favorites" ||
@@ -51,6 +53,10 @@ function ProfileContent() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const supabase = createClient()
+
+  const handleTabChange = (value: string) => {
+    router.push(`${pathname}?tab=${value}`)
+  }
 
   const fetchWatchlists = useCallback(async () => {
     try {
@@ -208,7 +214,11 @@ function ProfileContent() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue={defaultTab} className="w-full">
+            <Tabs
+              defaultValue={defaultTab}
+              className="w-full"
+              onValueChange={handleTabChange}
+            >
               <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="favorites" className="text-xs sm:text-sm">
                   <span className="hidden sm:inline">Favorites</span>
@@ -234,7 +244,7 @@ function ProfileContent() {
 
               <TabsContent value="favorites">
                 {isLoading ? (
-                  <div className="text-center py-8">
+                  <div className="text-center py-8 min-h-[24rem] flex flex-col items-center justify-center">
                     <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
                     <p className="mt-4 text-muted-foreground">
                       Loading watchlist...
@@ -247,7 +257,7 @@ function ProfileContent() {
 
               <TabsContent value="should_watch">
                 {isLoading ? (
-                  <div className="text-center py-8">
+                  <div className="text-center py-8 min-h-[24rem] flex flex-col items-center justify-center">
                     <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
                     <p className="mt-4 text-muted-foreground">
                       Loading watchlist...
@@ -260,7 +270,7 @@ function ProfileContent() {
 
               <TabsContent value="dropped">
                 {isLoading ? (
-                  <div className="text-center py-8">
+                  <div className="text-center py-8 min-h-[24rem] flex flex-col items-center justify-center">
                     <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
                     <p className="mt-4 text-muted-foreground">
                       Loading watchlist...
@@ -301,12 +311,20 @@ function ProfileLoadingFallback() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8">
-              <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
-              <p className="mt-4 text-muted-foreground">Loading profile...</p>
+            <div className="w-full">
+              <div className="grid w-full grid-cols-3 mb-6 h-10 bg-muted rounded-md animate-pulse"></div>
+              <div className="text-center py-8 min-h-[24rem] flex flex-col items-center justify-center bg-muted rounded-md animate-pulse">
+                <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
+                <p className="mt-4 text-muted-foreground">
+                  Loading watchlist...
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
+        <div className="mt-12">
+          <div className="h-[16rem] bg-muted rounded-md animate-pulse"></div>
+        </div>
       </div>
     </div>
   )
