@@ -13,6 +13,47 @@ interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>
 }
 
+const PWA_DISMISSED_KEY = "pwa-prompt-dismissed"
+const PWA_DISMISSED_TIMESTAMP_KEY = "pwa-prompt-dismissed-timestamp"
+
+// Show prompt again after 30 days if dismissed
+const DISMISS_DURATION = 30 * 24 * 60 * 60 * 1000 // 30 days in milliseconds
+
+// Helper functions for robust storage
+const setStorageItem = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value)
+    return true
+  } catch (error) {
+    console.warn("localStorage not available, using sessionStorage fallback")
+    try {
+      sessionStorage.setItem(key, value)
+      return true
+    } catch (_sessionError) {
+      console.warn("Both localStorage and sessionStorage unavailable")
+      return false
+    }
+  }
+}
+
+const getStorageItem = (key: string): string | null => {
+  try {
+    return localStorage.getItem(key) || sessionStorage.getItem(key)
+  } catch (error) {
+    console.warn("Storage not available")
+    return null
+  }
+}
+
+const removeStorageItem = (key: string) => {
+  try {
+    localStorage.removeItem(key)
+    sessionStorage.removeItem(key)
+  } catch (error) {
+    console.warn("Storage not available for removal")
+  }
+}
+
 export default function PWAPrompt() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null)
@@ -27,11 +68,36 @@ export default function PWAPrompt() {
         .catch(() => console.log("Service Worker registration failed"))
     }
 
+    const checkDismissalStatus = () => {
+      const dismissed = getStorageItem(PWA_DISMISSED_KEY)
+      const dismissedTimestamp = getStorageItem(PWA_DISMISSED_TIMESTAMP_KEY)
+
+      if (dismissed === "true" && dismissedTimestamp) {
+        const dismissedTime = parseInt(dismissedTimestamp)
+        const now = Date.now()
+
+        // If less than 30 days have passed since dismissal, don't show prompt
+        if (now - dismissedTime < DISMISS_DURATION) {
+          return true
+        } else {
+          // Clear old dismissal after 30 days
+          removeStorageItem(PWA_DISMISSED_KEY)
+          removeStorageItem(PWA_DISMISSED_TIMESTAMP_KEY)
+        }
+      }
+
+      return false
+    }
+
     // Handle PWA install prompt
     const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       e.preventDefault()
-      setDeferredPrompt(e)
-      setShowInstallPrompt(true)
+
+      // Only show if user hasn't dismissed recently
+      if (!checkDismissalStatus()) {
+        setDeferredPrompt(e)
+        setShowInstallPrompt(true)
+      }
     }
 
     window.addEventListener(
@@ -54,12 +120,22 @@ export default function PWAPrompt() {
     const { outcome } = await deferredPrompt.userChoice
 
     if (outcome === "accepted") {
+      // Clear dismissal status if user accepts
+      removeStorageItem(PWA_DISMISSED_KEY)
+      removeStorageItem(PWA_DISMISSED_TIMESTAMP_KEY)
       setDeferredPrompt(null)
       setShowInstallPrompt(false)
+    } else if (outcome === "dismissed") {
+      // User dismissed the browser prompt, hide our prompt too
+      handleDismiss()
     }
   }
 
   const handleDismiss = () => {
+    // Remember that user dismissed the prompt
+    setStorageItem(PWA_DISMISSED_KEY, "true")
+    setStorageItem(PWA_DISMISSED_TIMESTAMP_KEY, Date.now().toString())
+
     setShowInstallPrompt(false)
     setDeferredPrompt(null)
   }
