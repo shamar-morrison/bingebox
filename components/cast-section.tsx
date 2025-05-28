@@ -12,8 +12,8 @@ export default function CastSection({ cast }: CastSectionProps) {
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
       {cast.map((person) => (
         <Link key={person.id} href={`/person/${person.id}`}>
-          <Card className="overflow-hidden transition-all hover:scale-105 hover:shadow-md">
-            <div className="relative aspect-[2/3]">
+          <Card className="overflow-hidden group">
+            <div className="relative aspect-[2/3] overflow-hidden">
               <img
                 src={
                   person.profile_path
@@ -21,11 +21,11 @@ export default function CastSection({ cast }: CastSectionProps) {
                     : ``
                 }
                 alt={person.name}
-                className="object-cover absolute top-0 left-0 w-full h-full"
+                className="object-cover transition-all group-hover:scale-105 group-hover:opacity-75 absolute top-0 left-0 w-full h-full"
               />
               {!person.profile_path && (
                 <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                  <User className="h-10 w-10 text-muted-foreground" />
+                  <User className="h-10 w-10 text-muted-foreground transition-all group-hover:scale-105 group-hover:opacity-75" />
                 </div>
               )}
             </div>
