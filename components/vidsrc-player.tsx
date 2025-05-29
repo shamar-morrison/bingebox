@@ -49,6 +49,10 @@ export default function VidsrcPlayer({
       query: { adFree: "true" },
     },
     {
+      name: "VidZee",
+      baseUrl: "https://player.vidzee.wtf/embed",
+    },
+    {
       name: "VidFast",
       baseUrl: "https://vidfast.pro",
       query: { autoplay: "false" },
