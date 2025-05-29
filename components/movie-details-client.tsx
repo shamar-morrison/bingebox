@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useState, useTransition } from "react"
 
 import CastSection from "@/components/cast-section"
+import DownloadModal from "@/components/download-modal"
 import MediaRow from "@/components/media-row"
 import ReviewSection from "@/components/review-section"
 import TrailerDialog from "@/components/trailer-dialog"
@@ -193,6 +194,12 @@ export default function MovieDetailsClient({
                   >
                     <Button variant="outline">Watch Trailer</Button>
                   </TrailerDialog>
+
+                  <DownloadModal
+                    mediaType="movie"
+                    tmdbId={id}
+                    title={movie.title || "Movie"}
+                  />
 
                   <WatchlistDropdown
                     mediaId={id}
