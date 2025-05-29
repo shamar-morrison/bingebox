@@ -1,6 +1,6 @@
-const CACHE_NAME = "bingebox-v1"
-const STATIC_CACHE = "static-v1"
-const DYNAMIC_CACHE = "dynamic-v1"
+const CACHE_NAME = "bingebox-v2"
+const STATIC_CACHE = "static-v2"
+const DYNAMIC_CACHE = "dynamic-v2"
 
 const STATIC_ASSETS = [
   "/",
@@ -40,11 +40,21 @@ self.addEventListener("activate", (event) => {
       })
       .then(() => {
         return self.clients.claim()
+      })
+      .then(() => {
+        return self.clients.matchAll().then((clients) => {
+          clients.forEach((client) => {
+            client.postMessage({
+              type: "SW_UPDATED",
+              message: "Service Worker updated successfully",
+            })
+          })
+        })
       }),
   )
 })
 
-// Fetch event
+// Fetch event with improved caching strategy
 self.addEventListener("fetch", (event) => {
   const { request } = event
   const url = new URL(request.url)
@@ -52,40 +62,46 @@ self.addEventListener("fetch", (event) => {
   // Handle same-origin requests
   if (url.origin === location.origin) {
     event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse
-        }
-
-        return fetch(request)
-          .then((response) => {
-            // Don't cache non-successful responses
-            if (
-              !response ||
-              response.status !== 200 ||
-              response.type !== "basic"
-            ) {
-              return response
-            }
-
-            const responseToCache = response.clone()
-
-            // Cache navigation requests and API calls
-            if (request.mode === "navigate" || request.url.includes("/api/")) {
-              caches.open(DYNAMIC_CACHE).then((cache) => {
-                cache.put(request, responseToCache)
-              })
-            }
-
+      fetch(request)
+        .then((response) => {
+          if (
+            !response ||
+            response.status !== 200 ||
+            response.type !== "basic"
+          ) {
             return response
-          })
-          .catch(() => {
-            // Return offline page for navigation requests
+          }
+
+          const responseToCache = response.clone()
+
+          // Cache navigation requests and API calls
+          if (request.mode === "navigate" || request.url.includes("/api/")) {
+            caches.open(DYNAMIC_CACHE).then((cache) => {
+              cache.put(request, responseToCache)
+            })
+          }
+
+          return response
+        })
+        .catch(() => {
+          return caches.match(request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse
+            }
+
             if (request.mode === "navigate") {
               return caches.match("/offline")
             }
           })
-      }),
+        }),
     )
+  }
+})
+
+// Listen for messages from the main thread
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    console.log("Received SKIP_WAITING message")
+    self.skipWaiting()
   }
 })
