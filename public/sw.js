@@ -12,16 +12,13 @@ const STATIC_ASSETS = [
 
 // Install event
 self.addEventListener("install", (event) => {
-  console.log("Service Worker installing...")
   event.waitUntil(
     caches
       .open(STATIC_CACHE)
       .then((cache) => {
-        console.log("Caching static assets...")
         return cache.addAll(STATIC_ASSETS)
       })
       .then(() => {
-        console.log("Service Worker installed, skipping waiting...")
         return self.skipWaiting()
       }),
   )
@@ -29,23 +26,19 @@ self.addEventListener("install", (event) => {
 
 // Activate event
 self.addEventListener("activate", (event) => {
-  console.log("Service Worker activating...")
   event.waitUntil(
     caches
       .keys()
       .then((cacheNames) => {
-        console.log("Cleaning up old caches...")
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-              console.log("Deleting old cache:", cacheName)
               return caches.delete(cacheName)
             }
           }),
         )
       })
       .then(() => {
-        console.log("Service Worker activated, claiming clients...")
         return self.clients.claim()
       })
       .then(() => {
