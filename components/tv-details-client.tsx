@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useState, useTransition } from "react"
 
 import CastSection from "@/components/cast-section"
+import DownloadModal from "@/components/download-modal"
 import MediaRow from "@/components/media-row"
 import ReviewSection from "@/components/review-section"
 import TrailerDialog from "@/components/trailer-dialog"
@@ -201,6 +202,13 @@ export default function TVShowDetailsClient({
                   >
                     <Button variant="outline">Watch Trailer</Button>
                   </TrailerDialog>
+
+                  <DownloadModal
+                    mediaType="tv"
+                    tmdbId={id}
+                    title={show.name || "TV Show"}
+                    seasons={seasons}
+                  />
 
                   <WatchlistDropdown
                     mediaId={id}
