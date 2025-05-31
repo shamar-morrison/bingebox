@@ -1,0 +1,246 @@
+import { ChevronLeft, Users } from "lucide-react"
+import Link from "next/link"
+import { Suspense } from "react"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import { fetchSportMatches, type Match } from "@/lib/streamed"
+import type { Metadata } from "next"
+
+interface Props {
+  params: { sport: string }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const sportName = params.sport.charAt(0).toUpperCase() + params.sport.slice(1)
+
+  return {
+    title: `${sportName} - Live Streams | BingeBox`,
+    description: `Watch live ${sportName} matches and streams for free`,
+  }
+}
+
+export default function SportPage({ params }: Props) {
+  const sportName = params.sport.charAt(0).toUpperCase() + params.sport.slice(1)
+
+  return (
+    <main className="min-h-screen pb-10">
+      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
+        <div className="container px-4 py-16">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-4 mb-4">
+              <Button variant="ghost" size="icon" asChild>
+                <Link href="/sports">
+                  <ChevronLeft className="w-4 h-4" />
+                </Link>
+              </Button>
+              <h1 className="text-4xl md:text-5xl font-bold">{sportName}</h1>
+            </div>
+            <p className="text-xl text-muted-foreground mb-8">
+              Watch live {sportName.toLowerCase()} matches and events from
+              around the world.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="container px-4 mt-8">
+        <Suspense fallback={<MatchesSkeleton />}>
+          <SportMatches sport={params.sport} />
+        </Suspense>
+      </div>
+    </main>
+  )
+}
+
+async function SportMatches({ sport }: { sport: string }) {
+  const matches = await fetchSportMatches(sport)
+
+  if (matches.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <p className="text-muted-foreground">
+            No matches available for this sport at the moment
+          </p>
+          <Button asChild className="mt-4">
+            <Link href="/sports">Browse other sports</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const now = Date.now()
+  const liveMatches = matches.filter((match) => {
+    const matchTime = match.date
+    const timeDiff = now - matchTime
+    return timeDiff >= 0 && timeDiff <= 3 * 60 * 60 * 1000 // Within 3 hours of start time
+  })
+
+  const upcomingMatches = matches.filter((match) => match.date > now)
+  const recentMatches = matches.filter((match) => {
+    const timeDiff = now - match.date
+    return timeDiff > 3 * 60 * 60 * 1000 // More than 3 hours past start time
+  })
+
+  return (
+    <div className="space-y-8">
+      {liveMatches.length > 0 && (
+        <section>
+          <div className="flex items-center gap-4 mb-4">
+            <h2 className="text-2xl font-bold">Live Now</h2>
+            <Badge variant="destructive" className="animate-pulse">
+              <span className="inline-block w-2 h-2 bg-current rounded-full mr-1"></span>
+              LIVE
+            </Badge>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {liveMatches.map((match) => (
+              <MatchCard key={match.id} match={match} isLive />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {upcomingMatches.length > 0 && (
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Upcoming Matches</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {upcomingMatches.slice(0, 12).map((match) => (
+              <MatchCard key={match.id} match={match} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {recentMatches.length > 0 && (
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Recent Matches</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {recentMatches.slice(0, 9).map((match) => (
+              <MatchCard key={match.id} match={match} />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}
+
+function MatchCard({
+  match,
+  isLive = false,
+}: {
+  match: Match
+  isLive?: boolean
+}) {
+  const matchDate = new Date(match.date)
+
+  return (
+    <Card className={isLive ? "border-destructive" : ""}>
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <CardTitle className="text-lg leading-tight">{match.title}</CardTitle>
+          {isLive && (
+            <Badge variant="destructive" className="text-xs">
+              LIVE
+            </Badge>
+          )}
+        </div>
+        <p className="text-sm text-muted-foreground">{match.category}</p>
+      </CardHeader>
+      <CardContent>
+        {match.teams ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {match.teams.home?.badge && (
+                  <img
+                    src={match.teams.home.badge}
+                    alt={match.teams.home.name}
+                    className="w-6 h-6"
+                  />
+                )}
+                <span className="text-sm font-medium">
+                  {match.teams.home?.name}
+                </span>
+              </div>
+              <span className="text-xs text-muted-foreground">VS</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">
+                  {match.teams.away?.name}
+                </span>
+                {match.teams.away?.badge && (
+                  <img
+                    src={match.teams.away.badge}
+                    alt={match.teams.away.name}
+                    className="w-6 h-6"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-2">
+            <Users className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">Teams TBA</p>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between pt-3 border-t mt-3">
+          <div className="text-xs text-muted-foreground">
+            {isLive ? "Live" : matchDate.toLocaleDateString()}
+            {!isLive && (
+              <div className="text-xs">
+                {matchDate.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
+            )}
+          </div>
+          <Button size="sm" asChild>
+            <Link href={`/sports/watch/${match.id}`}>
+              {isLive ? "Watch" : "View"}
+            </Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function MatchesSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {Array(6)
+          .fill(0)
+          .map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-4 w-6" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                  <div className="flex justify-between pt-3">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-8 w-16" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+      </div>
+    </div>
+  )
+}
