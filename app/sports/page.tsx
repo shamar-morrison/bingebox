@@ -1,4 +1,4 @@
-import { Calendar, ChevronRight, Play, Users } from "lucide-react"
+import { ChevronRight, Play, Users } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function SportsPage() {
   return (
-    <main className="min-h-screen pb-10">
+    <main className="min-h-screen pb-10 pt-20">
       <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
         <div className="container px-4 py-16">
           <div className="max-w-3xl">
@@ -38,12 +38,6 @@ export default function SportsPage() {
                 <Link href="#live-now">
                   <Play className="w-4 h-4 mr-2" />
                   Watch Live
-                </Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link href="#schedule">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  View Schedule
                 </Link>
               </Button>
             </div>
@@ -82,11 +76,6 @@ export default function SportsPage() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Popular Matches</h2>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/sports/popular" className="flex items-center">
-                View all <ChevronRight className="w-4 h-4 ml-1" />
-              </Link>
-            </Button>
           </div>
           <Suspense fallback={<MatchesSkeleton />}>
             <PopularMatches />
@@ -157,6 +146,24 @@ function MatchCard({
   isLive?: boolean
 }) {
   const matchDate = new Date(match.date)
+  const now = Date.now()
+  const isUpcoming = match.date > now
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    })
+  }
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+  }
 
   return (
     <Card className={isLive ? "border-destructive" : ""}>
@@ -176,13 +183,6 @@ function MatchCard({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                {match.teams.home?.badge && (
-                  <img
-                    src={match.teams.home.badge}
-                    alt={match.teams.home.name}
-                    className="w-6 h-6"
-                  />
-                )}
                 <span className="text-sm font-medium">
                   {match.teams.home?.name}
                 </span>
@@ -192,13 +192,6 @@ function MatchCard({
                 <span className="text-sm font-medium">
                   {match.teams.away?.name}
                 </span>
-                {match.teams.away?.badge && (
-                  <img
-                    src={match.teams.away.badge}
-                    alt={match.teams.away.name}
-                    className="w-6 h-6"
-                  />
-                )}
               </div>
             </div>
           </div>
@@ -210,14 +203,24 @@ function MatchCard({
         )}
 
         <div className="flex items-center justify-between pt-3 border-t mt-3">
-          <div className="text-xs text-muted-foreground">
-            {isLive ? "Live" : matchDate.toLocaleDateString()}
-          </div>
-          <Button size="sm" asChild>
-            <Link href={`/sports/watch/${match.id}`}>
-              {isLive ? "Watch" : "View"}
-            </Link>
-          </Button>
+          {isUpcoming ? (
+            <div className="text-xs text-muted-foreground">
+              <div>
+                {formatDate(matchDate)} @ {formatTime(matchDate)}
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="text-xs text-muted-foreground">
+                {isLive ? "Live" : matchDate.toLocaleDateString()}
+              </div>
+              <Button size="sm" asChild>
+                <Link href={`/sports/watch/${match.id}`}>
+                  {isLive ? "Watch" : "View"}
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
