@@ -9,10 +9,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useUser } from "@/lib/hooks/use-user"
 import { createClient } from "@/lib/supabase/client"
-import { Film, Play, User, X } from "lucide-react"
+import { Film, Play, Tv, User, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useCallback, useEffect, useState } from "react"
@@ -27,6 +34,8 @@ type WatchlistItem = {
   poster_path: string | null
   added_at: string
 }
+
+type MediaTypeFilter = "all" | "movie" | "tv"
 
 function ProfileContent() {
   const { user, loading } = useUser()
@@ -52,6 +61,7 @@ function ProfileContent() {
     dropped: [],
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaTypeFilter>("all")
   const supabase = createClient()
 
   const handleTabChange = (value: string) => {
@@ -108,6 +118,11 @@ function ProfileContent() {
     }
   }
 
+  const filterItemsByMediaType = (items: WatchlistItem[]): WatchlistItem[] => {
+    if (mediaTypeFilter === "all") return items
+    return items.filter((item) => item.media_type === mediaTypeFilter)
+  }
+
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -120,18 +135,24 @@ function ProfileContent() {
   }
 
   const renderWatchlistItems = (items: WatchlistItem[]) => {
-    if (items.length === 0) {
+    const filteredItems = filterItemsByMediaType(items)
+
+    if (filteredItems.length === 0) {
       return (
         <div className="text-center py-8">
           <Film className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">No items in this list yet</p>
+          <p className="text-muted-foreground">
+            {mediaTypeFilter === "all"
+              ? "No items in this list yet"
+              : `No ${mediaTypeFilter === "movie" ? "movies" : "TV shows"} in this list yet`}
+          </p>
         </div>
       )
     }
 
     return (
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-        {items.map((item) => {
+        {filteredItems.map((item) => {
           const detailsPath = `/${item.media_type}/${item.media_id}`
           const watchPath =
             item.media_type === "movie"
@@ -195,6 +216,42 @@ function ProfileContent() {
     )
   }
 
+  const renderFilterComponent = () => (
+    <div className="flex items-center gap-2 mb-6">
+      <Select
+        value={mediaTypeFilter}
+        onValueChange={(value: MediaTypeFilter) => setMediaTypeFilter(value)}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Filter by type" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1">
+                <Film className="w-3 h-3" />
+                <Tv className="w-3 h-3" />
+              </div>
+              All Content
+            </div>
+          </SelectItem>
+          <SelectItem value="movie">
+            <div className="flex items-center gap-2">
+              <Film className="w-3 h-3" />
+              Movies Only
+            </div>
+          </SelectItem>
+          <SelectItem value="tv">
+            <div className="flex items-center gap-2">
+              <Tv className="w-3 h-3" />
+              TV Shows Only
+            </div>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  )
+
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container px-4">
@@ -207,11 +264,19 @@ function ProfileContent() {
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>My Watchlists</CardTitle>
-            <CardDescription>
-              Manage your movie and TV show collections
-            </CardDescription>
+          <CardHeader
+            className={
+              "flex justify-between flex-row items-center flex-wrap gap-2"
+            }
+          >
+            <div className={"space-y-2"}>
+              <CardTitle>My Watchlists</CardTitle>
+              <CardDescription>
+                Manage your movie and TV show collections
+              </CardDescription>
+            </div>
+
+            {renderFilterComponent()}
           </CardHeader>
           <CardContent>
             <Tabs
@@ -223,7 +288,9 @@ function ProfileContent() {
                 <TabsTrigger value="favorites" className="text-xs sm:text-sm">
                   <span className="hidden sm:inline">Favorites</span>
                   <span className="sm:hidden">Favs</span>
-                  <span className="ml-1">({watchlists.favorites.length})</span>
+                  <span className="ml-1">
+                    ({filterItemsByMediaType(watchlists.favorites).length})
+                  </span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="should_watch"
@@ -232,13 +299,15 @@ function ProfileContent() {
                   <span className="hidden sm:inline">Should Watch</span>
                   <span className="sm:hidden">Should</span>
                   <span className="ml-1">
-                    ({watchlists.should_watch.length})
+                    ({filterItemsByMediaType(watchlists.should_watch).length})
                   </span>
                 </TabsTrigger>
                 <TabsTrigger value="dropped" className="text-xs sm:text-sm">
                   <span className="hidden sm:inline">Dropped</span>
                   <span className="sm:hidden">Drop</span>
-                  <span className="ml-1">({watchlists.dropped.length})</span>
+                  <span className="ml-1">
+                    ({filterItemsByMediaType(watchlists.dropped).length})
+                  </span>
                 </TabsTrigger>
               </TabsList>
 
