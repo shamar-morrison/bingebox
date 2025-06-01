@@ -128,11 +128,19 @@ async function WatchContent({ matchId }: { matchId: string }) {
                       <span>Live Now</span>
                     ) : (
                       <span>
-                        {matchDate.toLocaleDateString()} at{" "}
-                        {matchDate.toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {matchDate.toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}{" "}
+                        @{" "}
+                        {matchDate
+                          .toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                          .toUpperCase()}
                       </span>
                     )}
                   </div>

@@ -136,20 +136,18 @@ function MatchCard({
   const now = Date.now()
   const isUpcoming = match.date > now
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
+  const formatDateTime = (date: Date) => {
+    return `${date.toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
       year: "numeric",
-    })
-  }
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    })
+    })} @ ${date
+      .toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .toUpperCase()}`
   }
 
   return (
@@ -165,10 +163,10 @@ function MatchCard({
         </div>
         <p className="text-sm text-muted-foreground">{match.category}</p>
       </CardHeader>
-      <CardContent>
-        {match.teams ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
+      <CardContent className="flex flex-col h-[120px]">
+        <div className="flex-1 flex items-center justify-center">
+          {match.teams ? (
+            <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">
                   {match.teams.home?.name}
@@ -181,33 +179,23 @@ function MatchCard({
                 </span>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="text-center py-2">
-            <Users className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">Teams TBA</p>
-          </div>
-        )}
+          ) : (
+            <div className="text-center">
+              <Users className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+              <p className="text-sm text-muted-foreground">Teams TBA</p>
+            </div>
+          )}
+        </div>
 
-        <div className="flex items-center justify-between pt-3 border-t mt-3">
+        <div className="flex items-center justify-between pt-3 border-t mt-auto">
           {isUpcoming ? (
             <div className="text-xs text-muted-foreground">
-              <div>
-                {formatDate(matchDate)} @ {formatTime(matchDate)}
-              </div>
+              {formatDateTime(matchDate)}
             </div>
           ) : (
             <>
               <div className="text-xs text-muted-foreground">
-                {isLive ? "Live" : matchDate.toLocaleDateString()}
-                {!isLive && (
-                  <div className="text-xs">
-                    {matchDate.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                )}
+                {isLive ? "Live" : formatDateTime(matchDate)}
               </div>
               <Button size="sm" asChild>
                 <Link href={`/sports/watch/${match.id}`}>
