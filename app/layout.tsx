@@ -20,7 +20,8 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "BingeBox",
-  description: "Watch your favorite movie and TV shows",
+  description:
+    "Discover and watch your favorite movies and TV shows online. Stream the latest releases, popular series, and classic films all in one place.",
   keywords: [
     "movies",
     "tv shows",
@@ -33,6 +34,7 @@ export const metadata: Metadata = {
   authors: [{ name: "BingeBox Team" }],
   creator: "BingeBox",
   manifest: "/manifest.json",
+  metadataBase: new URL("https://bingebox-bay.vercel.app"),
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -45,12 +47,31 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "BingeBox",
     title: "BingeBox",
-    description: "Watch your favorite movies and TV shows",
+    description:
+      "Discover and watch your favorite movies and TV shows online. Stream the latest releases, popular series, and classic films all in one place.",
+    url: "https://bingebox-bay.vercel.app",
+    images: [
+      {
+        url: "/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "BingeBox - Your favorite streaming destination",
+      },
+      {
+        url: "/icons/icon-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "BingeBox Logo",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
+    site: "@bingebox",
     title: "BingeBox",
-    description: "Watch your favorite movies and TV shows",
+    description:
+      "Discover and watch your favorite movies and TV shows online. Stream the latest releases, popular series, and classic films all in one place.",
+    images: ["/og-image.svg"],
   },
 }
 

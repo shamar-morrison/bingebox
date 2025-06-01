@@ -1,0 +1,45 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e11d48;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#be185d;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="100" cy="100" r="50" fill="#e11d48" opacity="0.1"/>
+  <circle cx="1100" cy="530" r="80" fill="#be185d" opacity="0.1"/>
+  
+  <!-- Main content container -->
+  <rect x="80" y="120" width="1040" height="390" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+  
+  <!-- Logo/Icon placeholder -->
+  <rect x="120" y="180" width="80" height="80" rx="12" fill="url(#accentGradient)"/>
+  <rect x="135" y="195" width="50" height="50" rx="8" fill="white" opacity="0.9"/>
+  <polygon points="155,210 155,240 175,225" fill="#e11d48"/>
+  
+  <!-- Title -->
+  <text x="230" y="240" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="bold" fill="white">
+    BingeBox
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="120" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="32" fill="#cbd5e1">
+    Discover and watch your favorite movies and TV shows online
+  </text>
+  
+  <!-- Feature highlights -->
+  <text x="120" y="380" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#94a3b8">
+    ✦ Latest Releases  ✦ Popular Series  ✦ Classic Films  ✦ All in One Place
+  </text>
+  
+  <!-- Bottom accent line -->
+  <rect x="0" y="600" width="1200" height="6" fill="url(#accentGradient)"/>
+</svg> 
