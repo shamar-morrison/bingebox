@@ -6,6 +6,7 @@ import { Suspense } from "react"
 import { Toaster } from "sonner"
 import "./globals.css"
 
+import DevToolProtection from "@/components/dev-tool-protection"
 import Footer from "@/components/footer"
 import Header from "@/components/header"
 import PWAPrompt from "@/components/pwa-prompt"
@@ -20,7 +21,15 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "BingeBox",
   description: "Watch your favorite movie and TV shows",
-  keywords: ["movies", "tv shows", "entertainment", "streaming", "watch"],
+  keywords: [
+    "movies",
+    "tv shows",
+    "entertainment",
+    "streaming",
+    "watch",
+    "live",
+    "sports",
+  ],
   authors: [{ name: "BingeBox Team" }],
   creator: "BingeBox",
   manifest: "/manifest.json",
@@ -36,12 +45,12 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "BingeBox",
     title: "BingeBox",
-    description: "Watch your favorite movie and TV shows",
+    description: "Watch your favorite movies and TV shows",
   },
   twitter: {
     card: "summary",
     title: "BingeBox",
-    description: "Watch your favorite movie and TV shows",
+    description: "Watch your favorite movies and TV shows",
   },
 }
 
@@ -85,6 +94,7 @@ export default function RootLayout({
               <Footer />
             </div>
             <PWAPrompt />
+            <DevToolProtection />
           </UserProvider>
         </ThemeProvider>
         <Analytics />

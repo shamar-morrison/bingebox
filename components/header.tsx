@@ -13,6 +13,7 @@ import {
   Star,
   Tv,
   User,
+  Zap,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -187,6 +188,7 @@ export default function Header() {
     { label: "Home", href: "/", icon: Home },
     { label: "Movies", href: "/movie", icon: Film },
     { label: "TV Shows", href: "/tv", icon: Tv },
+    { label: "Sports", href: "/sports", icon: Zap },
     { label: "Discover", href: "/discover", icon: Search },
     { label: "Torrents", href: "/torrents", icon: Download },
   ]
