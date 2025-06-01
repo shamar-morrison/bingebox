@@ -11,7 +11,7 @@ const DevToolProtection = () => {
           const DisableDevtool = (await import("disable-devtool")).default
 
           DisableDevtool({
-            ondevtoolopen: (type, next) => {
+            ondevtoolopen: (_type, next) => {
               toast.error("Developer tools are disabled", {
                 duration: 4000,
               })
