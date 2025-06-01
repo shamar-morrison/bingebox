@@ -255,8 +255,8 @@ function MatchNotFoundUI() {
             </div>
             <h1 className="text-2xl font-bold mb-2">Match Not Found</h1>
             <p className="text-muted-foreground">
-              Sorry, we couldn't find the sports match you're looking for. It
-              may have been removed or the link might be incorrect.
+              Sorry, we couldn&#39;t find the sports match you&#39;re looking
+              for. It may have been removed or the link might be incorrect.
             </p>
           </div>
 
