@@ -6,6 +6,7 @@ import { Suspense } from "react"
 import { Toaster } from "sonner"
 import "./globals.css"
 
+import DevToolProtection from "@/components/dev-tool-protection"
 import Footer from "@/components/footer"
 import Header from "@/components/header"
 import PWAPrompt from "@/components/pwa-prompt"
@@ -85,6 +86,7 @@ export default function RootLayout({
               <Footer />
             </div>
             <PWAPrompt />
+            <DevToolProtection />
           </UserProvider>
         </ThemeProvider>
         <Analytics />
