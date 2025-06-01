@@ -1,9 +1,10 @@
-import { Clock } from "lucide-react"
-import { notFound } from "next/navigation"
+import { AlertTriangle, ArrowLeft, Clock } from "lucide-react"
+import Link from "next/link"
 import { Suspense } from "react"
 
 import SportsPlayer from "@/components/sports-player"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -65,7 +66,7 @@ async function WatchContent({ matchId }: { matchId: string }) {
   const match = await fetchMatchDetails(matchId)
 
   if (!match) {
-    notFound()
+    return <MatchNotFoundUI />
   }
 
   const matchDate = new Date(match.date)
@@ -239,6 +240,41 @@ function StreamSkeleton() {
         <Skeleton className="h-4 w-20" />
       </div>
       <Skeleton className="w-full aspect-video rounded-lg" />
+    </div>
+  )
+}
+
+function MatchNotFoundUI() {
+  return (
+    <div className="min-h-[70vh] flex items-center justify-center pt-20">
+      <div className="container px-4">
+        <div className="max-w-md mx-auto text-center">
+          <div className="mb-8">
+            <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+              <AlertTriangle className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <h1 className="text-2xl font-bold mb-2">Match Not Found</h1>
+            <p className="text-muted-foreground">
+              Sorry, we couldn't find the sports match you're looking for. It
+              may have been removed or the link might be incorrect.
+            </p>
+          </div>
+
+          <Link href="/sports" className="block mb-8">
+            <Button className="w-full">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Sports
+            </Button>
+          </Link>
+
+          <div className="p-4 bg-muted/50 rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              Looking for something specific? Try browsing our live matches or
+              check back later for upcoming games.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
