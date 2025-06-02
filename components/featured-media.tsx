@@ -17,7 +17,10 @@ export default async function FeaturedMedia() {
     ? `https://image.tmdb.org/t/p/original${featured.backdrop_path}`
     : null
 
+  // Fetch images including logos if available
   const mediaType = featured.media_type!
+  const titleImagePath = await fetchTitleImage(featured.id, mediaType)
+
   const detailsPath =
     mediaType === "movie" ? `/movie/${featured.id}` : `/tv/${featured.id}`
 
@@ -55,9 +58,21 @@ export default async function FeaturedMedia() {
       <div className="absolute inset-0 flex items-end">
         <div className="container px-4 pb-16 md:pb-24">
           <div className="max-w-2xl space-y-4">
-            <h1 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-              {title}
-            </h1>
+            {titleImagePath ? (
+              <div className="relative h-16 md:h-20 lg:h-24 max-w-full">
+                <Image
+                  src={titleImagePath}
+                  alt={title}
+                  fill
+                  className="object-contain object-left"
+                  priority
+                />
+              </div>
+            ) : (
+              <h1 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+                {title}
+              </h1>
+            )}
             <p className="text-base text-muted-foreground md:text-lg line-clamp-3">
               {overview}
             </p>
@@ -81,4 +96,34 @@ export default async function FeaturedMedia() {
       </div>
     </div>
   )
+}
+
+// Helper function to fetch title image (logo) for a media item
+async function fetchTitleImage(
+  id: number,
+  mediaType: string,
+): Promise<string | null> {
+  try {
+    const TMDB_API_KEY = process.env.TMDB_API_KEY
+    const url = `https://api.themoviedb.org/3/${mediaType}/${id}/images?api_key=${TMDB_API_KEY}`
+
+    const response = await fetch(url, { next: { revalidate: 3600 } })
+    if (!response.ok) return null
+
+    const data = await response.json()
+
+    // Look for a suitable logo in English or with no language specified
+    const logos = data.logos || []
+    const suitableLogo =
+      logos.find((logo: any) => logo.iso_639_1 === "en" && logo.file_path) ||
+      logos.find((logo: any) => !logo.iso_639_1 && logo.file_path) ||
+      logos[0]
+
+    return suitableLogo?.file_path
+      ? `https://image.tmdb.org/t/p/w500${suitableLogo.file_path}`
+      : null
+  } catch (error) {
+    console.error("Error fetching title image:", error)
+    return null
+  }
 }
