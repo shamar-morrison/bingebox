@@ -60,12 +60,10 @@ export default async function FeaturedMedia() {
           <div className="max-w-2xl space-y-4">
             {titleImagePath ? (
               <div className="relative h-16 md:h-20 lg:h-24 max-w-full">
-                <Image
+                <img
                   src={titleImagePath}
                   alt={title}
-                  fill
-                  className="object-contain object-left"
-                  priority
+                  className="absolute inset-0 w-full h-full object-contain object-left"
                 />
               </div>
             ) : (
