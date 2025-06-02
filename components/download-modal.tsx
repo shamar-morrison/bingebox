@@ -45,6 +45,7 @@ export default function DownloadModal({
   const [selectedSeason, setSelectedSeason] = useState<string>("")
   const [selectedEpisode, setSelectedEpisode] = useState<string>("")
   const [error, setError] = useState<string | null>(null)
+  const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set())
 
   const selectedSeasonData = seasons.find(
     (season) => season.season_number.toString() === selectedSeason,
@@ -99,7 +100,28 @@ export default function DownloadModal({
       setError(null)
       setSelectedSeason("")
       setSelectedEpisode("")
+      setDownloadingIds(new Set())
     }
+  }
+
+  const handleDownloadClick = (downloadId: string, downloadUrl: string) => {
+    setDownloadingIds((prev) => new Set(prev).add(downloadId))
+
+    const link = document.createElement("a")
+    link.href = downloadUrl
+    link.download = ""
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    // Reset the downloading state after 3 seconds
+    setTimeout(() => {
+      setDownloadingIds((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(downloadId)
+        return newSet
+      })
+    }, 3000)
   }
 
   const formatFileSize = (sizeStr: string) => {
@@ -244,41 +266,55 @@ export default function DownloadModal({
                 </div>
               ) : (
                 <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {downloadData.data.downloads.map((download, index) => (
-                    <div
-                      key={download.id || index}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className={`px-2 py-1 rounded text-xs font-medium text-white ${getQualityBadgeColor(
-                            download.resolution,
-                          )}`}
+                  {downloadData.data.downloads.map((download, index) => {
+                    const downloadId = download.id || `download-${index}`
+                    const isDownloading = downloadingIds.has(downloadId)
+
+                    return (
+                      <div
+                        key={downloadId}
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div
+                            className={`px-2 py-1 rounded text-xs font-medium text-white ${getQualityBadgeColor(
+                              download.resolution,
+                            )}`}
+                          >
+                            {download.resolution}p
+                          </div>
+                          <div>
+                            <p className="font-medium">
+                              {download.resolution}p Quality
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Size: {formatFileSize(download.size)}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          className="shrink-0"
+                          disabled={isDownloading}
+                          onClick={() =>
+                            handleDownloadClick(downloadId, download.url)
+                          }
                         >
-                          {download.resolution}p
-                        </div>
-                        <div>
-                          <p className="font-medium">
-                            {download.resolution}p Quality
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Size: {formatFileSize(download.size)}
-                          </p>
-                        </div>
+                          {isDownloading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Downloading...
+                            </>
+                          ) : (
+                            <>
+                              <Download className="w-4 h-4" />
+                              Download
+                            </>
+                          )}
+                        </Button>
                       </div>
-                      <Button asChild size="sm" className="shrink-0">
-                        <a
-                          href={download.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          download
-                        >
-                          <Download className="w-4 h-4" />
-                          Download
-                        </a>
-                      </Button>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>
