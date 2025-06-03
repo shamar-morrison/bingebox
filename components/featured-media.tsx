@@ -15,7 +15,7 @@ export default async function FeaturedMedia() {
 
   const backdropPath = featured.backdrop_path
     ? `https://image.tmdb.org/t/p/original${featured.backdrop_path}`
-    : null
+    : `/placeholder-backdrop.svg`
 
   // Fetch images including logos if available
   const mediaType = featured.media_type!
