@@ -19,10 +19,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useUser } from "@/lib/hooks/use-user"
 import { createClient } from "@/lib/supabase/client"
-import { Film, Play, Tv, User, X } from "lucide-react"
+import { Film, Play, User, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { Suspense, useCallback, useEffect, useState } from "react"
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
 type WatchlistItem = {
@@ -33,6 +33,7 @@ type WatchlistItem = {
   title: string
   poster_path: string | null
   added_at: string
+  genres: string[] | null
 }
 
 type MediaTypeFilter = "all" | "movie" | "tv"
@@ -62,6 +63,7 @@ function ProfileContent() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaTypeFilter>("all")
+  const [genreFilter, setGenreFilter] = useState<string>("all")
   const supabase = createClient()
 
   const handleTabChange = (value: string) => {
@@ -118,9 +120,33 @@ function ProfileContent() {
     }
   }
 
+  // Get unique genres from all watchlist items
+  const availableGenres = useMemo(() => {
+    const allGenres = new Set<string>()
+    Object.values(watchlists)
+      .flat()
+      .forEach((item) => {
+        if (item.genres) {
+          item.genres.forEach((genre) => allGenres.add(genre))
+        }
+      })
+    return Array.from(allGenres).sort()
+  }, [watchlists])
+
   const filterItemsByMediaType = (items: WatchlistItem[]): WatchlistItem[] => {
-    if (mediaTypeFilter === "all") return items
-    return items.filter((item) => item.media_type === mediaTypeFilter)
+    let filtered = items
+
+    if (mediaTypeFilter !== "all") {
+      filtered = filtered.filter((item) => item.media_type === mediaTypeFilter)
+    }
+
+    if (genreFilter !== "all") {
+      filtered = filtered.filter(
+        (item) => item.genres && item.genres.includes(genreFilter),
+      )
+    }
+
+    return filtered
   }
 
   if (loading || !user) {
@@ -142,9 +168,9 @@ function ProfileContent() {
         <div className="text-center py-8">
           <Film className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">
-            {mediaTypeFilter === "all"
+            {mediaTypeFilter === "all" && genreFilter === "all"
               ? "No items in this list yet"
-              : `No ${mediaTypeFilter === "movie" ? "movies" : "TV shows"} in this list yet`}
+              : `No ${mediaTypeFilter === "movie" ? "movies" : mediaTypeFilter === "tv" ? "TV shows" : "items"} ${genreFilter !== "all" ? `in "${genreFilter}" genre` : ""} in this list yet`}
           </p>
         </div>
       )
@@ -217,36 +243,41 @@ function ProfileContent() {
   }
 
   const renderFilterComponent = () => (
-    <div className="flex items-center gap-2 mb-6">
+    <div className="flex items-center gap-2 mb-6 flex-wrap">
       <Select
         value={mediaTypeFilter}
         onValueChange={(value: MediaTypeFilter) => setMediaTypeFilter(value)}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-[160px]">
           <SelectValue placeholder="Filter by type" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1">
-                <Film className="w-3 h-3" />
-                <Tv className="w-3 h-3" />
-              </div>
-              All Content
-            </div>
+            <div className="flex items-center gap-2">All Content</div>
           </SelectItem>
           <SelectItem value="movie">
-            <div className="flex items-center gap-2">
-              <Film className="w-3 h-3" />
-              Movies Only
-            </div>
+            <div className="flex items-center gap-2">Movies Only</div>
           </SelectItem>
           <SelectItem value="tv">
-            <div className="flex items-center gap-2">
-              <Tv className="w-3 h-3" />
-              TV Shows Only
-            </div>
+            <div className="flex items-center gap-2">TV Shows Only</div>
           </SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select
+        value={genreFilter}
+        onValueChange={(value: string) => setGenreFilter(value)}
+      >
+        <SelectTrigger className="w-[160px]">
+          <SelectValue placeholder="Filter by genre" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Genres</SelectItem>
+          {availableGenres.map((genre) => (
+            <SelectItem key={genre} value={genre}>
+              {genre}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>

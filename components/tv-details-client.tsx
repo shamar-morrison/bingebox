@@ -220,6 +220,7 @@ export default function TVShowDetailsClient({
                     mediaType="tv"
                     title={show.name || "TV Show"}
                     posterPath={show.poster_path}
+                    genres={show.genres}
                   />
                 </div>
               </div>

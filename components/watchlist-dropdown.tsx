@@ -21,6 +21,7 @@ interface WatchlistDropdownProps {
   mediaType: "movie" | "tv"
   title: string
   posterPath?: string | null
+  genres?: { id: number; name: string }[] | null
 }
 
 type WatchlistStatus = "favorites" | "should_watch" | "dropped" | null
@@ -30,6 +31,7 @@ export default function WatchlistDropdown({
   mediaType,
   title,
   posterPath,
+  genres,
 }: WatchlistDropdownProps) {
   const { user } = useUser()
   const [currentStatus, setCurrentStatus] = useState<WatchlistStatus>(null)
@@ -96,13 +98,15 @@ export default function WatchlistDropdown({
         if (error) throw error
         toast.success("Removed from watchlist")
       } else if (currentStatus === null) {
-        // Add to watchlist
+        const genreNames = genres?.map((genre) => genre.name) || []
+
         const { error } = await supabase.from("watchlists").insert({
           media_id: mediaId,
           media_type: mediaType,
           status,
           title,
           poster_path: posterPath,
+          genres: genreNames,
           user_id: user.id,
         })
 

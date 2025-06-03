@@ -63,6 +63,7 @@ export type Database = {
       watchlists: {
         Row: {
           added_at: string
+          genres: string[] | null
           id: string
           media_id: number
           media_type: string
@@ -74,6 +75,7 @@ export type Database = {
         }
         Insert: {
           added_at?: string
+          genres?: string[] | null
           id?: string
           media_id: number
           media_type: string
@@ -85,6 +87,7 @@ export type Database = {
         }
         Update: {
           added_at?: string
+          genres?: string[] | null
           id?: string
           media_id?: number
           media_type?: string

@@ -206,6 +206,7 @@ export default function MovieDetailsClient({
                     mediaType="movie"
                     title={movie.title || "Movie"}
                     posterPath={movie.poster_path}
+                    genres={movie.genres}
                   />
                 </div>
               </div>
