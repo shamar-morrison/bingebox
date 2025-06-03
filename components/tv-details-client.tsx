@@ -180,7 +180,12 @@ export default function TVShowDetailsClient({
                 {creator && (
                   <div className="text-sm">
                     <span className="text-muted-foreground">Creator: </span>
-                    <span>{creator.name}</span>
+                    <Link
+                      href={`/person/${creator.id}`}
+                      className={"hover:underline"}
+                    >
+                      {creator.name}
+                    </Link>
                   </div>
                 )}
 
