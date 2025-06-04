@@ -96,7 +96,6 @@ export default async function FeaturedMedia() {
   )
 }
 
-// Helper function to fetch title image (logo) for a media item
 async function fetchTitleImage(
   id: number,
   mediaType: string,
@@ -109,13 +108,28 @@ async function fetchTitleImage(
     if (!response.ok) return null
 
     const data = await response.json()
-
-    // Look for a suitable logo in English or with no language specified
     const logos = data.logos || []
+
+    if (logos.length === 0) return null
+
+    // Filter logos by language preference (English or no language)
+    const preferredLanguageLogos = logos.filter(
+      (logo: any) => logo.iso_639_1 === "en" || !logo.iso_639_1,
+    )
+
+    const logosToConsider =
+      preferredLanguageLogos.length > 0 ? preferredLanguageLogos : logos
+
+    // Filter for rectangular logos (aspect ratio > 1.5 to avoid square-ish logos)
+    const rectangularLogos = logosToConsider.filter((logo: any) => {
+      if (!logo.width || !logo.height) return false
+      const aspectRatio = logo.width / logo.height
+      return aspectRatio >= 1.5 // Prefer logos that are at least 1.5x wider than tall
+    })
+
+    // Pick the best logo: rectangular first, then any available
     const suitableLogo =
-      logos.find((logo: any) => logo.iso_639_1 === "en" && logo.file_path) ||
-      logos.find((logo: any) => !logo.iso_639_1 && logo.file_path) ||
-      logos[0]
+      rectangularLogos.length > 0 ? rectangularLogos[0] : logosToConsider[0]
 
     return suitableLogo?.file_path
       ? `https://image.tmdb.org/t/p/w500${suitableLogo.file_path}`
