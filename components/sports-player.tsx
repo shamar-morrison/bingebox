@@ -1,6 +1,7 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
@@ -8,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Globe } from "lucide-react"
+import { Globe, Loader2, Wifi, WifiOff } from "lucide-react"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 
 interface SportsStream {
@@ -60,6 +61,9 @@ function SportsPlayer({ streams, title }: SportsPlayerProps) {
   }, [streams])
 
   const [selectedKey, setSelectedKey] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [iframeSrc, setIframeSrc] = useState("")
 
   const selectedStream = useMemo(
     () =>
@@ -77,9 +81,39 @@ function SportsPlayer({ streams, title }: SportsPlayerProps) {
     }
   }, [uniqueStreams, selectedKey])
 
+  // Update iframe src when stream changes
+  useEffect(() => {
+    if (selectedStream) {
+      setIframeSrc(selectedStream.embedUrl)
+      setIsLoading(true)
+      setLoadError(false)
+    }
+  }, [selectedStream])
+
   const handleStreamChange = useCallback((streamKey: string) => {
     setSelectedKey(streamKey)
+    setIsLoading(true)
+    setLoadError(false)
   }, [])
+
+  const handleIframeLoad = () => {
+    setIsLoading(false)
+    setLoadError(false)
+  }
+
+  const handleIframeError = () => {
+    setIsLoading(false)
+    setLoadError(true)
+  }
+
+  const retryLoad = () => {
+    setIsLoading(true)
+    setLoadError(false)
+    // Force iframe reload by updating the src
+    const currentSrc = iframeSrc
+    setIframeSrc("")
+    setTimeout(() => setIframeSrc(currentSrc), 100)
+  }
 
   const memoizedStreamItems = useMemo(
     () =>
@@ -148,16 +182,63 @@ function SportsPlayer({ streams, title }: SportsPlayerProps) {
       </div>
 
       <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-        <iframe
-          key={selectedStream.uniqueKey}
-          src={selectedStream.embedUrl}
-          className="absolute top-0 left-0 w-full h-full border-0 outline-none rounded-lg"
-          allowFullScreen
-          title={`${title} - Stream ${selectedStream.streamNo}`}
-        />
+        {/* Loading overlay */}
+        {isLoading && (
+          <div className="absolute inset-0 bg-black/90 rounded-lg flex items-center justify-center z-10">
+            <div className="text-center space-y-3">
+              <Loader2 className="w-8 h-8 animate-spin text-white mx-auto" />
+              <div className="text-white">
+                <p className="text-sm font-medium">
+                  Loading Stream {selectedStream.streamNo}...
+                </p>
+                <p className="text-xs text-gray-300 mt-1">
+                  This may take a few moments
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error overlay */}
+        {loadError && (
+          <div className="absolute inset-0 bg-black/90 rounded-lg flex items-center justify-center z-10">
+            <div className="text-center space-y-4 p-6">
+              <WifiOff className="w-8 h-8 text-red-400 mx-auto" />
+              <div className="text-white">
+                <p className="text-sm font-medium">
+                  Failed to load Stream {selectedStream.streamNo}
+                </p>
+                <p className="text-xs text-gray-300 mt-1">
+                  The stream might be unavailable or your connection is slow
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={retryLoad}
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+              >
+                <Wifi className="w-4 h-4 mr-2" />
+                Try Again
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {iframeSrc && (
+          <iframe
+            key={selectedStream.uniqueKey}
+            src={iframeSrc}
+            className="absolute top-0 left-0 w-full h-full border-0 outline-none rounded-lg"
+            allowFullScreen
+            title={`${title} - Stream ${selectedStream.streamNo}`}
+            onLoad={handleIframeLoad}
+            onError={handleIframeError}
+          />
+        )}
       </div>
     </div>
   )
 }
 
-export default memo(SportsPlayer)
+export default SportsPlayer
