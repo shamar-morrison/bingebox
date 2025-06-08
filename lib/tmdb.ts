@@ -40,8 +40,10 @@ async function fetchFromTMDB<T>(
   }
 }
 
-export const fetchTrending = async (): Promise<MediaResponse> => {
-  const response = await fetchFromTMDB<MediaResponse>("/trending/all/day")
+export const fetchTrending = async (page = 1): Promise<MediaResponse> => {
+  const response = await fetchFromTMDB<MediaResponse>(
+    `/trending/all/day?page=${page}`,
+  )
 
   if (response.results) {
     response.results = response.results.filter(
@@ -52,8 +54,8 @@ export const fetchTrending = async (): Promise<MediaResponse> => {
   return response
 }
 
-export const fetchPopularMovies = async (): Promise<MediaResponse> => {
-  return fetchFromTMDB<MediaResponse>("/movie/popular")
+export const fetchPopularMovies = async (page = 1): Promise<MediaResponse> => {
+  return fetchFromTMDB<MediaResponse>(`/movie/popular?page=${page}`)
 }
 
 export const fetchTopRatedMovies = async (): Promise<MediaResponse> => {
@@ -72,8 +74,8 @@ export const fetchPopularShows = async (): Promise<MediaResponse> => {
   return fetchFromTMDB<MediaResponse>("/tv/popular")
 }
 
-export const fetchTopRatedShows = async (): Promise<MediaResponse> => {
-  return fetchFromTMDB<MediaResponse>("/tv/top_rated")
+export const fetchTopRatedShows = async (page = 1): Promise<MediaResponse> => {
+  return fetchFromTMDB<MediaResponse>(`/tv/top_rated?page=${page}`)
 }
 
 export const fetchAiringTodayShows = async (): Promise<MediaResponse> => {
