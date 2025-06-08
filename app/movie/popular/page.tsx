@@ -1,8 +1,8 @@
-import { Suspense } from "react"
 import type { Metadata } from "next"
+import { Suspense } from "react"
 
+import InfiniteMediaGrid from "@/components/infinite-media-grid"
 import { Skeleton } from "@/components/ui/skeleton"
-import MediaGrid from "@/components/media-grid"
 import { fetchPopularMovies } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
@@ -24,9 +24,12 @@ export default function PopularMoviesPage() {
 
 async function PopularMoviesGrid() {
   const movies = await fetchPopularMovies()
+
   return (
-    <MediaGrid
-      items={movies.results.map((item) => ({ ...item, media_type: "movie" }))}
+    <InfiniteMediaGrid
+      initialData={movies}
+      apiEndpoint="/api/movies/popular"
+      mediaType="movie"
     />
   )
 }

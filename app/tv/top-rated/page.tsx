@@ -1,8 +1,8 @@
-import { Suspense } from "react"
 import type { Metadata } from "next"
+import { Suspense } from "react"
 
+import InfiniteMediaGrid from "@/components/infinite-media-grid"
 import { Skeleton } from "@/components/ui/skeleton"
-import MediaGrid from "@/components/media-grid"
 import { fetchTopRatedShows } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
@@ -24,7 +24,14 @@ export default function TopRatedTVShowsPage() {
 
 async function TopRatedShowsGrid() {
   const shows = await fetchTopRatedShows()
-  return <MediaGrid items={shows.results.map((item) => ({ ...item, media_type: "tv" }))} />
+
+  return (
+    <InfiniteMediaGrid
+      initialData={shows}
+      apiEndpoint="/api/tv/top-rated"
+      mediaType="tv"
+    />
+  )
 }
 
 function GridSkeleton() {
@@ -42,4 +49,3 @@ function GridSkeleton() {
     </div>
   )
 }
-

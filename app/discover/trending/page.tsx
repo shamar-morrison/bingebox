@@ -1,8 +1,8 @@
-import { Suspense } from "react"
 import type { Metadata } from "next"
+import { Suspense } from "react"
 
+import InfiniteMediaGrid from "@/components/infinite-media-grid"
 import { Skeleton } from "@/components/ui/skeleton"
-import MediaGrid from "@/components/media-grid"
 import { fetchTrending } from "@/lib/tmdb"
 
 export const metadata: Metadata = {
@@ -24,7 +24,10 @@ export default function TrendingPage() {
 
 async function TrendingGrid() {
   const trending = await fetchTrending()
-  return <MediaGrid items={trending.results} />
+
+  return (
+    <InfiniteMediaGrid initialData={trending} apiEndpoint="/api/trending" />
+  )
 }
 
 function GridSkeleton() {
