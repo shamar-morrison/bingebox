@@ -19,7 +19,7 @@ export default async function FeaturedMedia() {
 
   // Fetch images including logos if available
   const mediaType = featured.media_type!
-  const titleImagePath = await fetchTitleImage(featured.id, mediaType)
+  const titleImageInfo = await fetchTitleImage(featured.id, mediaType)
 
   const detailsPath =
     mediaType === "movie" ? `/movie/${featured.id}` : `/tv/${featured.id}`
@@ -58,10 +58,16 @@ export default async function FeaturedMedia() {
       <div className="absolute inset-0 flex items-end">
         <div className="container px-4 pb-16 md:pb-24">
           <div className="max-w-2xl space-y-4">
-            {titleImagePath ? (
-              <div className="relative h-16 md:h-20 lg:h-24 max-w-full">
+            {titleImageInfo?.path ? (
+              <div
+                className={`relative max-w-full ${
+                  titleImageInfo.isRectangular
+                    ? "h-16 md:h-20 lg:h-24"
+                    : "h-20 md:h-24 lg:h-28"
+                }`}
+              >
                 <img
-                  src={titleImagePath}
+                  src={titleImageInfo.path}
                   alt={title}
                   className="absolute inset-0 w-full h-full object-contain object-left"
                 />
@@ -99,7 +105,7 @@ export default async function FeaturedMedia() {
 async function fetchTitleImage(
   id: number,
   mediaType: string,
-): Promise<string | null> {
+): Promise<{ path: string; isRectangular: boolean } | null> {
   try {
     const TMDB_API_KEY = process.env.TMDB_API_KEY
     const url = `https://api.themoviedb.org/3/${mediaType}/${id}/images?api_key=${TMDB_API_KEY}`
@@ -131,9 +137,15 @@ async function fetchTitleImage(
     const suitableLogo =
       rectangularLogos.length > 0 ? rectangularLogos[0] : logosToConsider[0]
 
-    return suitableLogo?.file_path
-      ? `https://image.tmdb.org/t/p/w500${suitableLogo.file_path}`
-      : null
+    if (!suitableLogo?.file_path) return null
+
+    const isRectangular =
+      rectangularLogos.length > 0 && rectangularLogos.includes(suitableLogo)
+
+    return {
+      path: `https://image.tmdb.org/t/p/w500${suitableLogo.file_path}`,
+      isRectangular,
+    }
   } catch (error) {
     console.error("Error fetching title image:", error)
     return null
