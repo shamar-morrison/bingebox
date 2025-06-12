@@ -83,6 +83,10 @@ export default function TVShowDetailsClient({
   const cast = show.credits?.cast || []
   const similarShows = show.similar?.results || []
   const seasons = show.seasons || []
+  const regularSeasonsCount = seasons.filter(
+    (season) =>
+      season.season_number !== 0 && season.name.toLowerCase() !== "specials",
+  ).length
 
   const creator = show.credits?.crew?.find(
     (person) => person.job === "Creator" || person.job === "Executive Producer",
@@ -154,8 +158,8 @@ export default function TVShowDetailsClient({
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4 text-muted-foreground" />
                     <span>
-                      {seasons.length}{" "}
-                      {seasons.length === 1 ? "Season" : "Seasons"}
+                      {regularSeasonsCount}{" "}
+                      {regularSeasonsCount === 1 ? "Season" : "Seasons"}
                     </span>
                   </div>
 
