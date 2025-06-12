@@ -71,7 +71,7 @@ async function PersonDetails({ id }: { id: number }) {
   )
 
   const directedMovies: MediaItem[] = movieCrewCredits
-    .filter((credit) => credit.job === "Director")
+    .filter((credit) => credit.job === "Director" || credit.job === "Writing")
     // Map to a structure similar to MediaItem for MediaGrid compatibility
     .map((credit) => ({
       // Fields guaranteed by crew type
@@ -178,9 +178,10 @@ async function PersonDetails({ id }: { id: number }) {
               </TabsList>
 
               <TabsContent value="movies" className="mt-6">
-                {person.known_for_department === "Directing" ? (
+                {person.known_for_department === "Directing" ||
+                person.known_for_department === "Writing" ? (
                   <>
-                    {/* Directed Movies Section - First for Directors */}
+                    {/* Directed Movies Section - First for Directors/Writers */}
                     {directedMovies.length > 0 && (
                       <div className="mb-12">
                         <h2 className="text-xl font-semibold mb-4">
