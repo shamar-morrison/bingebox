@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarIcon, Clock, Film, Star } from "lucide-react"
+import { CalendarIcon, Clock, Film, Play, Star } from "lucide-react"
 import Link from "next/link"
 import { useState, useTransition } from "react"
 
@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import WatchlistDropdown from "@/components/watchlist-dropdown"
+import { useVidlinkProgress } from "@/lib/hooks/use-vidlink-progress"
 import { MediaItem, Review, ReviewResponse } from "@/lib/types"
 import { getLanguageName } from "@/lib/utils"
 
@@ -31,6 +32,7 @@ export default function MovieDetailsClient({
   const [reviews, setReviews] = useState<Review[] | null>(null)
   const [isLoadingReviews, startReviewLoad] = useTransition()
   const [reviewsFetched, setReviewsFetched] = useState(false)
+  const { getMediaProgress, progressData } = useVidlinkProgress()
 
   const handleTabChange = (value: string) => {
     if (value === "reviews" && !reviewsFetched && !isLoadingReviews) {
@@ -82,6 +84,21 @@ export default function MovieDetailsClient({
   const crew = movie.credits?.crew || []
   const similarMovies = movie.similar?.results || []
   const director = crew.find((person) => person.job === "Director")
+
+  // Check if movie is in continue watching
+  const movieProgress = getMediaProgress(id)
+  const isInContinueWatching =
+    movieProgress && movieProgress.progress?.watched > 0
+  const isProgressLoading = progressData === null
+
+  let watchPath = `/watch/movie/${id}`
+  let buttonText = "Watch Now"
+
+  if (isInContinueWatching && movieProgress) {
+    const startAt = Math.floor(movieProgress.progress.watched)
+    watchPath = `/watch/movie/${id}?startAt=${startAt}`
+    buttonText = "Resume"
+  }
 
   return (
     <>
@@ -183,9 +200,19 @@ export default function MovieDetailsClient({
                 </p>
 
                 <div className="flex flex-wrap gap-3 pt-2">
-                  <Button asChild>
-                    <Link href={`/watch/movie/${id}`}>Watch Now</Link>
-                  </Button>
+                  {isProgressLoading ? (
+                    <Skeleton className="h-10 w-28" />
+                  ) : (
+                    <Button asChild>
+                      <Link
+                        href={watchPath}
+                        className="flex items-center gap-1"
+                      >
+                        <Play className="w-4 h-4" />
+                        {buttonText}
+                      </Link>
+                    </Button>
+                  )}
 
                   <TrailerDialog
                     mediaType="movie"

@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarIcon, Clock, InfoIcon, Star, Tv } from "lucide-react"
+import { CalendarIcon, Clock, InfoIcon, Play, Star, Tv } from "lucide-react"
 import Link from "next/link"
 import { useState, useTransition } from "react"
 
@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import WatchlistDropdown from "@/components/watchlist-dropdown"
+import { useVidlinkProgress } from "@/lib/hooks/use-vidlink-progress"
 import { MediaItem, Review, ReviewResponse } from "@/lib/types"
 import { cn, getLanguageName } from "@/lib/utils"
 
@@ -37,6 +38,7 @@ export default function TVShowDetailsClient({
   const [reviews, setReviews] = useState<Review[] | null>(null)
   const [isLoadingReviews, startReviewLoad] = useTransition()
   const [reviewsFetched, setReviewsFetched] = useState(false)
+  const { getMediaProgress, progressData } = useVidlinkProgress()
 
   const handleTabChange = (value: string) => {
     if (value === "reviews" && !reviewsFetched && !isLoadingReviews) {
@@ -91,6 +93,29 @@ export default function TVShowDetailsClient({
   const creator = show.credits?.crew?.find(
     (person) => person.job === "Creator" || person.job === "Executive Producer",
   )
+
+  // Check if TV show is in continue watching
+  const showProgress = getMediaProgress(id)
+  const isInContinueWatching =
+    showProgress &&
+    ((showProgress.last_season_watched && showProgress.last_episode_watched) ||
+      showProgress.progress?.watched > 0)
+  const isProgressLoading = progressData === null
+
+  let watchPath = `/watch/tv/${id}/season/1/episode/1`
+  let buttonText = "Watch Now"
+
+  if (isInContinueWatching && showProgress) {
+    if (showProgress.last_season_watched && showProgress.last_episode_watched) {
+      const episodeKey = `s${showProgress.last_season_watched}e${showProgress.last_episode_watched}`
+      const episodeProgress = showProgress.show_progress?.[episodeKey]
+      const startAt = episodeProgress
+        ? Math.floor(episodeProgress.progress.watched)
+        : 0
+      watchPath = `/watch/tv/${id}/season/${showProgress.last_season_watched}/episode/${showProgress.last_episode_watched}?startAt=${startAt}`
+      buttonText = "Resume"
+    }
+  }
 
   return (
     <>
@@ -198,11 +223,19 @@ export default function TVShowDetailsClient({
                 </p>
 
                 <div className="flex flex-wrap gap-3 pt-2">
-                  <Button asChild>
-                    <Link href={`/watch/tv/${id}/season/1/episode/1`}>
-                      Watch Now
-                    </Link>
-                  </Button>
+                  {isProgressLoading ? (
+                    <Skeleton className="h-10 w-28" />
+                  ) : (
+                    <Button asChild>
+                      <Link
+                        href={watchPath}
+                        className="flex items-center gap-1"
+                      >
+                        <Play className="w-4 h-4" />
+                        {buttonText}
+                      </Link>
+                    </Button>
+                  )}
 
                   <TrailerDialog
                     mediaType="tv"
