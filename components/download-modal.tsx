@@ -1,6 +1,6 @@
 "use client"
 
-import { Download, Loader2 } from "lucide-react"
+import { Download, ExternalLink, Loader2 } from "lucide-react"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -19,7 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { DownloadResponseVidZee } from "@/lib/download-types"
+import type {
+  MovieDownloadResponse,
+  TVDownloadResponse,
+} from "@/lib/download-types"
 
 interface DownloadModalProps {
   mediaType: "movie" | "tv"
@@ -40,12 +43,12 @@ export default function DownloadModal({
 }: DownloadModalProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [downloadData, setDownloadData] =
-    useState<DownloadResponseVidZee | null>(null)
+  const [downloadData, setDownloadData] = useState<
+    MovieDownloadResponse | TVDownloadResponse | null
+  >(null)
   const [selectedSeason, setSelectedSeason] = useState<string>("")
   const [selectedEpisode, setSelectedEpisode] = useState<string>("")
   const [error, setError] = useState<string | null>(null)
-  const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set())
 
   const selectedSeasonData = seasons.find(
     (season) => season.season_number.toString() === selectedSeason,
@@ -80,7 +83,8 @@ export default function DownloadModal({
         )
       }
 
-      const data: DownloadResponseVidZee = await response.json()
+      const data: MovieDownloadResponse | TVDownloadResponse =
+        await response.json()
       setDownloadData(data)
     } catch (err) {
       setError(
@@ -100,49 +104,15 @@ export default function DownloadModal({
       setError(null)
       setSelectedSeason("")
       setSelectedEpisode("")
-      setDownloadingIds(new Set())
     }
   }
 
-  const handleDownloadClick = (downloadId: string, downloadUrl: string) => {
-    setDownloadingIds((prev) => new Set(prev).add(downloadId))
-
-    const link = document.createElement("a")
-    link.href = downloadUrl
-    link.download = ""
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-
-    // Reset the downloading state after 3 seconds
-    setTimeout(() => {
-      setDownloadingIds((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(downloadId)
-        return newSet
-      })
-    }, 3000)
+  const handleDownloadClick = (downloadUrl: string) => {
+    window.open(downloadUrl, "_blank", "noopener,noreferrer")
   }
 
-  const formatFileSize = (sizeStr: string) => {
-    if (!sizeStr) return "Unknown size"
-
-    const bytes = parseInt(sizeStr, 10)
-    if (isNaN(bytes)) return "Unknown size"
-
-    const sizes = ["B", "KB", "MB", "GB", "TB"]
-    if (bytes === 0) return "0 B"
-
-    const i = Math.floor(Math.log(bytes) / Math.log(1024))
-    const size = bytes / Math.pow(1024, i)
-
-    return `${size.toFixed(1)} ${sizes[i]}`
-  }
-
-  const getQualityBadgeColor = (resolution: number) => {
-    if (resolution >= 1080) return "bg-green-600"
-    if (resolution >= 720) return "bg-blue-600"
-    return "bg-gray-600"
+  const isDownloadAvailable = (downloadLink: string) => {
+    return downloadLink !== "Download link not available"
   }
 
   return (
@@ -153,13 +123,13 @@ export default function DownloadModal({
           Download
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Download {title}</DialogTitle>
           <DialogDescription>
             {mediaType === "movie"
-              ? "Choose from available download links below"
-              : "Select a season and episode to fetch download links"}
+              ? "Get the download link for this movie"
+              : "Select a season and episode to get the download link"}
           </DialogDescription>
         </DialogHeader>
 
@@ -227,11 +197,11 @@ export default function DownloadModal({
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Fetching Download Links...
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Getting Download Link...
                 </>
               ) : (
-                "Fetch Download Links"
+                "Get Download Link"
               )}
             </Button>
           )}
@@ -244,77 +214,41 @@ export default function DownloadModal({
 
           {isLoading && mediaType === "movie" && (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin mr-2" />
-              <span>Fetching download links...</span>
+              <Loader2 className="w-6 h-6 animate-spin" />
+              <span>Getting download link...</span>
             </div>
           )}
 
           {downloadData && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Available Downloads</h3>
-                <span className="text-sm text-muted-foreground">
-                  {downloadData.data.downloads.length} links found
-                </span>
+            <div className="p-6 border rounded-lg bg-muted/30 text-center space-y-4">
+              <div>
+                <h3 className="font-medium text-lg mb-2">
+                  {"movieTitle" in downloadData
+                    ? downloadData.movieTitle
+                    : downloadData.showTitle}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {"movieTitle" in downloadData
+                    ? `${downloadData.releaseYear}`
+                    : `Season ${downloadData.season}, Episode ${downloadData.episode}`}
+                </p>
               </div>
 
-              {downloadData.data.downloads.length === 0 ? (
-                <div className="p-8 text-center border rounded-lg">
-                  <p className="text-muted-foreground">
-                    No download links available for this content.
-                  </p>
-                </div>
+              {isDownloadAvailable(downloadData.downloadLink) ? (
+                <Button
+                  onClick={() => handleDownloadClick(downloadData.downloadLink)}
+                  size="lg"
+                  className="w-full"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Open Download Page
+                </Button>
               ) : (
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {downloadData.data.downloads.map((download, index) => {
-                    const downloadId = download.id || `download-${index}`
-                    const isDownloading = downloadingIds.has(downloadId)
-
-                    return (
-                      <div
-                        key={downloadId}
-                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div
-                            className={`px-2 py-1 rounded text-xs font-medium text-white ${getQualityBadgeColor(
-                              download.resolution,
-                            )}`}
-                          >
-                            {download.resolution}p
-                          </div>
-                          <div>
-                            <p className="font-medium">
-                              {download.resolution}p Quality
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              Size: {formatFileSize(download.size)}
-                            </p>
-                          </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          className="shrink-0"
-                          disabled={isDownloading}
-                          onClick={() =>
-                            handleDownloadClick(downloadId, download.url)
-                          }
-                        >
-                          {isDownloading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              Downloading...
-                            </>
-                          ) : (
-                            <>
-                              <Download className="w-4 h-4" />
-                              Download
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )
-                  })}
+                <div className="p-4 bg-muted rounded-md">
+                  <p className="text-sm text-muted-foreground">
+                    Sorry, no download link is available for this content at the
+                    moment.
+                  </p>
                 </div>
               )}
             </div>

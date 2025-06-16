@@ -1,3 +1,24 @@
+// Movie download response types
+export interface MovieDownloadResponse {
+  downloadLink: string
+  subtitleLink: string
+  movieTitle: string
+  releaseYear: string
+}
+
+// TV show download response types
+export interface TVDownloadResponse {
+  downloadLink: string
+  subtitleLink: string
+  showTitle: string
+  season: string
+  episode: string
+}
+
+// Union type for all download responses
+export type DownloadResponse = MovieDownloadResponse | TVDownloadResponse
+
+// Legacy types (keeping for backward compatibility if needed)
 export interface DownloadResponseVidZee {
   code: number
   message: string

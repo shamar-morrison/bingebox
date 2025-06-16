@@ -1,7 +1,11 @@
+import type {
+  MovieDownloadResponse,
+  TVDownloadResponse,
+} from "@/lib/download-types"
 import { NextRequest, NextResponse } from "next/server"
 
 interface CacheEntry {
-  data: any
+  data: MovieDownloadResponse | TVDownloadResponse
   timestamp: number
 }
 
@@ -20,21 +24,26 @@ function getCacheKey(
   return `tv:${tmdbId}:${season}:${episode}`
 }
 
-function getCachedData(cacheKey: string): any | null {
-  const entry = cache.get(cacheKey)
-  if (entry && Date.now() - entry.timestamp < CACHE_DURATION) {
-    return entry.data
+function getCachedData(
+  key: string,
+): MovieDownloadResponse | TVDownloadResponse | null {
+  const cached = cache.get(key)
+  if (!cached) return null
+
+  const now = Date.now()
+  if (now - cached.timestamp > CACHE_DURATION) {
+    cache.delete(key)
+    return null
   }
 
-  if (entry) {
-    cache.delete(cacheKey)
-  }
-
-  return null
+  return cached.data
 }
 
-function setCachedData(cacheKey: string, data: any): void {
-  cache.set(cacheKey, {
+function setCachedData(
+  key: string,
+  data: MovieDownloadResponse | TVDownloadResponse,
+): void {
+  cache.set(key, {
     data,
     timestamp: Date.now(),
   })
@@ -71,7 +80,7 @@ export async function GET(request: NextRequest) {
     let apiUrl: string
 
     if (mediaType === "movie") {
-      apiUrl = `https://core.vidzee.wtf/v5/movie/${tmdbId}`
+      apiUrl = `https://dl.vidzee.wtf/download/movie/v1/${tmdbId}`
     } else if (mediaType === "tv") {
       if (!season || !episode) {
         return NextResponse.json(
@@ -79,7 +88,7 @@ export async function GET(request: NextRequest) {
           { status: 400 },
         )
       }
-      apiUrl = `https://core.vidzee.wtf/v5/tv/${tmdbId}/${season}/${episode}`
+      apiUrl = `https://dl.vidzee.wtf/download/tv/v1/${tmdbId}/${season}/${episode}`
     } else {
       return NextResponse.json({ error: "Invalid media type" }, { status: 400 })
     }
@@ -96,7 +105,8 @@ export async function GET(request: NextRequest) {
       throw new Error(`API responded with status: ${response.status}`)
     }
 
-    const data = await response.json()
+    const data: MovieDownloadResponse | TVDownloadResponse =
+      await response.json()
 
     // Cache the successful response
     setCachedData(cacheKey, data)
