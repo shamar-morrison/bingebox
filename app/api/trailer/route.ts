@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server"
 import { fetchVideos } from "@/lib/tmdb"
+import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -7,25 +7,45 @@ export async function GET(request: Request) {
   const mediaId = searchParams.get("mediaId")
 
   if (!mediaType || !mediaId) {
-    return NextResponse.json({ error: "Missing mediaType or mediaId" }, { status: 400 })
+    return NextResponse.json(
+      { error: "Missing mediaType or mediaId" },
+      { status: 400 },
+    )
   }
 
   try {
     const videos = await fetchVideos(mediaType, Number.parseInt(mediaId))
 
-    // Find the first trailer or teaser from YouTube
-    const trailer = videos.results.find(
-      (video) => video.site === "YouTube" && (video.type === "Trailer" || video.type === "Teaser"),
+    // Filter all trailers and teasers from YouTube
+    const trailers = videos.results.filter(
+      (video) =>
+        video.site === "YouTube" &&
+        (video.type === "Trailer" || video.type === "Teaser"),
     )
 
-    if (!trailer) {
-      return NextResponse.json({ error: "No trailer found" }, { status: 404 })
+    if (trailers.length === 0) {
+      return NextResponse.json({ error: "No trailers found" }, { status: 404 })
     }
 
-    return NextResponse.json({ key: trailer.key })
+    // Sort trailers: Trailers first, then Teasers, then by name
+    const sortedTrailers = trailers.sort((a, b) => {
+      if (a.type === "Trailer" && b.type === "Teaser") return -1
+      if (a.type === "Teaser" && b.type === "Trailer") return 1
+      return a.name.localeCompare(b.name)
+    })
+
+    return NextResponse.json({
+      trailers: sortedTrailers.map((trailer) => ({
+        key: trailer.key,
+        name: trailer.name,
+        type: trailer.type,
+      })),
+    })
   } catch (error) {
-    console.error("Error fetching trailer:", error)
-    return NextResponse.json({ error: "Failed to fetch trailer" }, { status: 500 })
+    console.error("Error fetching trailers:", error)
+    return NextResponse.json(
+      { error: "Failed to fetch trailers" },
+      { status: 500 },
+    )
   }
 }
-
