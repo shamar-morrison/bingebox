@@ -214,7 +214,7 @@ export default function DownloadModal({
 
           {isLoading && mediaType === "movie" && (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin" />
+              <Loader2 className="w-6 h-6 animate-spin mr-2" />
               <span>Getting download link...</span>
             </div>
           )}
