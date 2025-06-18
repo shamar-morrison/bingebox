@@ -1,6 +1,7 @@
 import { Film, Info, Play, Tv } from "lucide-react"
 import Link from "next/link"
 
+import TrailerDialog from "@/components/trailer-dialog"
 import { Button } from "@/components/ui/button"
 import { fetchTrending } from "@/lib/tmdb"
 
@@ -87,6 +88,16 @@ export default async function FeaturedMedia() {
                   Watch Now
                 </Link>
               </Button>
+
+              <TrailerDialog
+                mediaType={mediaType}
+                mediaId={featured.id}
+                title={title}
+              >
+                <Button variant="outline" className="gap-2">
+                  Watch Trailer
+                </Button>
+              </TrailerDialog>
 
               <Button variant="outline" asChild>
                 <Link href={detailsPath} className="gap-2">
