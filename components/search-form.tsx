@@ -24,6 +24,8 @@ export default function SearchForm({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
+  const searchParamsQuery = searchParams.get("q")
+
   // Reset isSearching when the URL changes
   useEffect(() => {
     setIsSearching(false)
@@ -32,7 +34,7 @@ export default function SearchForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (query.trim()) {
+    if (query.trim() !== searchParamsQuery?.trim()) {
       setIsSearching(true)
       router.push(`/search?q=${encodeURIComponent(query.trim())}&type=${type}`)
     }
