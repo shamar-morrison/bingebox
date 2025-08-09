@@ -58,10 +58,10 @@ export default function MediaFilters({ mediaType }: MediaFiltersProps) {
   const searchParams = useSearchParams()
 
   const [genres, setGenres] = useState<Genre[]>([])
-  const [selectedGenre, setSelectedGenre] = useState<string>("")
-  const [selectedYear, setSelectedYear] = useState<string>("")
-  const [selectedRating, setSelectedRating] = useState<string>("")
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("")
+  const [selectedGenre, setSelectedGenre] = useState<string>("all")
+  const [selectedYear, setSelectedYear] = useState<string>("all")
+  const [selectedRating, setSelectedRating] = useState<string>("all")
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("all")
   const [sortBy, setSortBy] = useState("popularity.desc")
   const [isLoading, setIsLoading] = useState(false)
 
@@ -231,7 +231,11 @@ export default function MediaFilters({ mediaType }: MediaFiltersProps) {
           onValueChange={(value) => applyFilter("with_genres", value)}
           disabled={isLoading}
         >
-          <SelectTrigger className="w-full sm:w-[140px]">
+          <SelectTrigger
+            className={`w-full sm:w-[140px] ${
+              selectedGenre !== "all" ? "border-destructive" : ""
+            }`}
+          >
             <SelectValue placeholder="Genre" />
           </SelectTrigger>
           <SelectContent>
@@ -252,7 +256,11 @@ export default function MediaFilters({ mediaType }: MediaFiltersProps) {
           onValueChange={(value) => applyFilter("year", value)}
           disabled={isLoading}
         >
-          <SelectTrigger className="w-full sm:w-[140px]">
+          <SelectTrigger
+            className={`w-full sm:w-[140px] ${
+              selectedYear !== "all" ? "border-destructive" : ""
+            }`}
+          >
             <SelectValue placeholder="Year" />
           </SelectTrigger>
           <SelectContent>
@@ -274,7 +282,11 @@ export default function MediaFilters({ mediaType }: MediaFiltersProps) {
           }
           disabled={isLoading}
         >
-          <SelectTrigger className="w-full sm:w-[140px]">
+          <SelectTrigger
+            className={`w-full sm:w-[140px] ${
+              selectedLanguage !== "all" ? "border-destructive" : ""
+            }`}
+          >
             <SelectValue placeholder="Language" />
           </SelectTrigger>
           <SelectContent>
@@ -294,7 +306,11 @@ export default function MediaFilters({ mediaType }: MediaFiltersProps) {
           onValueChange={(value) => applyFilter("vote_average.gte", value)}
           disabled={isLoading}
         >
-          <SelectTrigger className="w-full sm:w-[140px]">
+          <SelectTrigger
+            className={`w-full sm:w-[140px] ${
+              selectedRating !== "all" ? "border-destructive" : ""
+            }`}
+          >
             <SelectValue placeholder="Quality" />
           </SelectTrigger>
           <SelectContent>
