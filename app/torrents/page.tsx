@@ -262,7 +262,9 @@ function TorrentsPageContent() {
         <div className="space-y-2">
           <label className="text-sm font-medium">Quality</label>
           <Select value={quality} onValueChange={handleQualityChange}>
-            <SelectTrigger>
+            <SelectTrigger
+              className={`${quality !== "all" ? "border-destructive" : ""}`}
+            >
               <SelectValue placeholder="Any Quality" />
             </SelectTrigger>
             <SelectContent>
@@ -279,7 +281,9 @@ function TorrentsPageContent() {
         <div className="space-y-2">
           <label className="text-sm font-medium">Minimum Rating</label>
           <Select value={minimumRating} onValueChange={handleRatingChange}>
-            <SelectTrigger>
+            <SelectTrigger
+              className={`${minimumRating !== "all" ? "border-destructive" : ""}`}
+            >
               <SelectValue placeholder="Any Rating" />
             </SelectTrigger>
             <SelectContent>
@@ -296,7 +300,9 @@ function TorrentsPageContent() {
         <div className="space-y-2">
           <label className="text-sm font-medium">Genre</label>
           <Select value={genre} onValueChange={handleGenreChange}>
-            <SelectTrigger>
+            <SelectTrigger
+              className={`${genre !== "all" ? "border-destructive" : ""}`}
+            >
               <SelectValue placeholder="Any Genre" />
             </SelectTrigger>
             <SelectContent>
@@ -313,7 +319,9 @@ function TorrentsPageContent() {
         <div className="space-y-2">
           <label className="text-sm font-medium">Sort By</label>
           <Select value={sortBy} onValueChange={handleSortChange}>
-            <SelectTrigger>
+            <SelectTrigger
+              className={`${sortBy !== "date_added" ? "border-destructive" : ""}`}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -329,7 +337,9 @@ function TorrentsPageContent() {
         <div className="space-y-2">
           <label className="text-sm font-medium">Order</label>
           <Select value={orderBy} onValueChange={handleOrderChange}>
-            <SelectTrigger>
+            <SelectTrigger
+              className={`${orderBy !== "desc" ? "border-destructive" : ""}`}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
