@@ -13,6 +13,14 @@ interface CacheEntry {
 const cache = new Map<string, CacheEntry>()
 const CACHE_DURATION = 60 * 60 * 1000 // 1 hour in milliseconds
 
+function isValidHttpUrl(url: string): boolean {
+  return typeof url === "string" && /^https?:\/\//i.test(url)
+}
+
+function isUnavailablePlaceholder(url: string): boolean {
+  return /^(download link( is)? not available)$/i.test(String(url).trim())
+}
+
 function getCacheKey(
   mediaType: string,
   tmdbId: string,
@@ -155,7 +163,12 @@ export async function GET(request: NextRequest) {
             // Try a few possible shapes defensively
             const possibleUrl =
               json?.downloadLink || json?.download_url || json?.url
-            if (typeof possibleUrl === "string" && possibleUrl.length > 0) {
+            if (
+              typeof possibleUrl === "string" &&
+              possibleUrl.length > 0 &&
+              !isUnavailablePlaceholder(possibleUrl) &&
+              isValidHttpUrl(possibleUrl)
+            ) {
               return [
                 {
                   resolution: "page",
@@ -169,7 +182,13 @@ export async function GET(request: NextRequest) {
             const maybeDownloads = json?.data?.downloads
             if (Array.isArray(maybeDownloads)) {
               return maybeDownloads
-                .filter((d: any) => typeof d?.url === "string" && d.url.length)
+                .filter(
+                  (d: any) =>
+                    typeof d?.url === "string" &&
+                    d.url.length > 0 &&
+                    !isUnavailablePlaceholder(d.url) &&
+                    isValidHttpUrl(d.url),
+                )
                 .map((d: any) => ({
                   resolution: String(d.resolution ?? ""),
                   url: String(d.url),
@@ -206,8 +225,12 @@ export async function GET(request: NextRequest) {
       })
 
       const results = await Promise.all(fetchPromises)
-      // Flatten and de-duplicate by URL
-      const allLinks = results.flat()
+      // Flatten, filter invalids, and de-duplicate by URL
+      const allLinks = results
+        .flat()
+        .filter(
+          (l) => isValidHttpUrl(l.url) && !isUnavailablePlaceholder(l.url),
+        )
       const seen = new Set<string>()
       const deduped: MovieDownloadLink[] = []
       for (const link of allLinks) {
