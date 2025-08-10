@@ -1,9 +1,19 @@
 // Movie download response types
+export interface MovieDownloadLink {
+  resolution: string
+  url: string
+  text: string
+  source: string
+}
+
 export interface MovieDownloadResponse {
-  downloadLink: string
-  subtitleLink: string
-  movieTitle: string
-  releaseYear: string
+  tmdbId: string
+  downloadLinks: MovieDownloadLink[]
+  legacyPageLink?: string
+  movieTitle?: string
+  releaseYear?: string
+  status?: "success" | "error"
+  error?: string | null
 }
 
 // TV show download response types
