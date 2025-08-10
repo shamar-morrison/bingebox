@@ -263,8 +263,8 @@ function ProfileContent() {
   }
 
   const renderFilterComponent = () => (
-    <div className="flex items-center gap-2 mb-6 flex-wrap justify-end">
-      <div className="w-full sm:w-[220px]">
+    <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto lg:ml-auto lg:flex-nowrap lg:justify-end">
+      <div className="w-full lg:w-[280px]">
         <Input
           type="search"
           value={searchQuery}
@@ -273,42 +273,50 @@ function ProfileContent() {
           aria-label="Search watchlist titles"
         />
       </div>
-      <Select
-        value={mediaTypeFilter}
-        onValueChange={(value: MediaTypeFilter) => setMediaTypeFilter(value)}
-      >
-        <SelectTrigger className="w-[160px]">
-          <SelectValue placeholder="Filter by type" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">
-            <div className="flex items-center gap-2">All Content</div>
-          </SelectItem>
-          <SelectItem value="movie">
-            <div className="flex items-center gap-2">Movies Only</div>
-          </SelectItem>
-          <SelectItem value="tv">
-            <div className="flex items-center gap-2">TV Shows Only</div>
-          </SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="flex w-full lg:w-auto gap-2">
+        <div className="w-1/2 lg:w-[160px] lg:flex-none">
+          <Select
+            value={mediaTypeFilter}
+            onValueChange={(value: MediaTypeFilter) =>
+              setMediaTypeFilter(value)
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">
+                <div className="flex items-center gap-2">All Content</div>
+              </SelectItem>
+              <SelectItem value="movie">
+                <div className="flex items-center gap-2">Movies Only</div>
+              </SelectItem>
+              <SelectItem value="tv">
+                <div className="flex items-center gap-2">TV Shows Only</div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-      <Select
-        value={genreFilter}
-        onValueChange={(value: string) => setGenreFilter(value)}
-      >
-        <SelectTrigger className="w-[160px]">
-          <SelectValue placeholder="Filter by genre" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Genres</SelectItem>
-          {availableGenres.map((genre) => (
-            <SelectItem key={genre} value={genre}>
-              {genre}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <div className="w-1/2 lg:w-[160px] lg:flex-none">
+          <Select
+            value={genreFilter}
+            onValueChange={(value: string) => setGenreFilter(value)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Filter by genre" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Genres</SelectItem>
+              {availableGenres.map((genre) => (
+                <SelectItem key={genre} value={genre}>
+                  {genre}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
     </div>
   )
 
