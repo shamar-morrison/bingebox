@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -64,6 +65,8 @@ function ProfileContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaTypeFilter>("all")
   const [genreFilter, setGenreFilter] = useState<string>("all")
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("")
   const supabase = createClient()
 
   const handleTabChange = (value: string) => {
@@ -106,6 +109,15 @@ function ProfileContent() {
     }
   }, [user, fetchWatchlists])
 
+  // Debounce search input to avoid filtering on every keystroke
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim().toLowerCase())
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery])
+
   const removeFromWatchlist = async (id: string) => {
     try {
       const { error } = await supabase.from("watchlists").delete().eq("id", id)
@@ -146,6 +158,12 @@ function ProfileContent() {
       )
     }
 
+    if (debouncedSearch) {
+      filtered = filtered.filter((item) =>
+        item.title.toLowerCase().includes(debouncedSearch),
+      )
+    }
+
     return filtered
   }
 
@@ -168,9 +186,11 @@ function ProfileContent() {
         <div className="text-center py-8">
           <Film className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">
-            {mediaTypeFilter === "all" && genreFilter === "all"
-              ? "No items in this list yet"
-              : `No ${mediaTypeFilter === "movie" ? "movies" : mediaTypeFilter === "tv" ? "TV shows" : "items"} ${genreFilter !== "all" ? `in "${genreFilter}" genre` : ""} in this list yet`}
+            {debouncedSearch
+              ? `No results for "${searchQuery}"`
+              : mediaTypeFilter === "all" && genreFilter === "all"
+                ? "No items in this list yet"
+                : `No ${mediaTypeFilter === "movie" ? "movies" : mediaTypeFilter === "tv" ? "TV shows" : "items"} ${genreFilter !== "all" ? `in "${genreFilter}" genre` : ""} in this list yet`}
           </p>
         </div>
       )
@@ -243,7 +263,16 @@ function ProfileContent() {
   }
 
   const renderFilterComponent = () => (
-    <div className="flex items-center gap-2 mb-6 flex-wrap">
+    <div className="flex items-center gap-2 mb-6 flex-wrap justify-end">
+      <div className="w-full sm:w-[220px]">
+        <Input
+          type="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search titles..."
+          aria-label="Search watchlist titles"
+        />
+      </div>
       <Select
         value={mediaTypeFilter}
         onValueChange={(value: MediaTypeFilter) => setMediaTypeFilter(value)}
