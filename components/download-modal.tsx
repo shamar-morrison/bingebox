@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import type {
+  MovieDownloadLink,
   MovieDownloadResponse,
   TVDownloadResponse,
 } from "@/lib/download-types"
@@ -111,10 +112,6 @@ export default function DownloadModal({
     window.open(downloadUrl, "_blank", "noopener,noreferrer")
   }
 
-  const isDownloadAvailable = (downloadLink: string) => {
-    return downloadLink !== "Download link not available"
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -123,7 +120,7 @@ export default function DownloadModal({
           Download
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Download {title}</DialogTitle>
           <DialogDescription>
@@ -219,24 +216,69 @@ export default function DownloadModal({
             </div>
           )}
 
-          {downloadData && (
+          {downloadData && mediaType === "movie" && (
+            <div className="p-6 border rounded-lg bg-muted/30 space-y-4">
+              <div>
+                <h3 className="font-medium text-lg mb-1">{title}</h3>
+                {"status" in downloadData &&
+                  downloadData.status === "error" && (
+                    <p className="text-sm text-destructive">
+                      {downloadData.error ?? "No download links found"}
+                    </p>
+                  )}
+              </div>
+              {Array.isArray(
+                (downloadData as MovieDownloadResponse).downloadLinks,
+              ) &&
+              (downloadData as MovieDownloadResponse).downloadLinks.length >
+                0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {(downloadData as MovieDownloadResponse).downloadLinks.map(
+                    (link: MovieDownloadLink, idx: number) => (
+                      <Button
+                        key={`${link.url}-${idx}`}
+                        variant="default"
+                        onClick={() => handleDownloadClick(link.url)}
+                        className="w-full justify-between"
+                      >
+                        <span className="truncate">
+                          {link.text || `Download ${link.resolution}`}
+                        </span>
+                        <span className="ml-3 text-xs opacity-70">
+                          {link.source}
+                        </span>
+                      </Button>
+                    ),
+                  )}
+                </div>
+              ) : (
+                <div className="p-4 bg-muted rounded-md text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Sorry, no download links are available at the moment.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {downloadData && mediaType === "tv" && (
             <div className="p-6 border rounded-lg bg-muted/30 text-center space-y-4">
               <div>
-                <h3 className="font-medium text-lg mb-2">
-                  {"movieTitle" in downloadData
-                    ? downloadData.movieTitle
-                    : downloadData.showTitle}
-                </h3>
+                <h3 className="font-medium text-lg mb-2">{title}</h3>
                 <p className="text-sm text-muted-foreground">
-                  {"movieTitle" in downloadData
-                    ? `${downloadData.releaseYear}`
-                    : `Season ${downloadData.season}, Episode ${downloadData.episode}`}
+                  Season {(downloadData as TVDownloadResponse).season}, Episode{" "}
+                  {(downloadData as TVDownloadResponse).episode}
                 </p>
               </div>
-
-              {isDownloadAvailable(downloadData.downloadLink) ? (
+              {(downloadData as TVDownloadResponse).downloadLink &&
+              (downloadData as TVDownloadResponse).downloadLink !==
+                "Download link not available" ? (
                 <Button
-                  onClick={() => handleDownloadClick(downloadData.downloadLink)}
+                  onClick={() =>
+                    handleDownloadClick(
+                      (downloadData as TVDownloadResponse).downloadLink,
+                    )
+                  }
                   size="lg"
                   className="w-full"
                 >
@@ -246,7 +288,7 @@ export default function DownloadModal({
               ) : (
                 <div className="p-4 bg-muted rounded-md">
                   <p className="text-sm text-muted-foreground">
-                    Sorry, no download link is available for this content at the
+                    Sorry, no download link is available for this episode at the
                     moment.
                   </p>
                 </div>
