@@ -219,7 +219,9 @@ export default function DownloadModal({
           {downloadData && mediaType === "movie" && (
             <div className="p-6 border rounded-lg bg-muted/30 space-y-4">
               <div>
-                <h3 className="font-medium text-lg mb-1">{title}</h3>
+                <h3 className="font-medium text-lg mb-1">
+                  Available Downloads:
+                </h3>
                 {"status" in downloadData &&
                   downloadData.status === "error" && (
                     <p className="text-sm text-destructive">
