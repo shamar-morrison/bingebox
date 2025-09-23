@@ -57,6 +57,7 @@ export default function Header() {
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const [isSignInOpen, setIsSignInOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
@@ -382,16 +383,16 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Dialog>
+              <Dialog open={isSignInOpen} onOpenChange={setIsSignInOpen}>
                 <DialogTrigger asChild>
-                  <Button>Sign in</Button>
+                  <Button onClick={() => setIsSignInOpen(true)}>Sign in</Button>
                 </DialogTrigger>
                 <DialogContent
                   hideCloseButton
                   className="bg-transparent border-none outline-none shadow-none"
                 >
                   <div className="w-full max-w-md mx-auto p-4">
-                    <LoginForm />
+                    <LoginForm onSuccess={() => setIsSignInOpen(false)} />
                   </div>
                 </DialogContent>
               </Dialog>

@@ -19,7 +19,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
-function LoginForm() {
+function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -28,8 +28,6 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
-
-  const redirectTo = searchParams.get("redirect") || "/"
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,8 +49,8 @@ function LoginForm() {
         toast.error(error.message)
       } else {
         toast.success("Welcome back!")
-        router.push(redirectTo)
         router.refresh()
+        if (onSuccess) onSuccess()
       }
     } catch (error) {
       toast.error("An unexpected error occurred")
