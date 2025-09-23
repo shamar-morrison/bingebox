@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator"
 import { useRememberMe } from "@/lib/hooks/use-remember-me"
 import { createClient } from "@/lib/supabase/client"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -26,7 +26,6 @@ function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
   const [isLoading, setIsLoading] = useState(false)
   const { rememberMe, setRememberMe } = useRememberMe()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const supabase = createClient()
 
   const handleSignIn = async (e: React.FormEvent) => {

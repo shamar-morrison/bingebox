@@ -16,7 +16,7 @@ import {
   Zap,
 } from "lucide-react"
 import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -61,15 +61,9 @@ export default function Header() {
   const searchRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const { user, loading } = useUser()
   const { handleSignOut: watchProgressSignOut } = useWatchProgressManager()
   const supabase = createClient()
-
-  const getCurrentUrl = () => {
-    const queryString = searchParams.toString()
-    return pathname + (queryString ? `?${queryString}` : "")
-  }
 
   const handleSignOut = async () => {
     try {
