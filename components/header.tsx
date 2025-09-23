@@ -34,6 +34,8 @@ import { isProtectedRoute } from "@/lib/auth-config"
 import { useUser } from "@/lib/hooks/use-user"
 import { useWatchProgressManager } from "@/lib/hooks/use-watch-progress-manager"
 import { createClient } from "@/lib/supabase/client"
+import LoginForm from "@/components/login-form"
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog"
 
 interface SearchResult {
   id: number
@@ -380,13 +382,19 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild>
-                <Link
-                  href={`/login?redirect=${encodeURIComponent(getCurrentUrl())}`}
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button>Sign in</Button>
+                </DialogTrigger>
+                <DialogContent
+                  hideCloseButton
+                  className="bg-transparent border-none outline-none shadow-none"
                 >
-                  Sign in
-                </Link>
-              </Button>
+                  <div className="w-full max-w-md mx-auto p-4">
+                    <LoginForm />
+                  </div>
+                </DialogContent>
+              </Dialog>
             ))}
 
           <ThemeToggle />
