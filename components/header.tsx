@@ -16,7 +16,7 @@ import {
   Zap,
 } from "lucide-react"
 import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -34,6 +34,8 @@ import { isProtectedRoute } from "@/lib/auth-config"
 import { useUser } from "@/lib/hooks/use-user"
 import { useWatchProgressManager } from "@/lib/hooks/use-watch-progress-manager"
 import { createClient } from "@/lib/supabase/client"
+import LoginForm from "@/components/login-form"
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog"
 
 interface SearchResult {
   id: number
@@ -55,18 +57,13 @@ export default function Header() {
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const [isSignInOpen, setIsSignInOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const { user, loading } = useUser()
   const { handleSignOut: watchProgressSignOut } = useWatchProgressManager()
   const supabase = createClient()
-
-  const getCurrentUrl = () => {
-    const queryString = searchParams.toString()
-    return pathname + (queryString ? `?${queryString}` : "")
-  }
 
   const handleSignOut = async () => {
     try {
@@ -380,13 +377,19 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild>
-                <Link
-                  href={`/login?redirect=${encodeURIComponent(getCurrentUrl())}`}
+              <Dialog open={isSignInOpen} onOpenChange={setIsSignInOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => setIsSignInOpen(true)}>Sign in</Button>
+                </DialogTrigger>
+                <DialogContent
+                  hideCloseButton
+                  className="bg-transparent border-none outline-none shadow-none"
                 >
-                  Sign in
-                </Link>
-              </Button>
+                  <div className="w-full max-w-md mx-auto p-4">
+                    <LoginForm onSuccess={() => setIsSignInOpen(false)} />
+                  </div>
+                </DialogContent>
+              </Dialog>
             ))}
 
           <ThemeToggle />
