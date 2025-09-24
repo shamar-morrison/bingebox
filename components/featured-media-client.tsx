@@ -1,0 +1,111 @@
+"use client"
+
+import { Film, Info, Play, Tv } from "lucide-react"
+import Link from "next/link"
+import TrailerDialog from "@/components/trailer-dialog"
+import { Button } from "@/components/ui/button"
+import type { MediaItem } from "@/lib/types"
+
+type TitleImageInfo = { path: string; isRectangular: boolean } | null
+
+type Props = {
+  featured: MediaItem & { media_type: string }
+  titleImageInfo: TitleImageInfo
+}
+
+export default function FeaturedMediaClient({
+  featured,
+  titleImageInfo,
+}: Props) {
+  const backdropPath = featured.backdrop_path
+    ? `https://image.tmdb.org/t/p/original${featured.backdrop_path}`
+    : `/placeholder-backdrop.svg`
+  const mediaType = featured.media_type
+  const detailsPath =
+    mediaType === "movie" ? `/movie/${featured.id}` : `/tv/${featured.id}`
+  const watchPath =
+    mediaType === "movie"
+      ? `/watch/movie/${featured.id}`
+      : `/watch/tv/${featured.id}/season/1/episode/1`
+  const title = featured.title || featured.name || "Featured Media"
+  const overview = featured.overview || "No overview available"
+
+  return (
+    <div className="relative w-full h-[500px] md:h-[600px] lg:h-[700px]">
+      <div className="absolute inset-0">
+        <div className="w-full h-full bg-muted">
+          {backdropPath ? (
+            <img
+              src={backdropPath}
+              alt={title}
+              className="object-cover absolute top-0 left-0 w-full h-full"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              {mediaType === "movie" ? (
+                <Film className="h-24 w-24 text-muted-foreground opacity-25" />
+              ) : (
+                <Tv className="h-24 w-24 text-muted-foreground opacity-25" />
+              )}
+            </div>
+          )}
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/10" />
+      </div>
+
+      <div className="absolute inset-0 flex items-end">
+        <div className="container px-4 pb-16 md:pb-24">
+          <div className="max-w-2xl space-y-4">
+            {titleImageInfo?.path ? (
+              <div
+                className={`relative max-w-full ${
+                  titleImageInfo.isRectangular
+                    ? "h-16 md:h-20 lg:h-24"
+                    : "h-20 md:h-24 lg:h-28"
+                }`}
+              >
+                <img
+                  src={titleImageInfo.path}
+                  alt={title}
+                  className="absolute inset-0 w-full h-full object-contain object-left"
+                />
+              </div>
+            ) : (
+              <h1 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+                {title}
+              </h1>
+            )}
+            <p className="text-base text-muted-foreground md:text-lg line-clamp-3">
+              {overview}
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild className="gap-2">
+                <Link href={watchPath}>
+                  <Play className="w-5 h-5" />
+                  Watch Now
+                </Link>
+              </Button>
+
+              <TrailerDialog
+                mediaType={mediaType}
+                mediaId={featured.id}
+                title={title}
+              >
+                <Button variant="outline" className="gap-2">
+                  Watch Trailer
+                </Button>
+              </TrailerDialog>
+
+              <Button variant="outline" asChild>
+                <Link href={detailsPath} className="gap-2">
+                  <Info className="w-5 h-5" />
+                  More Info
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
