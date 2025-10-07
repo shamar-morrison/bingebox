@@ -43,6 +43,10 @@ function ProfileContent() {
   const { user, loading } = useUser()
   const searchParams = useSearchParams()
   const tabFromUrl = searchParams.get("tab")
+  const mediaTypeFromUrl = searchParams.get(
+    "mediaType",
+  ) as MediaTypeFilter | null
+  const genreFromUrl = searchParams.get("genre")
   const router = useRouter()
   const pathname = usePathname()
 
@@ -63,14 +67,62 @@ function ProfileContent() {
     dropped: [],
   })
   const [isLoading, setIsLoading] = useState(true)
-  const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaTypeFilter>("all")
-  const [genreFilter, setGenreFilter] = useState<string>("all")
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaTypeFilter>(
+    mediaTypeFromUrl === "movie" || mediaTypeFromUrl === "tv"
+      ? mediaTypeFromUrl
+      : "all",
+  )
+  const [genreFilter, setGenreFilter] = useState<string>(genreFromUrl || "all")
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [debouncedSearch, setDebouncedSearch] = useState<string>("")
   const supabase = createClient()
 
+  useEffect(() => {
+    setMediaTypeFilter(
+      mediaTypeFromUrl === "movie" || mediaTypeFromUrl === "tv"
+        ? mediaTypeFromUrl
+        : "all",
+    )
+    setGenreFilter(genreFromUrl || "all")
+  }, [mediaTypeFromUrl, genreFromUrl])
+
+  const updateUrlParams = (params: {
+    tab?: string
+    mediaType?: string
+    genre?: string
+  }) => {
+    const newParams = new URLSearchParams(searchParams.toString())
+    if (params.tab !== undefined) newParams.set("tab", params.tab)
+    if (params.mediaType !== undefined)
+      newParams.set("mediaType", params.mediaType)
+    if (params.genre !== undefined) newParams.set("genre", params.genre)
+    router.push(`${pathname}?${newParams.toString()}`)
+  }
+
   const handleTabChange = (value: string) => {
-    router.push(`${pathname}?tab=${value}`)
+    updateUrlParams({
+      tab: value,
+      mediaType: mediaTypeFilter,
+      genre: genreFilter,
+    })
+  }
+
+  const handleMediaTypeChange = (value: MediaTypeFilter) => {
+    setMediaTypeFilter(value)
+    updateUrlParams({
+      tab: tabFromUrl || defaultTab,
+      mediaType: value,
+      genre: genreFilter,
+    })
+  }
+
+  const handleGenreChange = (value: string) => {
+    setGenreFilter(value)
+    updateUrlParams({
+      tab: tabFromUrl || defaultTab,
+      mediaType: mediaTypeFilter,
+      genre: value,
+    })
   }
 
   const fetchWatchlists = useCallback(async () => {
@@ -275,12 +327,7 @@ function ProfileContent() {
       </div>
       <div className="flex w-full lg:w-auto gap-2">
         <div className="w-1/2 lg:w-[160px] lg:flex-none">
-          <Select
-            value={mediaTypeFilter}
-            onValueChange={(value: MediaTypeFilter) =>
-              setMediaTypeFilter(value)
-            }
-          >
+          <Select value={mediaTypeFilter} onValueChange={handleMediaTypeChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Filter by type" />
             </SelectTrigger>
@@ -299,10 +346,7 @@ function ProfileContent() {
         </div>
 
         <div className="w-1/2 lg:w-[160px] lg:flex-none">
-          <Select
-            value={genreFilter}
-            onValueChange={(value: string) => setGenreFilter(value)}
-          >
+          <Select value={genreFilter} onValueChange={handleGenreChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Filter by genre" />
             </SelectTrigger>
