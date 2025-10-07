@@ -385,7 +385,7 @@ export default function Header() {
                   hideCloseButton
                   className="bg-transparent border-none outline-none shadow-none"
                 >
-                  <div className="w-full max-w-md mx-auto p-4">
+                  <div className="w-full max-w-md mx-auto">
                     <LoginForm onSuccess={() => setIsSignInOpen(false)} />
                   </div>
                 </DialogContent>
