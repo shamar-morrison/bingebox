@@ -52,6 +52,7 @@ export function getLanguageName(languageCode: string): string {
     pa: "Punjabi",
     gu: "Gujarati",
     kn: "Kannada",
+    bn: "Bengali",
   }
 
   return languageMap[languageCode] || languageCode
