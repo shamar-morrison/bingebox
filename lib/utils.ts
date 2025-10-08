@@ -44,6 +44,14 @@ export function getLanguageName(languageCode: string): string {
     uk: "Ukrainian",
     vi: "Vietnamese",
     zh: "Chinese",
+    ml: "Malayalam",
+    mr: "Marathi",
+    ta: "Tamil",
+    te: "Telugu",
+    ur: "Urdu",
+    pa: "Punjabi",
+    gu: "Gujarati",
+    kn: "Kannada",
   }
 
   return languageMap[languageCode] || languageCode
