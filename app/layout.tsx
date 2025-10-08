@@ -45,30 +45,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "BingeBox",
-    title: "BingeBox",
+    title: "BingeBox - Watch Movies and TV Shows for Free",
     description:
       "Discover and watch your favorite movies and TV shows online. Stream the latest releases, popular series, and classic films all in one place.",
     images: [
       {
-        url: "/icons/icon-512x512.png",
-        width: 512,
-        height: 512,
-        alt: "BingeBox Logo",
-      },
-      {
-        url: "/icons/icon-192x192.png",
-        width: 512,
-        height: 512,
-        alt: "BingeBox Logo",
+        url: "/media_card_og.png",
+        width: 1200,
+        height: 630,
+        alt: "BingeBox - Watch your favorite movies and shows for free",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "BingeBox",
+    title: "BingeBox - Watch Movies and TV Shows for Free",
     description:
       "Discover and watch your favorite movies and TV shows online. Stream the latest releases, popular series, and classic films all in one place.",
-    images: ["/icons/icon-512x512.png"],
+    images: ["/media_card_og.png"],
   },
 }
 
