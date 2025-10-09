@@ -30,6 +30,7 @@ export const metadata: Metadata = {
     "watch",
     "live",
     "sports",
+    "download",
   ],
   authors: [{ name: "BingeBox Team" }],
   creator: "BingeBox",
