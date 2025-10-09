@@ -52,6 +52,7 @@ export const metadata: Metadata = {
     images: [
       {
         url: "https://bingebox-bay.vercel.app/media_card_og.png",
+        secureUrl: "https://bingebox-bay.vercel.app/media_card_og.png",
         width: 1200,
         height: 630,
         alt: "BingeBox - Watch your favorite movies and shows for free",
@@ -92,6 +93,10 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#e11d48" />
         <meta
           property="og:image"
+          content="https://bingebox-bay.vercel.app/media_card_og.png"
+        />
+        <meta
+          property="og:image:secure_url"
           content="https://bingebox-bay.vercel.app/media_card_og.png"
         />
         <meta property="og:image:width" content="1200" />
