@@ -50,7 +50,7 @@ export const metadata: Metadata = {
       "Discover and watch your favorite movies and TV shows online. Stream the latest releases, popular series, and classic films all in one place.",
     images: [
       {
-        url: "/media_card_og.png",
+        url: "https://bingebox-bay.vercel.app/media_card_og.png",
         width: 1200,
         height: 630,
         alt: "BingeBox - Watch your favorite movies and shows for free",
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     title: "BingeBox - Watch Movies and TV Shows for Free",
     description:
       "Discover and watch your favorite movies and TV shows online. Stream the latest releases, popular series, and classic films all in one place.",
-    images: ["/media_card_og.png"],
+    images: ["https://bingebox-bay.vercel.app/media_card_og.png"],
   },
 }
 
