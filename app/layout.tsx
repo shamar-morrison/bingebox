@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "BingeBox Team" }],
   creator: "BingeBox",
-  robots: "index,follow",
+  robots: "index, follow",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
