@@ -19,6 +19,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://bingebox-bay.vercel.app"),
   title: "BingeBox",
   description:
     "Discover and watch your favorite movies and TV shows online. Stream the latest releases, popular series, and classic films all in one place.",
@@ -34,6 +35,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "BingeBox Team" }],
   creator: "BingeBox",
+  robots: "index,follow",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -45,6 +47,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
+    locale: "en_US",
     url: "https://bingebox-bay.vercel.app",
     siteName: "BingeBox",
     title: "BingeBox - Watch Movies and TV Shows for Free",
@@ -52,8 +55,7 @@ export const metadata: Metadata = {
       "Discover and watch your favorite movies and TV shows online. Stream the latest releases, popular series, and classic films all in one place.",
     images: [
       {
-        url: "https://bingebox-bay.vercel.app/media_card_og.png",
-        secureUrl: "https://bingebox-bay.vercel.app/media_card_og.png",
+        url: "/media_card_og.png",
         width: 1200,
         height: 630,
         alt: "BingeBox - Watch your favorite movies and shows for free",
@@ -66,7 +68,22 @@ export const metadata: Metadata = {
     title: "BingeBox - Watch Movies and TV Shows for Free",
     description:
       "Discover and watch your favorite movies and TV shows online. Stream the latest releases, popular series, and classic films all in one place.",
-    images: ["https://bingebox-bay.vercel.app/media_card_og.png"],
+    images: ["/media_card_og.png"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  other: {
+    "application-name": "BingeBox",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
+    "apple-mobile-web-app-title": "BingeBox",
+    "format-detection": "telephone=no",
+    "mobile-web-app-capable": "yes",
+    "msapplication-config": "/browserconfig.xml",
+    "msapplication-TileColor": "#e11d48",
+    "msapplication-tap-highlight": "no",
   },
 }
 
