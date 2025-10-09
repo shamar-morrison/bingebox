@@ -44,6 +44,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
+    url: "https://bingebox-bay.vercel.app",
     siteName: "BingeBox",
     title: "BingeBox - Watch Movies and TV Shows for Free",
     description:
@@ -54,6 +55,7 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: "BingeBox - Watch your favorite movies and shows for free",
+        type: "image/png",
       },
     ],
   },
@@ -88,6 +90,17 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
         <meta name="msapplication-TileColor" content="#e11d48" />
+        <meta
+          property="og:image"
+          content="https://bingebox-bay.vercel.app/media_card_og.png"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
+        <meta
+          name="twitter:image"
+          content="https://bingebox-bay.vercel.app/media_card_og.png"
+        />
       </head>
       <body className={inter.className}>
         <NextTopLoader color="#e11d48" showSpinner={false} />
