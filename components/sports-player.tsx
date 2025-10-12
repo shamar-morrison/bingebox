@@ -25,19 +25,64 @@ interface SportsPlayerProps {
   title: string
 }
 
+function getLanguageCode(language: string): string {
+  if (!language) return ""
+
+  const languageMap: Record<string, string> = {
+    english: "EN",
+    spanish: "ES",
+    español: "ES",
+    french: "FR",
+    français: "FR",
+    german: "DE",
+    deutsch: "DE",
+    italian: "IT",
+    italiano: "IT",
+    portuguese: "PT",
+    português: "PT",
+    russian: "RU",
+    русский: "RU",
+    arabic: "AR",
+    العربية: "AR",
+    chinese: "ZH",
+    中文: "ZH",
+    japanese: "JA",
+    日本語: "JA",
+    korean: "KO",
+    한국어: "KO",
+    dutch: "NL",
+    nederlands: "NL",
+    polish: "PL",
+    polski: "PL",
+    turkish: "TR",
+    türkçe: "TR",
+    hindi: "HI",
+    हिन्दी: "HI",
+  }
+
+  const normalized = language.toLowerCase().trim()
+  return languageMap[normalized] || language.toUpperCase().slice(0, 2)
+}
+
 const StreamSelectItem = memo(
-  ({ stream, uniqueKey }: { stream: SportsStream; uniqueKey: string }) => (
-    <SelectItem value={uniqueKey}>
-      <div className="flex items-center gap-2">
-        <span>Stream {stream.streamNo}</span>
-        {stream.hd && (
-          <Badge variant="secondary" className="text-xs">
-            HD
-          </Badge>
-        )}
-      </div>
-    </SelectItem>
-  ),
+  ({ stream, uniqueKey }: { stream: SportsStream; uniqueKey: string }) => {
+    const langCode = getLanguageCode(stream.language)
+    return (
+      <SelectItem value={uniqueKey}>
+        <div className="flex items-center gap-2">
+          <span>
+            Stream {stream.streamNo}
+            {langCode && ` (${langCode})`}
+          </span>
+          {stream.hd && (
+            <Badge variant="secondary" className="text-xs">
+              HD
+            </Badge>
+          )}
+        </div>
+      </SelectItem>
+    )
+  },
 )
 
 StreamSelectItem.displayName = "StreamSelectItem"
@@ -46,8 +91,8 @@ function SportsPlayer({ streams, title }: SportsPlayerProps) {
   const uniqueStreams = useMemo(() => {
     const seen = new Set()
     return streams
-      .map((stream, index) => {
-        const uniqueKey = `${stream.source || "unknown"}-${stream.streamNo}-${index}`
+      .map((stream) => {
+        const uniqueKey = `${stream.source || "unknown"}-${stream.streamNo}-${stream.language}-${stream.hd}`
         return { ...stream, uniqueKey }
       })
       .filter((stream) => {
@@ -118,10 +163,14 @@ function SportsPlayer({ streams, title }: SportsPlayerProps) {
             value={selectedStream.uniqueKey}
             onValueChange={handleStreamChange}
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-56">
               <SelectValue>
                 <div className="flex items-center gap-2">
-                  <span>Stream {selectedStream.streamNo}</span>
+                  <span>
+                    Stream {selectedStream.streamNo}
+                    {getLanguageCode(selectedStream.language) &&
+                      ` (${getLanguageCode(selectedStream.language)})`}
+                  </span>
                   {selectedStream.hd && (
                     <Badge variant="secondary" className="text-xs">
                       HD
