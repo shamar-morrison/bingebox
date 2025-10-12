@@ -1,4 +1,4 @@
-import { Play, Users } from "lucide-react"
+import { Users } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -30,18 +30,10 @@ export default function SportsPage() {
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Live Sports Streams
             </h1>
-            <p className="text-xl text-muted-foreground mb-8">
+            <p className="text-xl text-muted-foreground">
               Watch live sports events from around the world. Football,
               Basketball, Hockey, and more.
             </p>
-            <div className="flex gap-4">
-              <Button asChild size="lg">
-                <Link href="#live-now">
-                  <Play className="w-4 h-4 mr-2" />
-                  Watch Live
-                </Link>
-              </Button>
-            </div>
           </div>
         </div>
       </div>
