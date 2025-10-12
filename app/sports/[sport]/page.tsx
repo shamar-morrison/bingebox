@@ -37,8 +37,9 @@ export default function SportPage({ params }: Props) {
               </h1>
             </div>
             <p className="text-xl text-muted-foreground mb-8">
-              Watch live {sportName.toLowerCase()} matches and events from
-              around the world.
+              Watch live{" "}
+              {categoryToTitleCase(sportName.toLowerCase()).toLowerCase()}{" "}
+              matches and events from around the world.
             </p>
           </div>
         </div>
