@@ -93,7 +93,7 @@ function SportsPlayer({ streams, title }: SportsPlayerProps) {
     })
 
     // Second pass: create unique streams with display labels and counters
-    return streams.map((stream) => {
+    return streams.map((stream, index) => {
       const langCode = getLanguageCode(stream.language)
       const baseLabel = `Stream ${stream.streamNo}${langCode ? ` (${langCode})` : ""}${stream.hd ? " HD" : ""}`
       const count = labelCounts.get(baseLabel) || 1
@@ -105,9 +105,15 @@ function SportsPlayer({ streams, title }: SportsPlayerProps) {
         displayLabel = `${baseLabel} #${currentIndex}`
       }
 
+      // Ensure unique key by combining id with index as fallback
+      // This prevents multiple streams from having the same key if API returns duplicate/empty IDs
+      const uniqueKey = stream.id && stream.id.trim() !== ""
+        ? `${stream.id}-${index}`
+        : `stream-${index}-${stream.source || "unknown"}-${stream.streamNo}`
+
       return {
         ...stream,
-        uniqueKey: stream.id,
+        uniqueKey,
         displayLabel,
       }
     })
@@ -127,7 +133,10 @@ function SportsPlayer({ streams, title }: SportsPlayerProps) {
       uniqueStreams.length > 0 &&
       (!selectedKey || !uniqueStreams.find((s) => s.uniqueKey === selectedKey))
     ) {
-      setSelectedKey(uniqueStreams[0].uniqueKey)
+      const firstKey = uniqueStreams[0]?.uniqueKey
+      if (firstKey) {
+        setSelectedKey(firstKey)
+      }
     }
   }, [uniqueStreams, selectedKey])
 
