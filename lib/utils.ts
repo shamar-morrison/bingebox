@@ -57,3 +57,13 @@ export function getLanguageName(languageCode: string): string {
 
   return languageMap[languageCode] || languageCode
 }
+
+export function categoryToTitleCase(category: string): string {
+  if (category.includes("-")) {
+    const parts = category.split("-")
+    return parts
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ")
+  }
+  return category.charAt(0).toUpperCase() + category.slice(1)
+}

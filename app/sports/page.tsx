@@ -13,6 +13,7 @@ import {
   type Match,
 } from "@/lib/streamed"
 import type { Metadata } from "next"
+import { categoryToTitleCase } from "@/lib/utils"
 
 export const metadata: Metadata = {
   title: "Sports - Live Sports Streams | BingeBox",
@@ -169,7 +170,9 @@ function MatchCard({
             </Badge>
           )}
         </div>
-        <p className="text-sm text-muted-foreground">{match.category}</p>
+        <p className="text-sm text-muted-foreground">
+          {categoryToTitleCase(match.category)}
+        </p>
       </CardHeader>
       <CardContent className="flex flex-col h-[120px]">
         <div className="flex-1 flex items-center justify-center">

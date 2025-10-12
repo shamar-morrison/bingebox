@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { fetchSportMatches, type Match } from "@/lib/streamed"
 import type { Metadata } from "next"
+import { categoryToTitleCase } from "@/lib/utils"
 
 interface Props {
   params: { sport: string }
@@ -31,7 +32,9 @@ export default function SportPage({ params }: Props) {
         <div className="container px-4 py-16">
           <div className="max-w-3xl">
             <div className="flex items-center gap-4 mb-4">
-              <h1 className="text-4xl md:text-5xl font-bold">{sportName}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold">
+                {categoryToTitleCase(sportName)}
+              </h1>
             </div>
             <p className="text-xl text-muted-foreground mb-8">
               Watch live {sportName.toLowerCase()} matches and events from
@@ -161,7 +164,9 @@ function MatchCard({
             </Badge>
           )}
         </div>
-        <p className="text-sm text-muted-foreground">{match.category}</p>
+        <p className="text-sm text-muted-foreground">
+          {categoryToTitleCase(match.category)}
+        </p>
       </CardHeader>
       <CardContent className="flex flex-col h-[120px]">
         <div className="flex-1 flex items-center justify-center">
