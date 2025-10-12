@@ -18,6 +18,8 @@ interface SportsStream {
   hd: boolean
   language: string
   source?: string
+  uniqueKey?: string
+  displayLabel?: string
 }
 
 interface SportsPlayerProps {
@@ -66,19 +68,10 @@ function getLanguageCode(language: string): string {
 
 const StreamSelectItem = memo(
   ({ stream, uniqueKey }: { stream: SportsStream; uniqueKey: string }) => {
-    const langCode = getLanguageCode(stream.language)
     return (
       <SelectItem value={uniqueKey}>
-        <div className="flex items-center gap-2">
-          <span>
-            Stream {stream.streamNo}
-            {langCode && ` (${langCode})`}
-          </span>
-          {stream.hd && (
-            <Badge variant="secondary" className="text-xs">
-              HD
-            </Badge>
-          )}
+        <div className="flex items-center gap-1">
+          <span>{stream.displayLabel}</span>
         </div>
       </SelectItem>
     )
@@ -89,19 +82,35 @@ StreamSelectItem.displayName = "StreamSelectItem"
 
 function SportsPlayer({ streams, title }: SportsPlayerProps) {
   const uniqueStreams = useMemo(() => {
-    const seen = new Set()
-    return streams
-      .map((stream) => {
-        const uniqueKey = `${stream.source || "unknown"}-${stream.streamNo}-${stream.language}-${stream.hd}`
-        return { ...stream, uniqueKey }
-      })
-      .filter((stream) => {
-        if (seen.has(stream.uniqueKey)) {
-          return false
-        }
-        seen.add(stream.uniqueKey)
-        return true
-      })
+    const labelCounts = new Map<string, number>()
+    const labelIndexes = new Map<string, number>()
+
+    // First pass: count how many times each label appears
+    streams.forEach((stream) => {
+      const langCode = getLanguageCode(stream.language)
+      const baseLabel = `Stream ${stream.streamNo}${langCode ? ` (${langCode})` : ""}${stream.hd ? " HD" : ""}`
+      labelCounts.set(baseLabel, (labelCounts.get(baseLabel) || 0) + 1)
+    })
+
+    // Second pass: create unique streams with display labels and counters
+    return streams.map((stream) => {
+      const langCode = getLanguageCode(stream.language)
+      const baseLabel = `Stream ${stream.streamNo}${langCode ? ` (${langCode})` : ""}${stream.hd ? " HD" : ""}`
+      const count = labelCounts.get(baseLabel) || 1
+
+      let displayLabel = baseLabel
+      if (count > 1) {
+        const currentIndex = (labelIndexes.get(baseLabel) || 0) + 1
+        labelIndexes.set(baseLabel, currentIndex)
+        displayLabel = `${baseLabel} #${currentIndex}`
+      }
+
+      return {
+        ...stream,
+        uniqueKey: stream.id,
+        displayLabel,
+      }
+    })
   }, [streams])
 
   const [selectedKey, setSelectedKey] = useState<string>("")
@@ -163,19 +172,10 @@ function SportsPlayer({ streams, title }: SportsPlayerProps) {
             value={selectedStream.uniqueKey}
             onValueChange={handleStreamChange}
           >
-            <SelectTrigger className="w-56">
+            <SelectTrigger className="w-64">
               <SelectValue>
-                <div className="flex items-center gap-2">
-                  <span>
-                    Stream {selectedStream.streamNo}
-                    {getLanguageCode(selectedStream.language) &&
-                      ` (${getLanguageCode(selectedStream.language)})`}
-                  </span>
-                  {selectedStream.hd && (
-                    <Badge variant="secondary" className="text-xs">
-                      HD
-                    </Badge>
-                  )}
+                <div className="flex items-center gap-1">
+                  <span>{selectedStream.displayLabel}</span>
                 </div>
               </SelectValue>
             </SelectTrigger>
