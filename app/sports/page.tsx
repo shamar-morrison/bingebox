@@ -1,4 +1,3 @@
-import { Users } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -166,31 +165,8 @@ function MatchCard({
           {categoryToTitleCase(match.category)}
         </p>
       </CardHeader>
-      <CardContent className="flex flex-col h-[120px]">
-        <div className="flex-1 flex items-center justify-center">
-          {match.teams ? (
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">
-                  {match.teams.home?.name}
-                </span>
-              </div>
-              <span className="text-xs text-muted-foreground">VS</span>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">
-                  {match.teams.away?.name}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center">
-              <Users className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">Teams TBA</p>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between pt-3 border-t mt-auto">
+      <CardContent>
+        <div className="flex items-center justify-between pt-3 border-t">
           {isUpcoming ? (
             <div className="text-xs text-muted-foreground">
               {formatDateTime(matchDate)}
