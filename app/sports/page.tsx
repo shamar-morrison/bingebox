@@ -166,22 +166,24 @@ function MatchCard({
         </p>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-between pt-3 border-t">
+        <div className="flex items-center justify-center pt-3 border-t">
           {isUpcoming ? (
             <div className="text-xs text-muted-foreground">
               {formatDateTime(matchDate)}
             </div>
+          ) : isLive ? (
+            <Button asChild className="w-full">
+              <Link href={`/sports/watch/${match.id}`}>Watch Now</Link>
+            </Button>
           ) : (
-            <>
+            <div className="flex items-center justify-between w-full">
               <div className="text-xs text-muted-foreground">
-                {isLive ? "Live" : formatDateTime(matchDate)}
+                {formatDateTime(matchDate)}
               </div>
               <Button size="sm" asChild>
-                <Link href={`/sports/watch/${match.id}`}>
-                  {isLive ? "Watch" : "View"}
-                </Link>
+                <Link href={`/sports/watch/${match.id}`}>View</Link>
               </Button>
-            </>
+            </div>
           )}
         </div>
       </CardContent>
