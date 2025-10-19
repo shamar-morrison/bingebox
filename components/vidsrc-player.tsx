@@ -44,11 +44,6 @@ export default function VidsrcPlayer({
       query: { autoplay: "false" },
     },
     {
-      name: "VidJoy",
-      baseUrl: "https://vidjoy.pro/embed",
-      query: { adFree: "true" },
-    },
-    {
       name: "VidZee",
       baseUrl: "https://player.vidzee.wtf/embed",
     },
