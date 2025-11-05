@@ -1,5 +1,5 @@
 
-<img width="1200" height="630" alt="media_card_og" src="https://github.com/user-attachments/assets/0b544935-f136-4cef-b5b6-f421982c948a" />
+[<img width="1200" height="630" alt="media_card_og" src="https://github.com/user-attachments/assets/0b544935-f136-4cef-b5b6-f421982c948a" />](bingebox-bay.vercel.app)
 
 
 # BingeBox
