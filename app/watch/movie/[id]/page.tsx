@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { VideoPlayerSkeleton } from "@/components/video-player-skeleton"
 import VidsrcPlayer from "@/components/vidsrc-player"
 import { fetchMovieDetails } from "@/lib/tmdb"
+import NotFound from "@/app/not-found"
 
 interface WatchMoviePageProps {
   params: { id: string }
@@ -75,6 +76,10 @@ async function MoviePlayer({ id }: { id: number }) {
         day: "numeric",
       })
     : null
+
+  if (movie.adult) {
+    return <NotFound />
+  }
 
   return (
     <div className="container px-4 pb-16">
