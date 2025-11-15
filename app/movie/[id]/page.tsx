@@ -13,6 +13,10 @@ export async function generateMetadata({
 }: MoviePageProps): Promise<Metadata> {
   const movie = await fetchMovieDetails(Number.parseInt(params.id))
 
+  if (movie.adult) {
+    return { title: "404 Not Found | BingeBox" }
+  }
+
   return {
     title: `${movie.title || "Movie"} | BingeBox - Watch Movies and TV Shows for free`,
     description: movie.overview || "Watch this movie on BingeBox",

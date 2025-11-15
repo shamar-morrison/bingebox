@@ -13,6 +13,10 @@ export async function generateMetadata({
 }: TVShowPageProps): Promise<Metadata> {
   const show = await fetchTVDetails(Number.parseInt(params.id))
 
+  if (show.adult) {
+    return { title: "404 Not Found | BingeBox" }
+  }
+
   return {
     title: `${show.name || "TV Show"} | BingeBox`,
     description: show.overview || "Watch this TV show on BingeBox",
