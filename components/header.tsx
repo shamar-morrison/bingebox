@@ -36,6 +36,7 @@ import { useWatchProgressManager } from "@/lib/hooks/use-watch-progress-manager"
 import { createClient } from "@/lib/supabase/client"
 import LoginForm from "@/components/login-form"
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog"
+import { Spinner } from "@/components/spinner"
 
 interface SearchResult {
   id: number
@@ -243,7 +244,9 @@ export default function Header() {
               <div className="absolute top-full mt-1 w-[320px] right-0 bg-background border rounded-md shadow-lg overflow-hidden z-50">
                 {isSearching ? (
                   <div className="p-4 text-center">
-                    <div className="animate-spin h-5 w-5 border-t-2 border-primary rounded-full mx-auto"></div>
+                    <div className="flex items-center justify-center mb-2">
+                      <Spinner className="h-6 w-6 text-primary" />
+                    </div>
                     <p className="mt-2 text-sm text-muted-foreground">
                       Searching...
                     </p>
