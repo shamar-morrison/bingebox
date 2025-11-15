@@ -79,6 +79,7 @@ async function PersonDetails({ id }: { id: number }) {
       id: credit.id,
       title: credit.title,
       poster_path: credit.poster_path,
+      adult: false,
       // Add required MediaItem fields with defaults
       media_type: "movie",
       backdrop_path: null, // Default missing fields
