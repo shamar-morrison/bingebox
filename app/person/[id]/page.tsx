@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchPersonDetails } from "@/lib/tmdb"
 import type { MediaItem } from "@/lib/types"
+import NotFound from "@/app/not-found"
 
 interface PersonPageProps {
   params: { id: string }
@@ -91,6 +92,10 @@ async function PersonDetails({ id }: { id: number }) {
     }))
     // Sort directed movies by title
     .sort((a, b) => (a.title || "").localeCompare(b.title || ""))
+
+  if (person.adult) {
+    return <NotFound />
+  }
 
   return (
     <>

@@ -24,6 +24,7 @@ import WatchlistDropdown from "@/components/watchlist-dropdown"
 import { useVidlinkProgress } from "@/lib/hooks/use-vidlink-progress"
 import { MediaItem, Review, ReviewResponse } from "@/lib/types"
 import { cn, getLanguageName } from "@/lib/utils"
+import NotFound from "@/app/not-found"
 
 interface TVShowDetailsClientProps {
   id: number
@@ -115,6 +116,10 @@ export default function TVShowDetailsClient({
       watchPath = `/watch/tv/${id}/season/${showProgress.last_season_watched}/episode/${showProgress.last_episode_watched}?startAt=${startAt}`
       buttonText = "Resume"
     }
+  }
+
+  if (show.adult) {
+    return <NotFound />
   }
 
   return (

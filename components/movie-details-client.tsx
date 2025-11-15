@@ -18,6 +18,7 @@ import WatchlistDropdown from "@/components/watchlist-dropdown"
 import { useVidlinkProgress } from "@/lib/hooks/use-vidlink-progress"
 import { MediaItem, Review, ReviewResponse } from "@/lib/types"
 import { getLanguageName } from "@/lib/utils"
+import NotFound from "@/app/not-found"
 
 interface MovieDetailsClientProps {
   id: number
@@ -98,6 +99,10 @@ export default function MovieDetailsClient({
     const startAt = Math.floor(movieProgress.progress.watched)
     watchPath = `/watch/movie/${id}?startAt=${startAt}`
     buttonText = "Resume"
+  }
+
+  if (movie.adult) {
+    return <NotFound />
   }
 
   return (

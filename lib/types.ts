@@ -8,6 +8,7 @@ export interface Cast {
 
 export interface MediaItem {
   id: number
+  adult: boolean
   title?: string
   name?: string
   poster_path: string | null
@@ -95,6 +96,7 @@ export interface Episode {
 export interface PersonDetails {
   id: number
   name: string
+  adult: boolean
   biography: string
   birthday: string | null
   deathday: string | null
