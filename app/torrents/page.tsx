@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { fetchMovies } from "@/lib/yts"
 import { Movie } from "@/lib/yts-types"
 import { debounce } from "lodash"
-import { ChevronLeft, ChevronRight, Loader2, SearchIcon } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2, SearchIcon, AlertCircle, RefreshCw } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useCallback, useEffect, useState } from "react"
 
@@ -67,6 +67,7 @@ function TorrentsPageContent() {
   const [totalMovies, setTotalMovies] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [isChangingPage, setIsChangingPage] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Get params from URL or use defaults
   const searchQuery = searchParams.get("query_term") || ""
@@ -102,6 +103,7 @@ function TorrentsPageContent() {
 
   const loadMovies = useCallback(async () => {
     setIsLoading(true)
+    setError(null)
     try {
       const response = await fetchMovies({
         page,
@@ -126,6 +128,7 @@ function TorrentsPageContent() {
     } catch (error) {
       console.error("Error loading movies:", error)
       setMovies([])
+      setError("Failed to load movies. The torrent provider might be blocked or unavailable.")
     } finally {
       setIsLoading(false)
       setIsChangingPage(false)
@@ -361,6 +364,20 @@ function TorrentsPageContent() {
                 <Skeleton className="w-2/3 h-4" />
               </div>
             ))}
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="bg-destructive/10 p-4 rounded-full mb-4">
+            <AlertCircle className="h-10 w-10 text-destructive" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Connection Error</h3>
+          <p className="text-muted-foreground max-w-md mb-6">
+            {error}
+          </p>
+          <Button onClick={() => loadMovies()} variant="default">
+            <RefreshCw className="h-4 w-4" />
+            Try Again
+          </Button>
         </div>
       ) : movies.length > 0 ? (
         <>
