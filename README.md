@@ -63,7 +63,7 @@ yarn dev
 - [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
 - [Shadcn UI](https://ui.shadcn.com/) - accessible UI components
 - [TMDB API](https://www.themoviedb.org/documentation/api) - Movie and TV show data
-- [YTS API](https://yts.mx/api) - Torrents data
+- [YTS API](https://yts.lt/api) - Torrents data
 
 ## Building for Production
 

@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   const sort_by = searchParams.get("sort_by") || "date_added"
   const order_by = searchParams.get("order_by") || "desc"
 
-  let url = `https://yts.mx/api/v2/${endpoint}.json?`
+  let url = `https://yts.lt/api/v2/${endpoint}.json?`
 
   // Add query parameters based on endpoint
   if (endpoint === "list_movies") {
