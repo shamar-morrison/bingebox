@@ -1,16 +1,19 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from "@google/genai"
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY
 
 if (!apiKey) {
-  console.warn("GEMINI_API_KEY is not set in environment variables.");
+  console.warn("GEMINI_API_KEY is not set in environment variables.")
 }
 
-const ai = new GoogleGenAI({ apiKey: apiKey || "" });
+const ai = new GoogleGenAI({ apiKey: apiKey || "" })
 
-export async function detectMediaFromImage(imageBase64: string, mimeType: string = "image/png") {
+export async function detectMediaFromImage(
+  imageBase64: string,
+  mimeType: string = "image/png",
+) {
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
+    throw new Error("GEMINI_API_KEY is not configured")
   }
 
   const prompt = `
@@ -28,7 +31,7 @@ export async function detectMediaFromImage(imageBase64: string, mimeType: string
       "description": "A brief description of why you think it is this media."
     }
     Do not include markdown formatting like \`\`\`json. Just return the raw JSON string.
-  `;
+  `
 
   try {
     const response = await ai.models.generateContent({
@@ -47,20 +50,38 @@ export async function detectMediaFromImage(imageBase64: string, mimeType: string
           ],
         },
       ],
-    });
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "object",
+          properties: {
+            type: { type: "string", enum: ["movie", "tv", "unknown"] },
+            title: { type: "string" },
+            season: { type: "number" },
+            episode: { type: "number" },
+            confidence: { type: "string", enum: ["high", "medium", "low"] },
+            description: { type: "string" },
+          },
+          required: ["type", "title", "confidence", "description"],
+        },
+      },
+    })
 
-    const text = response.text;
-    
+    const text = response.text
+
     if (!text) {
-      throw new Error("No text response from Gemini");
+      throw new Error("No text response from Gemini")
     }
 
     // Clean up potential markdown formatting if the model ignores the instruction
-    const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    
-    return JSON.parse(cleanedText);
+    const cleanedText = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim()
+
+    return JSON.parse(cleanedText)
   } catch (error) {
-    console.error("Error detecting media with Gemini:", error);
-    throw new Error("Failed to analyze image");
+    console.error("Error detecting media with Gemini:", error)
+    throw new Error("Failed to analyze image")
   }
 }

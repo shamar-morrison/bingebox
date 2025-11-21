@@ -10,7 +10,7 @@ import MediaCard from "@/components/media-card"
 import type { MediaItem } from "@/lib/types"
 import { Spinner } from "@/components/spinner"
 
-interface GeminiResult {
+export interface GeminiResult {
   type: "movie" | "tv" | "unknown"
   title: string
   season?: number | null
