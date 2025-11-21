@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import MediaCard from "@/components/media-card"
 import type { MediaItem } from "@/lib/types"
+import { Spinner } from "@/components/spinner"
 
 interface GeminiResult {
   type: "movie" | "tv" | "unknown"
@@ -68,8 +69,8 @@ export default function ImageSearchPage() {
 
   if (!geminiResult && isLoading) {
     return (
-      <div className="container py-20 mt-20 flex justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="container py-24 mt-24 flex justify-center">
+        <Spinner className="text-primary h-16 w-16"/>
       </div>
     )
   }
