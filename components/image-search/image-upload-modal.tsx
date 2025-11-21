@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -87,6 +88,7 @@ export function ImageUploadModal({ isOpen, onClose }: ImageUploadModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Search by Image</DialogTitle>
+          <DialogDescription>Use AI to find out which movie or tv show an image is from.</DialogDescription>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
@@ -141,8 +143,8 @@ export function ImageUploadModal({ isOpen, onClose }: ImageUploadModalProps) {
               </>
             ) : (
               <>
-                <ImageIcon className="mr-2 h-4 w-4" />
-                Detect
+                <ImageIcon className="h-4 w-4" />
+                AI Detect
               </>
             )}
           </Button>
