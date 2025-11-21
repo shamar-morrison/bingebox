@@ -31,12 +31,21 @@ export async function POST(req: NextRequest) {
     let mimeType = "image/png";
     let base64Data = image;
 
-    if (image.includes("base64,")) {
-      const [meta, data] = image.split("base64,");
-      base64Data = data;
-      const mimeMatch = meta.match(/:(.*?);/);
-      if (mimeMatch) {
-        mimeType = mimeMatch[1];
+    // Try strict regex first
+    const matches = image.match(/^data:([^;]+);base64,(.*)$/s);
+    if (matches) {
+      mimeType = matches[1];
+      base64Data = matches[2];
+    } else if (image.includes("base64,")) {
+      // Fallback for less standard formats
+      const parts = image.split("base64,", 2);
+      if (parts.length === 2) {
+        const meta = parts[0];
+        base64Data = parts[1];
+        const mimeMatch = meta.match(/:([^;]+);/);
+        if (mimeMatch) {
+          mimeType = mimeMatch[1];
+        }
       }
     }
 
