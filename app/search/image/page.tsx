@@ -6,7 +6,6 @@ import { Film, Tv, AlertCircle, Loader2, Sparkles } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import MediaCard from "@/components/media-card"
 import type { MediaItem } from "@/lib/types"
 import { Spinner } from "@/components/spinner"
@@ -28,46 +27,71 @@ export default function ImageSearchPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const storedResult = localStorage.getItem("imageDetectionResult")
-    const storedImage = localStorage.getItem("detectedImage")
-
-    if (!storedResult || !storedImage) {
-      router.push("/")
-      return
-    }
-
-    try {
-      const parsedResult = JSON.parse(storedResult)
-      setGeminiResult(parsedResult)
-      setDetectedImage(storedImage)
-      
-      // Search TMDB if we have a title
-      if (parsedResult.title && parsedResult.title !== "Unknown") {
-        searchTMDB(parsedResult.title)
-      } else {
+    const searchTMDB = async (query: string) => {
+      try {
+        // Add timestamp to prevent caching
+        const response = await fetch(`/api/search?query=${encodeURIComponent(query)}&t=${Date.now()}`)
+        if (response.ok) {
+          const data = await response.json()
+          setTmdbResults(data.results || [])
+        } else {
+          console.error("TMDB search failed:", response.statusText)
+          setTmdbResults([])
+        }
+      } catch (error) {
+        console.error("Error searching TMDB:", error)
+        setTmdbResults([])
+      } finally {
         setIsLoading(false)
       }
-    } catch (error) {
-      console.error("Error parsing stored result:", error)
-      setIsLoading(false)
+    }
+
+    const loadData = () => {
+      const storedResult = localStorage.getItem("imageDetectionResult")
+      const storedImage = localStorage.getItem("detectedImage")
+
+      if (!storedResult || !storedImage) {
+        router.push("/")
+        return
+      }
+
+      try {
+        const parsedResult = JSON.parse(storedResult)
+        setGeminiResult(parsedResult)
+        setDetectedImage(storedImage)
+        setTmdbResults([])
+        setIsLoading(true)
+        
+        // Search TMDB if we have a title
+        if (parsedResult.title && parsedResult.title !== "Unknown") {
+          searchTMDB(parsedResult.title)
+        } else {
+          setIsLoading(false)
+        }
+      } catch (error) {
+        console.error("Error parsing stored result:", error)
+        setIsLoading(false)
+      }
+    }
+
+    // Initial load
+    loadData()
+
+    // Listen for updates from the modal
+    const handleUpdate = () => {
+      loadData()
+    }
+
+    window.addEventListener("image-search-updated", handleUpdate)
+
+    return () => {
+      window.removeEventListener("image-search-updated", handleUpdate)
     }
   }, [router])
 
-  const searchTMDB = async (query: string) => {
-    try {
-      const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`)
-      if (response.ok) {
-        const data = await response.json()
-        setTmdbResults(data.results || [])
-      }
-    } catch (error) {
-      console.error("Error searching TMDB:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
-  if (!geminiResult && isLoading) {
+
+  if (isLoading) {
     return (
       <div className="container py-24 mt-24 flex justify-center">
         <Spinner className="text-primary h-16 w-16"/>
@@ -183,7 +207,6 @@ export default function ImageSearchPage() {
                   </h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <div className="relative group">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-lg blur opacity-30 transition duration-1000"></div>
                       <div className="relative h-full">
                         <MediaCard item={bestMatch} />
                       </div>
@@ -204,14 +227,16 @@ export default function ImageSearchPage() {
               )}
             </>
           ) : (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>No matches found</AlertTitle>
-              <AlertDescription>
+            <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-muted/30 rounded-lg border border-dashed">
+              <div className="bg-muted p-4 rounded-full mb-4">
+                <AlertCircle className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No matches found</h3>
+              <p className="text-muted-foreground max-w-md mb-6">
                 We couldn't find any direct matches in our database for "{geminiResult.title}". 
-                Try searching manually or uploading a clearer image.
-              </AlertDescription>
-            </Alert>
+                The AI might have misidentified the title, or it might be a less common title.
+              </p>
+            </div>
           )}
         </div>
       </div>

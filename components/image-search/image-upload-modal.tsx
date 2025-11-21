@@ -68,6 +68,9 @@ export function ImageUploadModal({ isOpen, onClose }: ImageUploadModalProps) {
       localStorage.setItem("imageDetectionResult", JSON.stringify(data.result))
       localStorage.setItem("detectedImage", image)
       
+      // Dispatch event to notify results page
+      window.dispatchEvent(new Event("image-search-updated"))
+      
       router.push("/search/image")
       onClose()
     } catch (error) {
