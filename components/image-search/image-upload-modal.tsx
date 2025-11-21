@@ -32,6 +32,9 @@ export function ImageUploadModal({ isOpen, onClose }: ImageUploadModalProps) {
       reader.onload = (e) => {
         setImage(e.target?.result as string)
       }
+      reader.onerror = () => {
+        toast.error("Failed to read image file. Please try another file.")
+      }
       reader.readAsDataURL(file)
     }
   }, [])
@@ -58,19 +61,20 @@ export function ImageUploadModal({ isOpen, onClose }: ImageUploadModalProps) {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to analyze image")
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to analyze image")
       }
 
       const data = await response.json()
-      
+
       // Store result in localStorage or pass via query params (might be too large)
       // For now, let's use localStorage to pass the result to the results page
       localStorage.setItem("imageDetectionResult", JSON.stringify(data.result))
       localStorage.setItem("detectedImage", image)
-      
+
       // Dispatch event to notify results page
       window.dispatchEvent(new Event("image-search-updated"))
-      
+
       router.push("/search/image")
       onClose()
     } catch (error) {
@@ -87,18 +91,23 @@ export function ImageUploadModal({ isOpen, onClose }: ImageUploadModalProps) {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) {
-        setImage(null)
-        onClose()
-      }
-    }}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          setImage(null)
+          onClose()
+        }
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Search by Image</DialogTitle>
-          <DialogDescription>Use AI to find out which movie or tv show an image is from.</DialogDescription>
+          <DialogDescription>
+            Use AI to find out which movie or tv show an image is from.
+          </DialogDescription>
         </DialogHeader>
-        
+
         <div className="grid gap-4 py-4">
           {!image ? (
             <div
@@ -114,7 +123,9 @@ export function ImageUploadModal({ isOpen, onClose }: ImageUploadModalProps) {
                   <Upload className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <div className="text-sm font-medium">
-                  {isDragActive ? "Drop the image here" : "Drag & drop an image here"}
+                  {isDragActive
+                    ? "Drop the image here"
+                    : "Drag & drop an image here"}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   or click to select a file
