@@ -81,7 +81,7 @@ export default function ContinueWatchingMediaCard({
   }
 
   const cardContent = (
-    <Card className="overflow-hidden flex flex-col h-full transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+    <Card className="overflow-hidden flex flex-col h-full">
       <div className="relative aspect-[2/3] group overflow-hidden bg-muted">
         <Link
           href={detailsPath}

@@ -62,7 +62,7 @@ export default function MediaCard({ item }: MediaCardProps) {
   const year = releaseDate ? new Date(releaseDate).getFullYear() : null
 
   const cardContent = (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] h-full">
+    <Card className="overflow-hidden h-full">
       <div className="relative aspect-[2/3] group overflow-hidden bg-muted">
         <Link href={detailsPath} className="block w-full h-full">
           {imagePath ? (

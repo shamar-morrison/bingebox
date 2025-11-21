@@ -37,6 +37,8 @@ import { createClient } from "@/lib/supabase/client"
 import LoginForm from "@/components/login-form"
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog"
 import { Spinner } from "@/components/spinner"
+import { ImageUploadModal } from "@/components/image-search/image-upload-modal"
+import { Camera } from "lucide-react"
 
 interface SearchResult {
   id: number
@@ -59,6 +61,7 @@ export default function Header() {
   const [showResults, setShowResults] = useState(false)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [isSignInOpen, setIsSignInOpen] = useState(false)
+  const [isImageUploadOpen, setIsImageUploadOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
@@ -182,6 +185,14 @@ export default function Header() {
     return new Date(dateString).getFullYear()
   }
 
+  const handleImageSearchClick = () => {
+    if (!user) {
+      setIsSignInOpen(true)
+    } else {
+      setIsImageUploadOpen(true)
+    }
+  }
+
   const navItems = [
     { label: "Home", href: "/", icon: Home },
     { label: "Movies", href: "/movie", icon: Film },
@@ -233,11 +244,21 @@ export default function Header() {
               <Input
                 type="search"
                 placeholder="Search..."
-                className="w-[220px] pl-8 bg-secondary/50"
+                className="w-[220px] pl-8 pr-9  bg-secondary/50"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={handleSearchInputFocus}
               />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-9 w-9 text-muted-foreground hover:text-primary"
+                onClick={handleImageSearchClick}
+              >
+                <Camera className="h-4 w-4" />
+                <span className="sr-only">Search by image</span>
+              </Button>
             </form>
 
             {showResults && (searchResults.length > 0 || isSearching) && (
@@ -456,6 +477,10 @@ export default function Header() {
           </Sheet>
         </div>
       </div>
+      <ImageUploadModal 
+        isOpen={isImageUploadOpen} 
+        onClose={() => setIsImageUploadOpen(false)} 
+      />
     </header>
   )
 }
