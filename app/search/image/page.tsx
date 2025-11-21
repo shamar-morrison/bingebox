@@ -71,6 +71,7 @@ export default function ImageSearchPage() {
       } catch (error) {
         console.error("Error parsing stored result:", error)
         setIsLoading(false)
+        router.push("/")
       }
     }
 
@@ -99,7 +100,20 @@ export default function ImageSearchPage() {
     )
   }
 
-  if (!geminiResult) return null
+  if (!geminiResult) {
+    return (
+      <div className="container py-24 mt-24 flex flex-col items-center justify-center text-center">
+        <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+        <h2 className="text-2xl font-bold mb-2">No Analysis Data Found</h2>
+        <p className="text-muted-foreground mb-6 max-w-md">
+          We couldn't retrieve the image analysis results. Please try uploading your image again.
+        </p>
+        <Button onClick={() => router.push("/")}>
+          Return to Home
+        </Button>
+      </div>
+    )
+  }
 
   const bestMatch = tmdbResults.length > 0 ? tmdbResults[0] : null
   const otherMatches = tmdbResults.length > 1 ? tmdbResults.slice(1) : []
