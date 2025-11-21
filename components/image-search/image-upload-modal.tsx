@@ -94,13 +94,27 @@ export function ImageUploadModal({ isOpen, onClose }: ImageUploadModalProps) {
     <Dialog
       open={isOpen}
       onOpenChange={(open) => {
+        if (isAnalyzing) return
         if (!open) {
           setImage(null)
           onClose()
         }
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        hideCloseButton={isAnalyzing}
+        onInteractOutside={(e) => {
+          if (isAnalyzing) {
+            e.preventDefault()
+          }
+        }}
+        onEscapeKeyDown={(e) => {
+          if (isAnalyzing) {
+            e.preventDefault()
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Search by Image</DialogTitle>
           <DialogDescription>
@@ -139,14 +153,16 @@ export function ImageUploadModal({ isOpen, onClose }: ImageUploadModalProps) {
                 alt="Preview"
                 className="max-h-full max-w-full object-contain"
               />
-              <Button
-                variant="destructive"
-                size="icon"
-                className="absolute top-2 right-2 h-8 w-8 rounded-full"
-                onClick={clearImage}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              {!isAnalyzing && (
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 h-8 w-8 rounded-full"
+                  onClick={clearImage}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           )}
 
@@ -157,7 +173,7 @@ export function ImageUploadModal({ isOpen, onClose }: ImageUploadModalProps) {
           >
             {isAnalyzing ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 Analyzing...
               </>
             ) : (
