@@ -30,7 +30,9 @@ export default function ImageSearchPage() {
     const searchTMDB = async (query: string) => {
       try {
         // Add timestamp to prevent caching
-        const response = await fetch(`/api/search?query=${encodeURIComponent(query)}&t=${Date.now()}`)
+        const response = await fetch(
+          `/api/search?query=${encodeURIComponent(query)}&t=${Date.now()}`,
+        )
         if (response.ok) {
           const data = await response.json()
           setTmdbResults(data.results || [])
@@ -61,7 +63,7 @@ export default function ImageSearchPage() {
         setDetectedImage(storedImage)
         setTmdbResults([])
         setIsLoading(true)
-        
+
         // Search TMDB if we have a title
         if (parsedResult.title && parsedResult.title !== "Unknown") {
           searchTMDB(parsedResult.title)
@@ -90,12 +92,10 @@ export default function ImageSearchPage() {
     }
   }, [router])
 
-
-
   if (isLoading) {
     return (
       <div className="container py-24 mt-24 flex justify-center">
-        <Spinner className="text-primary h-16 w-16"/>
+        <Spinner className="text-primary h-16 w-16" />
       </div>
     )
   }
@@ -106,11 +106,10 @@ export default function ImageSearchPage() {
         <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
         <h2 className="text-2xl font-bold mb-2">No Analysis Data Found</h2>
         <p className="text-muted-foreground mb-6 max-w-md">
-          We couldn't retrieve the image analysis results. Please try uploading your image again.
+          We couldn't retrieve the image analysis results. Please try uploading
+          your image again.
         </p>
-        <Button onClick={() => router.push("/")}>
-          Return to Home
-        </Button>
+        <Button onClick={() => router.push("/")}>Return to Home</Button>
       </div>
     )
   }
@@ -139,6 +138,10 @@ export default function ImageSearchPage() {
                     src={detectedImage}
                     alt="Analyzed"
                     className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg"
+                      e.currentTarget.alt = "Failed to load image"
+                    }}
                   />
                 )}
               </div>
@@ -151,20 +154,28 @@ export default function ImageSearchPage() {
             </CardHeader>
             <CardContent className="space-y-5 pt-6">
               <div>
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Detected Title</div>
-                <div className="text-xl font-bold text-primary">{geminiResult.title}</div>
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                  Detected Title
+                </div>
+                <div className="text-xl font-bold text-primary">
+                  {geminiResult.title || "-"}
+                </div>
               </div>
 
               {geminiResult.type !== "unknown" && (
                 <div>
-                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Type</div>
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                    Type
+                  </div>
                   <div className="flex items-center gap-2">
                     {geminiResult.type === "movie" ? (
                       <Film className="h-4 w-4" />
                     ) : (
                       <Tv className="h-4 w-4" />
                     )}
-                    <span className="capitalize font-medium">{geminiResult.type === "tv" ? "TV Show" : "Movie"}</span>
+                    <span className="capitalize font-medium">
+                      {geminiResult.type === "tv" ? "TV Show" : "Movie"}
+                    </span>
                   </div>
                 </div>
               )}
@@ -173,13 +184,17 @@ export default function ImageSearchPage() {
                 <div className="grid grid-cols-2 gap-4">
                   {geminiResult.season && (
                     <div>
-                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Season</div>
+                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                        Season
+                      </div>
                       <div className="font-medium">{geminiResult.season}</div>
                     </div>
                   )}
                   {geminiResult.episode && (
                     <div>
-                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Episode</div>
+                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                        Episode
+                      </div>
                       <div className="font-medium">{geminiResult.episode}</div>
                     </div>
                   )}
@@ -187,25 +202,41 @@ export default function ImageSearchPage() {
               )}
 
               <div>
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Confidence</div>
-                <div className={`
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                  Confidence
+                </div>
+                <div
+                  className={`
                   inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold
-                  ${geminiResult.confidence === "high" ? "bg-green-500/15 text-green-600 dark:text-green-400" : 
-                    geminiResult.confidence === "medium" ? "bg-yellow-500/15 text-yellow-600 dark:text-yellow-400" : 
-                    "bg-red-500/15 text-red-600 dark:text-red-400"}
-                `}>
+                  ${
+                    geminiResult.confidence === "high"
+                      ? "bg-green-500/15 text-green-600 dark:text-green-400"
+                      : geminiResult.confidence === "medium"
+                        ? "bg-yellow-500/15 text-yellow-600 dark:text-yellow-400"
+                        : "bg-red-500/15 text-red-600 dark:text-red-400"
+                  }
+                `}
+                >
                   {geminiResult.confidence.toUpperCase()}
                 </div>
               </div>
 
               <div>
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Reasoning</div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{geminiResult.description}</p>
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                  Reasoning
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {geminiResult.description}
+                </p>
               </div>
             </CardContent>
           </Card>
-          
-          <Button variant="outline" className="w-full" onClick={() => router.push("/")}>
+
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => router.push("/")}
+          >
             Back to Home
           </Button>
         </div>
@@ -217,7 +248,9 @@ export default function ImageSearchPage() {
               {bestMatch && (
                 <div className="space-y-4">
                   <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">Best Match</span>
+                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                      Best Match
+                    </span>
                   </h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <div className="relative group">
@@ -231,7 +264,9 @@ export default function ImageSearchPage() {
 
               {otherMatches.length > 0 && (
                 <div className="space-y-4">
-                  <h2 className="text-xl font-semibold text-muted-foreground">Other Potential Matches</h2>
+                  <h2 className="text-xl font-semibold text-muted-foreground">
+                    Other Potential Matches
+                  </h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {otherMatches.map((result) => (
                       <MediaCard key={result.id} item={result} />
@@ -247,8 +282,9 @@ export default function ImageSearchPage() {
               </div>
               <h3 className="text-lg font-semibold mb-2">No matches found</h3>
               <p className="text-muted-foreground max-w-md mb-6">
-                We couldn't find any direct matches in our database for "{geminiResult.title}". 
-                The AI might have misidentified the title, or it might be a less common title.
+                We couldn't find any direct matches in our database for
+                {geminiResult.title || " this image"}. The AI might have
+                misidentified the title, or it might be a less common title.
               </p>
             </div>
           )}
