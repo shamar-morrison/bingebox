@@ -87,7 +87,12 @@ export function ImageUploadModal({ isOpen, onClose }: ImageUploadModalProps) {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        setImage(null)
+        onClose()
+      }
+    }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Search by Image</DialogTitle>
