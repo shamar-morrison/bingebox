@@ -244,7 +244,7 @@ export default function Header() {
               <Input
                 type="search"
                 placeholder="Search..."
-                className="w-[220px] pl-8 pr-8 bg-secondary/50"
+                className="w-[220px] pl-8 pr-9 bg-secondary/50"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={handleSearchInputFocus}
