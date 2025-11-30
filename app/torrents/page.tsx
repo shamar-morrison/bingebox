@@ -14,7 +14,14 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { fetchMovies } from "@/lib/yts"
 import { Movie } from "@/lib/yts-types"
 import { debounce } from "lodash"
-import { ChevronLeft, ChevronRight, Loader2, SearchIcon, AlertCircle, RefreshCw } from "lucide-react"
+import {
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  SearchIcon,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useCallback, useEffect, useState } from "react"
 
@@ -128,7 +135,9 @@ function TorrentsPageContent() {
     } catch (error) {
       console.error("Error loading movies:", error)
       setMovies([])
-      setError("Failed to load movies. The torrent provider might be blocked or unavailable.")
+      setError(
+        "Failed to load movies. The torrent provider might be blocked or unavailable.",
+      )
     } finally {
       setIsLoading(false)
       setIsChangingPage(false)
@@ -274,7 +283,7 @@ function TorrentsPageContent() {
               <SelectItem value="all">Any Quality</SelectItem>
               {qualities.map((q) => (
                 <SelectItem key={q} value={q}>
-                  {q}
+                  {q === "2160p" ? "4K" : q}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -371,9 +380,7 @@ function TorrentsPageContent() {
             <AlertCircle className="h-10 w-10 text-destructive" />
           </div>
           <h3 className="text-xl font-semibold mb-2">Connection Error</h3>
-          <p className="text-muted-foreground max-w-md mb-6">
-            {error}
-          </p>
+          <p className="text-muted-foreground max-w-md mb-6">{error}</p>
           <Button onClick={() => loadMovies()} variant="default">
             <RefreshCw className="h-4 w-4" />
             Try Again

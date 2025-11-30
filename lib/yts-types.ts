@@ -72,6 +72,8 @@ export interface Torrent {
 export enum Quality {
   The1080P = "1080p",
   The720P = "720p",
+  The2160P = "2160p",
+  The3D = "3D",
 }
 
 export enum Type {

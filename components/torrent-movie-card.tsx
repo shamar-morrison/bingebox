@@ -117,7 +117,9 @@ function DownloadDialog({ movie, isOpen, onClose }: DownloadDialogProps) {
             <div key={index} className="border rounded-md p-3">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <p className="font-medium">{torrent.quality}</p>
+                  <p className="font-medium">
+                    {torrent.quality === "2160p" ? "4K" : torrent.quality}
+                  </p>
                   <span className="text-xs text-muted-foreground">
                     ({torrent.size})
                   </span>
