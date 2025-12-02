@@ -23,12 +23,21 @@ export async function fetchMovies(
     order_by = "desc",
   } = options
 
-  let url = `/api/yts?endpoint=list_movies&page=${page}&limit=${limit}`
-  if (query) url += `&query_term=${encodeURIComponent(query)}`
-  if (quality) url += `&quality=${quality}`
-  if (minimum_rating) url += `&minimum_rating=${minimum_rating}`
-  if (genre) url += `&genre=${encodeURIComponent(genre)}`
-  url += `&sort_by=${sort_by}&order_by=${order_by}`
+  const params = new URLSearchParams({
+    endpoint: "list_movies",
+    page: page.toString(),
+    limit: limit.toString(),
+    sort_by,
+    order_by,
+  })
+
+  if (query) params.append("query_term", query)
+  if (quality) params.append("quality", quality)
+  if (minimum_rating) params.append("minimum_rating", minimum_rating.toString())
+  if (genre) params.append("genre", genre)
+
+  // Use server-side proxy to avoid CORS
+  const url = `/api/yts?${params.toString()}`
 
   const response = await fetch(url, { cache: "no-store" })
 
@@ -42,6 +51,7 @@ export async function fetchMovies(
 export async function fetchMovieDetails(
   movieId: number,
 ): Promise<YTSMovieDetailsResponse> {
+  // Use server-side proxy to avoid CORS
   const url = `/api/yts?endpoint=movie_details&movie_id=${movieId}`
 
   const response = await fetch(url, { cache: "no-store" })

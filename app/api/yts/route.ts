@@ -11,39 +11,51 @@ export async function GET(request: NextRequest) {
   const genre = searchParams.get("genre") || ""
   const sort_by = searchParams.get("sort_by") || "date_added"
   const order_by = searchParams.get("order_by") || "desc"
+  const movie_id = searchParams.get("movie_id") || ""
 
-  let url = `https://yts.lt/api/v2/${endpoint}.json?`
+  const params = new URLSearchParams()
 
-  // Add query parameters based on endpoint
   if (endpoint === "list_movies") {
-    if (query_term) url += `&query_term=${encodeURIComponent(query_term)}`
-    url += `&page=${page}&limit=${limit}`
-    if (quality) url += `&quality=${quality}`
-    if (minimum_rating) url += `&minimum_rating=${minimum_rating}`
-    if (genre) url += `&genre=${genre}`
-    url += `&sort_by=${sort_by}&order_by=${order_by}`
+    if (query_term) params.append("query_term", query_term)
+    params.append("page", page)
+    params.append("limit", limit)
+    if (quality) params.append("quality", quality)
+    if (minimum_rating) params.append("minimum_rating", minimum_rating)
+    if (genre) params.append("genre", genre)
+    params.append("sort_by", sort_by)
+    params.append("order_by", order_by)
+  } else if (endpoint === "movie_details") {
+    if (movie_id) params.append("movie_id", movie_id)
   }
 
+  // Use CORS proxy to bypass Cloudflare protection
+  // The proxy service handles Cloudflare challenges and adds CORS headers
+  const ytsUrl = `https://yts.lt/api/v2/${endpoint}.json?${params.toString()}`
+  const corsProxy = "https://api.allorigins.win/raw?url="
+  const url = `${corsProxy}${encodeURIComponent(ytsUrl)}`
+
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(30000), // 30 second timeout (proxy may be slower)
+    })
 
     if (!response.ok) {
-      throw new Error(`YTS API responded with status: ${response.status}`)
+      throw new Error(`CORS proxy returned status: ${response.status}`)
     }
 
     const data = await response.json()
-
-    // Always set Cache-Control to no-store to prevent caching
-    // using caching causes search not to work when deployed to prod
-    const headers: HeadersInit = {
-      "Cache-Control": "no-store, max-age=0",
-    }
-
-    return NextResponse.json(data, { headers })
+    return NextResponse.json(data, {
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
+    })
   } catch (error) {
-    console.error("Error fetching from YTS API:", error)
+    console.error("CORS proxy failed:", error)
     return NextResponse.json(
-      { error: "Failed to fetch data from YTS API" },
+      {
+        error: "Failed to fetch data from YTS API",
+        details: "CORS proxy failed. YTS API may be down or unreachable.",
+      },
       { status: 500 },
     )
   }
