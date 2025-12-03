@@ -32,15 +32,15 @@ export async function GET(request: NextRequest) {
   // The proxy service handles Cloudflare challenges and adds CORS headers
   const ytsUrl = `https://yts.lt/api/v2/${endpoint}.json?${params.toString()}`
   const corsProxy = "https://api.allorigins.win/raw?url="
-  const url = `${corsProxy}${encodeURIComponent(ytsUrl)}`
+  const _url = `${corsProxy}${encodeURIComponent(ytsUrl)}`
 
   try {
-    const response = await fetch(url, {
+    const response = await fetch(ytsUrl, {
       signal: AbortSignal.timeout(30000), // 30 second timeout (proxy may be slower)
     })
 
     if (!response.ok) {
-      throw new Error(`CORS proxy returned status: ${response.status}`)
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
 
     const data = await response.json()
@@ -50,11 +50,11 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error("CORS proxy failed:", error)
+    console.error("Error fetching data from YTS API:", error)
     return NextResponse.json(
       {
         error: "Failed to fetch data from YTS API",
-        details: "CORS proxy failed. YTS API may be down or unreachable.",
+        details: "YTS API may be down or unreachable.",
       },
       { status: 500 },
     )
