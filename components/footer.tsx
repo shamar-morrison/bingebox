@@ -112,7 +112,7 @@ export default function Footer() {
                     Report a Bug
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     href="https://ko-fi.com/bingebox"
                     target="_blank"
@@ -121,7 +121,7 @@ export default function Footer() {
                   >
                     Support Us ❤️
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </div>
           </div>
