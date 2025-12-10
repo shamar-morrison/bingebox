@@ -1,3 +1,6 @@
+"use client"
+
+import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -38,13 +41,8 @@ export default function ContinueWatchingMediaCard({
       itemMediaType = "movie" // Default or throw error
   }
 
-  const {
-    trailerKey,
-    isMuted,
-    isLoadingTrailer,
-    fetchTrailer,
-    toggleMute,
-  } = useTrailerHover(itemMediaType, Number(item.id))
+  const { trailerKey, isMuted, isLoadingTrailer, fetchTrailer, toggleMute } =
+    useTrailerHover(itemMediaType, Number(item.id))
 
   const detailsPath =
     itemMediaType === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`
@@ -83,10 +81,7 @@ export default function ContinueWatchingMediaCard({
   const cardContent = (
     <Card className="overflow-hidden flex flex-col h-full">
       <div className="relative aspect-[2/3] group overflow-hidden bg-muted">
-        <Link
-          href={detailsPath}
-          className="block w-full h-full"
-        >
+        <Link href={detailsPath} className="block w-full h-full">
           <img
             src={posterPath}
             alt={title}
@@ -149,37 +144,30 @@ export default function ContinueWatchingMediaCard({
   )
 
   return (
-    <HoverCard openDelay={4000} onOpenChange={(open) => {
-      if (open) fetchTrailer()
-    }}>
-      <HoverCardTrigger asChild>
-        {cardContent}
-      </HoverCardTrigger>
-      <HoverCardContent className="w-[320px] p-0 overflow-hidden border-none bg-black" side="right" align="start">
+    <HoverCard
+      openDelay={4000}
+      onOpenChange={(open) => {
+        if (open) fetchTrailer()
+      }}
+    >
+      <HoverCardTrigger asChild>{cardContent}</HoverCardTrigger>
+      <HoverCardContent
+        className="w-[320px] p-0 overflow-hidden border-none bg-black"
+        side="right"
+        align="start"
+      >
         <div className="aspect-video w-full relative bg-black">
           {isLoadingTrailer ? (
             <div className="flex items-center justify-center w-full h-full">
               <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : trailerKey ? (
-            <>
-              <iframe
-                src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1&loop=1&playlist=${trailerKey}${isMuted ? "&mute=1" : ""}`}
-                title={title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                className="w-full h-full object-cover pointer-events-none"
-              />
-              <div className="absolute bottom-2 right-2 z-20 pointer-events-auto">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 bg-black/50 hover:bg-black/70 text-white rounded-full"
-                  onClick={toggleMute}
-                >
-                  {isMuted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
-                </Button>
-              </div>
-            </>
+            <TrailerPlayer
+              trailerKey={trailerKey}
+              isMuted={isMuted}
+              toggleMute={toggleMute}
+              title={title}
+            />
           ) : (
             <div className="flex items-center justify-center w-full h-full text-white text-xs">
               No trailer available
@@ -188,5 +176,59 @@ export default function ContinueWatchingMediaCard({
         </div>
       </HoverCardContent>
     </HoverCard>
+  )
+}
+
+function TrailerPlayer({
+  trailerKey,
+  isMuted,
+  toggleMute,
+  title,
+}: {
+  trailerKey: string
+  isMuted: boolean
+  toggleMute: (e: React.MouseEvent) => void
+  title: string
+}) {
+  const iframeRef = React.useRef<HTMLIFrameElement>(null)
+
+  React.useEffect(() => {
+    if (!iframeRef.current?.contentWindow) return
+
+    const command = isMuted ? "mute" : "unMute"
+    iframeRef.current.contentWindow.postMessage(
+      JSON.stringify({
+        event: "command",
+        func: command,
+        args: [],
+      }),
+      "*",
+    )
+  }, [isMuted])
+
+  return (
+    <>
+      <iframe
+        ref={iframeRef}
+        src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1&loop=1&playlist=${trailerKey}&mute=1&enablejsapi=1`}
+        title={title}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        className="w-full h-full object-cover pointer-events-none"
+      />
+      <div className="absolute bottom-2 right-2 z-20 pointer-events-auto">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 bg-black/50 hover:bg-black/70 text-white rounded-full"
+          onClick={toggleMute}
+        >
+          {isMuted ? (
+            <VolumeX className="h-3 w-3" />
+          ) : (
+            <Volume2 className="h-3 w-3" />
+          )}
+        </Button>
+      </div>
+    </>
   )
 }
