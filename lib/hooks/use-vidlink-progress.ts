@@ -76,21 +76,39 @@ export function useVidlinkProgress() {
         try {
           await retryFailedSaves()
           const itemsToSave = dirtyIds.filter((mediaId) => data[mediaId])
+
+          // Capture item snapshots to detect if they change while save is in-flight
+          const snapshots = new Map<string, MediaItem>()
+          itemsToSave.forEach((mediaId) => {
+            snapshots.set(mediaId, data[mediaId])
+          })
+
           const results = await Promise.allSettled(
             itemsToSave.map((mediaId) =>
-              saveItemToAccount(mediaId, data[mediaId]).then((success) => ({
-                mediaId,
-                success,
-              })),
+              saveItemToAccount(mediaId, snapshots.get(mediaId)!).then(
+                (success) => ({
+                  mediaId,
+                  success,
+                }),
+              ),
             ),
           )
 
-          // Process results: only clear successful saves, keep failed ones for retry
+          // Process results: only clear dirty flag if item hasn't changed since save started
           results.forEach((result) => {
             if (result.status === "fulfilled") {
               const { mediaId, success } = result.value
               if (success === true) {
-                dirtyItemsRef.current.delete(mediaId)
+                // Only clear dirty flag if item reference hasn't changed (no concurrent update)
+                const currentData = progressDataRef.current
+                if (
+                  currentData &&
+                  currentData[mediaId] === snapshots.get(mediaId)
+                ) {
+                  dirtyItemsRef.current.delete(mediaId)
+                }
+                // If reference changed, item was updated while save was in-flight;
+                // keep it dirty so the new version gets saved on next cycle
               } else {
                 console.error(
                   `[useVidlinkProgress] Failed to save item ${mediaId}: save returned false`,
