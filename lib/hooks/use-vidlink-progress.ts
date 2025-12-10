@@ -40,29 +40,42 @@ export interface VidLinkProgressData {
 
 export function useVidlinkProgress() {
   const { user } = useUser()
-  const { loadAccountData, saveToAccount } = useWatchProgressSync()
+  const { loadAccountData, saveItemToAccount, saveToAccount } =
+    useWatchProgressSync()
   const [progressData, setProgressData] = useState<VidLinkProgressData | null>(
     null,
   )
   const [isDataLoaded, setIsDataLoaded] = useState(false)
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const lastSavedDataRef = useRef<VidLinkProgressData>({})
+  // Track which media IDs have been modified since last save
+  const dirtyItemsRef = useRef<Set<string>>(new Set())
 
-  // Auto-save debounced function
+  // Auto-save debounced function - now only saves dirty items
   const debouncedSaveToAccount = useCallback(
-    (data: VidLinkProgressData) => {
+    (data: VidLinkProgressData, changedMediaId: string) => {
+      // Mark this item as dirty
+      dirtyItemsRef.current.add(changedMediaId)
+
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current)
       }
 
       saveTimeoutRef.current = setTimeout(() => {
         if (user && data) {
-          saveToAccount(data)
-          lastSavedDataRef.current = { ...data }
+          // Only save the items that have changed
+          const dirtyIds = Array.from(dirtyItemsRef.current)
+          dirtyIds.forEach((mediaId) => {
+            const item = data[mediaId]
+            if (item) {
+              saveItemToAccount(mediaId, item)
+            }
+          })
+          // Clear the dirty set after saving
+          dirtyItemsRef.current.clear()
         }
       }, 2000) // Save 2 seconds after last update
     },
-    [user, saveToAccount],
+    [user, saveItemToAccount],
   )
 
   // Load initial data
@@ -84,7 +97,6 @@ export function useVidlinkProgress() {
         try {
           const parsed = JSON.parse(storedProgress)
           setProgressData(parsed)
-          lastSavedDataRef.current = { ...parsed }
         } catch (error) {
           console.error(
             "[useVidlinkProgress] Error parsing VidLink progress from localStorage:",
@@ -112,18 +124,24 @@ export function useVidlinkProgress() {
 
       if (event.data?.type === "MEDIA_DATA") {
         const newMediaData = event.data.data as VidLinkProgressData
+        // Extract the media ID(s) that changed
+        const changedMediaIds = Object.keys(newMediaData)
+
         setProgressData((prevData) => {
           const updatedData = { ...prevData, ...newMediaData }
 
-          // Always save to localStorage
+          // Always save to localStorage (full merge is fine for local storage)
           localStorage.setItem(
             VIDLINK_PROGRESS_STORAGE_KEY,
             JSON.stringify(updatedData),
           )
 
-          // If user is logged in, debounce save to account
-          if (user) {
-            debouncedSaveToAccount(updatedData)
+          // If user is logged in, debounce save only the changed items
+          if (user && changedMediaIds.length > 0) {
+            // Save each changed item
+            changedMediaIds.forEach((mediaId) => {
+              debouncedSaveToAccount(updatedData, mediaId)
+            })
           }
 
           return updatedData
@@ -140,30 +158,33 @@ export function useVidlinkProgress() {
   // Save to account when user stops watching (component unmount, page unload, etc.)
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (user && progressData && Object.keys(progressData).length > 0) {
-        // Check if there are unsaved changes
-        const currentDataStr = JSON.stringify(progressData)
-        const lastSavedDataStr = JSON.stringify(lastSavedDataRef.current)
+      if (user && dirtyItemsRef.current.size > 0 && progressData) {
+        // Use sendBeacon for reliable saving during page unload
+        // Only send the dirty items, not the entire progress data
+        const dirtyItems: VidLinkProgressData = {}
+        dirtyItemsRef.current.forEach((mediaId) => {
+          if (progressData[mediaId]) {
+            dirtyItems[mediaId] = progressData[mediaId]
+          }
+        })
 
-        if (currentDataStr !== lastSavedDataStr) {
-          // Use sendBeacon for reliable saving during page unload
+        if (Object.keys(dirtyItems).length > 0) {
           const blob = new Blob(
             [
               JSON.stringify({
                 action: "save_progress",
-                data: progressData,
+                data: dirtyItems,
                 userId: user.id,
               }),
             ],
             { type: "application/json" },
           )
 
-          // If sendBeacon is not available, try synchronous save
           if ("sendBeacon" in navigator) {
             navigator.sendBeacon("/api/save-progress", blob)
           } else {
-            // Fallback: immediate save (might not complete if page unloads)
-            saveToAccount(progressData)
+            // Fallback: save all dirty items
+            saveToAccount(dirtyItems)
           }
         }
       }
@@ -179,12 +200,16 @@ export function useVidlinkProgress() {
         clearTimeout(saveTimeoutRef.current)
       }
 
-      if (user && progressData && Object.keys(progressData).length > 0) {
-        const currentDataStr = JSON.stringify(progressData)
-        const lastSavedDataStr = JSON.stringify(lastSavedDataRef.current)
+      if (user && dirtyItemsRef.current.size > 0 && progressData) {
+        const dirtyItems: VidLinkProgressData = {}
+        dirtyItemsRef.current.forEach((mediaId) => {
+          if (progressData[mediaId]) {
+            dirtyItems[mediaId] = progressData[mediaId]
+          }
+        })
 
-        if (currentDataStr !== lastSavedDataStr) {
-          saveToAccount(progressData)
+        if (Object.keys(dirtyItems).length > 0) {
+          saveToAccount(dirtyItems)
         }
       }
     }
@@ -200,7 +225,7 @@ export function useVidlinkProgress() {
   const clearAllProgress = useCallback(() => {
     localStorage.removeItem(VIDLINK_PROGRESS_STORAGE_KEY)
     setProgressData({})
-    lastSavedDataRef.current = {}
+    dirtyItemsRef.current.clear()
   }, [])
 
   return {

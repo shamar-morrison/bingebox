@@ -1,67 +1,28 @@
 import { createClient } from "@/lib/supabase/client"
-import type { Tables } from "@/lib/supabase/database.types"
+import {
+  convertItemToDbFormat,
+  convertToDbFormat,
+  convertToVidLinkFormat,
+} from "@/lib/watch-progress-utils"
 import { useCallback, useEffect, useRef } from "react"
 import { useUser } from "./use-user"
 import type { MediaItem, VidLinkProgressData } from "./use-vidlink-progress"
 
 const VIDLINK_PROGRESS_STORAGE_KEY = "vidLinkProgress"
 
-type WatchProgressRow = Tables<"watch_progress">
-type WatchProgressInsert = Omit<
-  WatchProgressRow,
-  "id" | "created_at" | "updated_at"
->
+// Module-level Supabase client singleton (avoids re-creation on each hook call)
+let supabaseClient: ReturnType<typeof createClient> | null = null
+function getSupabaseClient() {
+  if (!supabaseClient) {
+    supabaseClient = createClient()
+  }
+  return supabaseClient
+}
 
 export function useWatchProgressSync() {
   const { user } = useUser()
-  const supabase = createClient()
+  const supabase = getSupabaseClient()
   const syncInProgressRef = useRef(false)
-
-  const convertToVidLinkFormat = useCallback(
-    (dbData: WatchProgressRow[]): VidLinkProgressData => {
-      const result: VidLinkProgressData = {}
-
-      dbData.forEach((item) => {
-        result[item.media_id] = {
-          id: item.media_id,
-          type: item.media_type as "movie" | "tv" | "anime",
-          title: item.title,
-          poster_path: item.poster_path || undefined,
-          backdrop_path: item.backdrop_path || undefined,
-          progress: {
-            watched: item.watched_seconds,
-            duration: item.duration_seconds,
-          },
-          last_season_watched: item.last_season_watched || undefined,
-          last_episode_watched: item.last_episode_watched || undefined,
-          show_progress: (item.show_progress as Record<string, any>) || {},
-          last_updated: new Date(item.updated_at || "").getTime(),
-        }
-      })
-
-      return result
-    },
-    [],
-  )
-
-  const convertFromVidLinkFormat = useCallback(
-    (vidLinkData: VidLinkProgressData): WatchProgressInsert[] => {
-      return Object.values(vidLinkData).map((item: MediaItem) => ({
-        media_id: String(item.id),
-        media_type: item.type,
-        title: item.title,
-        poster_path: item.poster_path || null,
-        backdrop_path: item.backdrop_path || null,
-        watched_seconds: item.progress?.watched || 0,
-        duration_seconds: item.progress?.duration || 0,
-        last_season_watched: item.last_season_watched || null,
-        last_episode_watched: item.last_episode_watched || null,
-        show_progress: (item.show_progress || {}) as any,
-        user_id: user?.id || "",
-      }))
-    },
-    [user?.id],
-  )
 
   const syncLocalStorageToAccount = useCallback(async () => {
     if (!user || syncInProgressRef.current) return
@@ -73,7 +34,7 @@ export function useWatchProgressSync() {
       if (!localData) return
 
       const parsedData: VidLinkProgressData = JSON.parse(localData)
-      const itemsToSync = convertFromVidLinkFormat(parsedData)
+      const itemsToSync = convertToDbFormat(parsedData, user.id)
 
       if (itemsToSync.length === 0) return
 
@@ -97,7 +58,7 @@ export function useWatchProgressSync() {
     } finally {
       syncInProgressRef.current = false
     }
-  }, [user, supabase, convertFromVidLinkFormat])
+  }, [user, supabase])
 
   const loadAccountData =
     useCallback(async (): Promise<VidLinkProgressData | null> => {
@@ -120,14 +81,44 @@ export function useWatchProgressSync() {
         console.error("Error loading account data:", error)
         return null
       }
-    }, [user, supabase, convertToVidLinkFormat])
+    }, [user, supabase])
 
+  /**
+   * Save a single media item to the account (optimized - only saves one item)
+   * This is the preferred method for frequent progress updates
+   */
+  const saveItemToAccount = useCallback(
+    async (mediaId: string, item: MediaItem) => {
+      if (!user) return
+
+      try {
+        const dbItem = convertItemToDbFormat(item, user.id)
+
+        const { error } = await supabase.from("watch_progress").upsert(dbItem, {
+          onConflict: "user_id,media_id,media_type",
+          ignoreDuplicates: false,
+        })
+
+        if (error) {
+          console.error("Error saving item to account:", error)
+        }
+      } catch (error) {
+        console.error("Error saving watch progress item:", error)
+      }
+    },
+    [user, supabase],
+  )
+
+  /**
+   * Save all progress data to the account (use sparingly - for bulk sync only)
+   * Prefer saveItemToAccount for individual updates
+   */
   const saveToAccount = useCallback(
     async (progressData: VidLinkProgressData) => {
       if (!user || syncInProgressRef.current) return
 
       try {
-        const itemsToSave = convertFromVidLinkFormat(progressData)
+        const itemsToSave = convertToDbFormat(progressData, user.id)
 
         if (itemsToSave.length === 0) return
 
@@ -145,7 +136,7 @@ export function useWatchProgressSync() {
         console.error("Error saving watch progress to account:", error)
       }
     },
-    [user, supabase, convertFromVidLinkFormat],
+    [user, supabase],
   )
 
   const clearAccountData = useCallback(async () => {
@@ -179,6 +170,7 @@ export function useWatchProgressSync() {
     syncLocalStorageToAccount,
     loadAccountData,
     saveToAccount,
+    saveItemToAccount,
     clearAccountData,
   }
 }
