@@ -54,12 +54,9 @@ export function useVidlinkProgress() {
   // Track which media IDs have been modified since last save
   const dirtyItemsRef = useRef<Set<string>>(new Set())
 
-  // Auto-save debounced function - now only saves dirty items
+  // Auto-save debounced function - saves all dirty items
   const debouncedSaveToAccount = useCallback(
-    (data: VidLinkProgressData, changedMediaId: string) => {
-      // Mark this item as dirty
-      dirtyItemsRef.current.add(changedMediaId)
-
+    (data: VidLinkProgressData) => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current)
       }
@@ -146,10 +143,12 @@ export function useVidlinkProgress() {
 
           // If user is logged in, debounce save only the changed items
           if (user && changedMediaIds.length > 0) {
-            // Save each changed item
+            // Mark all changed items as dirty
             changedMediaIds.forEach((mediaId) => {
-              debouncedSaveToAccount(updatedData, mediaId)
+              dirtyItemsRef.current.add(mediaId)
             })
+            // Trigger single debounced save
+            debouncedSaveToAccount(updatedData)
           }
 
           return updatedData
