@@ -71,19 +71,11 @@ export function useVidlinkProgress() {
     saveTimeoutRef.current = setTimeout(async () => {
       const data = progressDataRef.current
       if (user && data) {
-        // Capture dirty IDs upfront (we'll clear only on success)
         const dirtyIds = Array.from(dirtyItemsRef.current)
 
         try {
-          // First, retry any previously failed saves
           await retryFailedSaves()
-
-          // Filter to only valid items and track which IDs we're saving
           const itemsToSave = dirtyIds.filter((mediaId) => data[mediaId])
-
-          // Save all dirty items in parallel using Promise.allSettled
-          // to handle partial failures gracefully
-          // Note: saveItemToAccount always resolves to boolean (true=success, false=failure)
           const results = await Promise.allSettled(
             itemsToSave.map((mediaId) =>
               saveItemToAccount(mediaId, data[mediaId]).then((success) => ({
@@ -98,20 +90,16 @@ export function useVidlinkProgress() {
             if (result.status === "fulfilled") {
               const { mediaId, success } = result.value
               if (success === true) {
-                // Successfully saved - remove from dirty set
                 dirtyItemsRef.current.delete(mediaId)
               } else {
-                // saveItemToAccount returned false (permanent failure) - keep for retry
                 console.error(
                   `[useVidlinkProgress] Failed to save item ${mediaId}: save returned false`,
                 )
                 dirtyItemsRef.current.add(mediaId)
               }
             }
-            // Note: rejected branch is unreachable since saveItemToAccount never rejects
           })
         } catch (error) {
-          // This catches errors from retryFailedSaves() or unexpected errors
           console.error(
             "[useVidlinkProgress] Error during debounced save:",
             error,
@@ -120,10 +108,9 @@ export function useVidlinkProgress() {
           dirtyIds.forEach((id) => dirtyItemsRef.current.add(id))
         }
       }
-    }, 2000) // Save 2 seconds after last update
+    }, 2000)
   }, [user, saveItemToAccount, retryFailedSaves])
 
-  // Load initial data
   useEffect(() => {
     const loadInitialData = async () => {
       if (user) {
@@ -158,7 +145,6 @@ export function useVidlinkProgress() {
     loadInitialData()
   }, [user, loadAccountData])
 
-  // Handle VidLink messages and auto-save
   useEffect(() => {
     if (!isDataLoaded) return
 
@@ -181,13 +167,10 @@ export function useVidlinkProgress() {
             JSON.stringify(updatedData),
           )
 
-          // If user is logged in, debounce save only the changed items
           if (user && changedMediaIds.length > 0) {
-            // Mark all changed items as dirty
             changedMediaIds.forEach((mediaId) => {
               dirtyItemsRef.current.add(mediaId)
             })
-            // Trigger single debounced save
             debouncedSaveToAccount()
           }
 
