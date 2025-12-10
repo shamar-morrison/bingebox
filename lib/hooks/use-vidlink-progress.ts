@@ -78,21 +78,40 @@ export function useVidlinkProgress() {
           // First, retry any previously failed saves
           await retryFailedSaves()
 
-          // Clear atomically only after capturing, before async saves
-          dirtyItemsRef.current.clear()
+          // Filter to only valid items and track which IDs we're saving
+          const itemsToSave = dirtyIds.filter((mediaId) => data[mediaId])
 
-          // Save all dirty items in parallel for better performance
-          await Promise.all(
-            dirtyIds
-              .filter((mediaId) => data[mediaId])
-              .map((mediaId) => saveItemToAccount(mediaId, data[mediaId])),
+          // Save all dirty items in parallel using Promise.allSettled
+          // to handle partial failures gracefully
+          const results = await Promise.allSettled(
+            itemsToSave.map((mediaId) =>
+              saveItemToAccount(mediaId, data[mediaId]).then(() => mediaId),
+            ),
           )
+
+          // Process results: only clear successful saves, keep failed ones for retry
+          results.forEach((result, index) => {
+            const mediaId = itemsToSave[index]
+            if (result.status === "fulfilled") {
+              // Successfully saved - remove from dirty set
+              dirtyItemsRef.current.delete(mediaId)
+            } else {
+              // Failed - keep in dirty set for retry and log the error
+              console.error(
+                `[useVidlinkProgress] Failed to save item ${mediaId}:`,
+                result.reason,
+              )
+              // Ensure it stays in dirty set (it might have been re-added already)
+              dirtyItemsRef.current.add(mediaId)
+            }
+          })
         } catch (error) {
+          // This catches errors from retryFailedSaves() or unexpected errors
           console.error(
             "[useVidlinkProgress] Error during debounced save:",
             error,
           )
-          // Re-add dirty IDs for retry on next save cycle
+          // Re-add all dirty IDs for retry on next save cycle
           dirtyIds.forEach((id) => dirtyItemsRef.current.add(id))
         }
       }
