@@ -40,32 +40,95 @@ export interface VidLinkProgressData {
 
 export function useVidlinkProgress() {
   const { user } = useUser()
-  const { loadAccountData, saveToAccount } = useWatchProgressSync()
+  const {
+    loadAccountData,
+    saveItemToAccount,
+    saveToAccount,
+    retryFailedSaves,
+  } = useWatchProgressSync()
   const [progressData, setProgressData] = useState<VidLinkProgressData | null>(
     null,
   )
   const [isDataLoaded, setIsDataLoaded] = useState(false)
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const lastSavedDataRef = useRef<VidLinkProgressData>({})
+  // Ref to always access latest progressData in event handlers (avoids stale closure)
+  const progressDataRef = useRef<VidLinkProgressData | null>(null)
 
-  // Auto-save debounced function
-  const debouncedSaveToAccount = useCallback(
-    (data: VidLinkProgressData) => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current)
-      }
+  // Keep ref in sync with state
+  useEffect(() => {
+    progressDataRef.current = progressData
+  }, [progressData])
+  // Track which media IDs have been modified since last save
+  const dirtyItemsRef = useRef<Set<string>>(new Set())
 
-      saveTimeoutRef.current = setTimeout(() => {
-        if (user && data) {
-          saveToAccount(data)
-          lastSavedDataRef.current = { ...data }
+  // Auto-save debounced function - saves all dirty items
+  // Uses progressDataRef.current to always get latest data (avoids stale closure)
+  const debouncedSaveToAccount = useCallback(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
+
+    saveTimeoutRef.current = setTimeout(async () => {
+      const data = progressDataRef.current
+      if (user && data) {
+        const dirtyIds = Array.from(dirtyItemsRef.current)
+
+        try {
+          await retryFailedSaves()
+          const itemsToSave = dirtyIds.filter((mediaId) => data[mediaId])
+
+          // Capture item snapshots to detect if they change while save is in-flight
+          const snapshots = new Map<string, MediaItem>()
+          itemsToSave.forEach((mediaId) => {
+            snapshots.set(mediaId, data[mediaId])
+          })
+
+          const results = await Promise.allSettled(
+            itemsToSave.map((mediaId) =>
+              saveItemToAccount(mediaId, snapshots.get(mediaId)!).then(
+                (success) => ({
+                  mediaId,
+                  success,
+                }),
+              ),
+            ),
+          )
+
+          // Process results: only clear dirty flag if item hasn't changed since save started
+          results.forEach((result) => {
+            if (result.status === "fulfilled") {
+              const { mediaId, success } = result.value
+              if (success === true) {
+                // Only clear dirty flag if item reference hasn't changed (no concurrent update)
+                const currentData = progressDataRef.current
+                if (
+                  currentData &&
+                  currentData[mediaId] === snapshots.get(mediaId)
+                ) {
+                  dirtyItemsRef.current.delete(mediaId)
+                }
+                // If reference changed, item was updated while save was in-flight;
+                // keep it dirty so the new version gets saved on next cycle
+              } else {
+                console.error(
+                  `[useVidlinkProgress] Failed to save item ${mediaId}: save returned false`,
+                )
+                dirtyItemsRef.current.add(mediaId)
+              }
+            }
+          })
+        } catch (error) {
+          console.error(
+            "[useVidlinkProgress] Error during debounced save:",
+            error,
+          )
+          // Re-add all dirty IDs for retry on next save cycle
+          dirtyIds.forEach((id) => dirtyItemsRef.current.add(id))
         }
-      }, 2000) // Save 2 seconds after last update
-    },
-    [user, saveToAccount],
-  )
+      }
+    }, 2000)
+  }, [user, saveItemToAccount, retryFailedSaves])
 
-  // Load initial data
   useEffect(() => {
     const loadInitialData = async () => {
       if (user) {
@@ -84,7 +147,6 @@ export function useVidlinkProgress() {
         try {
           const parsed = JSON.parse(storedProgress)
           setProgressData(parsed)
-          lastSavedDataRef.current = { ...parsed }
         } catch (error) {
           console.error(
             "[useVidlinkProgress] Error parsing VidLink progress from localStorage:",
@@ -101,7 +163,6 @@ export function useVidlinkProgress() {
     loadInitialData()
   }, [user, loadAccountData])
 
-  // Handle VidLink messages and auto-save
   useEffect(() => {
     if (!isDataLoaded) return
 
@@ -112,18 +173,23 @@ export function useVidlinkProgress() {
 
       if (event.data?.type === "MEDIA_DATA") {
         const newMediaData = event.data.data as VidLinkProgressData
+        // Extract the media ID(s) that changed
+        const changedMediaIds = Object.keys(newMediaData)
+
         setProgressData((prevData) => {
           const updatedData = { ...prevData, ...newMediaData }
 
-          // Always save to localStorage
+          // Always save to localStorage (full merge is fine for local storage)
           localStorage.setItem(
             VIDLINK_PROGRESS_STORAGE_KEY,
             JSON.stringify(updatedData),
           )
 
-          // If user is logged in, debounce save to account
-          if (user) {
-            debouncedSaveToAccount(updatedData)
+          if (user && changedMediaIds.length > 0) {
+            changedMediaIds.forEach((mediaId) => {
+              dirtyItemsRef.current.add(mediaId)
+            })
+            debouncedSaveToAccount()
           }
 
           return updatedData
@@ -140,30 +206,34 @@ export function useVidlinkProgress() {
   // Save to account when user stops watching (component unmount, page unload, etc.)
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (user && progressData && Object.keys(progressData).length > 0) {
-        // Check if there are unsaved changes
-        const currentDataStr = JSON.stringify(progressData)
-        const lastSavedDataStr = JSON.stringify(lastSavedDataRef.current)
+      const currentProgressData = progressDataRef.current
+      if (user && dirtyItemsRef.current.size > 0 && currentProgressData) {
+        // Use sendBeacon for reliable saving during page unload
+        // Only send the dirty items, not the entire progress data
+        const dirtyItems: VidLinkProgressData = {}
+        dirtyItemsRef.current.forEach((mediaId) => {
+          if (currentProgressData[mediaId]) {
+            dirtyItems[mediaId] = currentProgressData[mediaId]
+          }
+        })
 
-        if (currentDataStr !== lastSavedDataStr) {
-          // Use sendBeacon for reliable saving during page unload
+        if (Object.keys(dirtyItems).length > 0) {
           const blob = new Blob(
             [
               JSON.stringify({
                 action: "save_progress",
-                data: progressData,
+                data: dirtyItems,
                 userId: user.id,
               }),
             ],
             { type: "application/json" },
           )
 
-          // If sendBeacon is not available, try synchronous save
           if ("sendBeacon" in navigator) {
             navigator.sendBeacon("/api/save-progress", blob)
           } else {
-            // Fallback: immediate save (might not complete if page unloads)
-            saveToAccount(progressData)
+            // Fallback: save all dirty items
+            saveToAccount(dirtyItems)
           }
         }
       }
@@ -179,16 +249,22 @@ export function useVidlinkProgress() {
         clearTimeout(saveTimeoutRef.current)
       }
 
-      if (user && progressData && Object.keys(progressData).length > 0) {
-        const currentDataStr = JSON.stringify(progressData)
-        const lastSavedDataStr = JSON.stringify(lastSavedDataRef.current)
+      const currentProgressData = progressDataRef.current
+      if (user && dirtyItemsRef.current.size > 0 && currentProgressData) {
+        const dirtyItems: VidLinkProgressData = {}
+        dirtyItemsRef.current.forEach((mediaId) => {
+          if (currentProgressData[mediaId]) {
+            dirtyItems[mediaId] = currentProgressData[mediaId]
+          }
+        })
 
-        if (currentDataStr !== lastSavedDataStr) {
-          saveToAccount(progressData)
+        if (Object.keys(dirtyItems).length > 0) {
+          saveToAccount(dirtyItems)
+          dirtyItemsRef.current.clear()
         }
       }
     }
-  }, [user, progressData, saveToAccount])
+  }, [user, saveToAccount])
 
   const getMediaProgress = useCallback(
     (mediaId: string | number): MediaItem | undefined => {
@@ -200,7 +276,7 @@ export function useVidlinkProgress() {
   const clearAllProgress = useCallback(() => {
     localStorage.removeItem(VIDLINK_PROGRESS_STORAGE_KEY)
     setProgressData({})
-    lastSavedDataRef.current = {}
+    dirtyItemsRef.current.clear()
   }, [])
 
   return {

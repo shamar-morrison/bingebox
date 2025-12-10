@@ -1,8 +1,6 @@
-import type {
-  MediaItem,
-  VidLinkProgressData,
-} from "@/lib/hooks/use-vidlink-progress"
+import type { VidLinkProgressData } from "@/lib/hooks/use-vidlink-progress"
 import { createClient } from "@/lib/supabase/server"
+import { convertToDbFormat } from "@/lib/watch-progress-utils"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
@@ -31,21 +29,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Convert VidLink format to database format
-    const itemsToSave = Object.values(progressData as VidLinkProgressData).map(
-      (item: MediaItem) => ({
-        user_id: user.id,
-        media_id: String(item.id),
-        media_type: item.type,
-        title: item.title,
-        poster_path: item.poster_path || null,
-        backdrop_path: item.backdrop_path || null,
-        watched_seconds: item.progress?.watched || 0,
-        duration_seconds: item.progress?.duration || 0,
-        last_season_watched: item.last_season_watched || null,
-        last_episode_watched: item.last_episode_watched || null,
-        show_progress: (item.show_progress || {}) as any,
-      }),
+    // Convert VidLink format to database format using shared utility
+    const itemsToSave = convertToDbFormat(
+      progressData as VidLinkProgressData,
+      user.id,
     )
 
     if (itemsToSave.length === 0) {
