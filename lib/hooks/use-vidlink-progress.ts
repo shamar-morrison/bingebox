@@ -83,27 +83,32 @@ export function useVidlinkProgress() {
 
           // Save all dirty items in parallel using Promise.allSettled
           // to handle partial failures gracefully
+          // Note: saveItemToAccount always resolves to boolean (true=success, false=failure)
           const results = await Promise.allSettled(
             itemsToSave.map((mediaId) =>
-              saveItemToAccount(mediaId, data[mediaId]).then(() => mediaId),
+              saveItemToAccount(mediaId, data[mediaId]).then((success) => ({
+                mediaId,
+                success,
+              })),
             ),
           )
 
           // Process results: only clear successful saves, keep failed ones for retry
-          results.forEach((result, index) => {
-            const mediaId = itemsToSave[index]
+          results.forEach((result) => {
             if (result.status === "fulfilled") {
-              // Successfully saved - remove from dirty set
-              dirtyItemsRef.current.delete(mediaId)
-            } else {
-              // Failed - keep in dirty set for retry and log the error
-              console.error(
-                `[useVidlinkProgress] Failed to save item ${mediaId}:`,
-                result.reason,
-              )
-              // Ensure it stays in dirty set (it might have been re-added already)
-              dirtyItemsRef.current.add(mediaId)
+              const { mediaId, success } = result.value
+              if (success === true) {
+                // Successfully saved - remove from dirty set
+                dirtyItemsRef.current.delete(mediaId)
+              } else {
+                // saveItemToAccount returned false (permanent failure) - keep for retry
+                console.error(
+                  `[useVidlinkProgress] Failed to save item ${mediaId}: save returned false`,
+                )
+                dirtyItemsRef.current.add(mediaId)
+              }
             }
+            // Note: rejected branch is unreachable since saveItemToAccount never rejects
           })
         } catch (error) {
           // This catches errors from retryFailedSaves() or unexpected errors
