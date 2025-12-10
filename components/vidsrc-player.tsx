@@ -97,10 +97,24 @@ export default function VidsrcPlayer({
   }
 
   const getEmbedUrl = () => {
-    const queryString = Object.entries(selectedSource.query || {})
-      .map(([key, value]) => `${key}=${value}`)
-      .join("&")
-    const query = queryString ? `?${queryString}` : ""
+    // Build query parameters from the source's default query options
+    const queryParams = new URLSearchParams()
+
+    // Add source-specific query parameters
+    if (selectedSource.query) {
+      Object.entries(selectedSource.query).forEach(([key, value]) => {
+        queryParams.set(key, String(value))
+      })
+    }
+
+    // Add startAt parameter for VidLink if present in URL
+    // VidLink supports startAt=<seconds> to resume playback from a specific position
+    const startAt = searchParams.get("startAt")
+    if (selectedSource.name === "VidLink" && startAt) {
+      queryParams.set("startAt", startAt)
+    }
+
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : ""
 
     if (mediaType === "movie") {
       return `${selectedSource.baseUrl}/movie/${tmdbId}${query}`
