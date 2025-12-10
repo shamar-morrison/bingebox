@@ -51,6 +51,13 @@ export function useVidlinkProgress() {
   )
   const [isDataLoaded, setIsDataLoaded] = useState(false)
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  // Ref to always access latest progressData in event handlers (avoids stale closure)
+  const progressDataRef = useRef<VidLinkProgressData | null>(null)
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    progressDataRef.current = progressData
+  }, [progressData])
   // Track which media IDs have been modified since last save
   const dirtyItemsRef = useRef<Set<string>>(new Set())
 
@@ -165,13 +172,14 @@ export function useVidlinkProgress() {
   // Save to account when user stops watching (component unmount, page unload, etc.)
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (user && dirtyItemsRef.current.size > 0 && progressData) {
+      const currentProgressData = progressDataRef.current
+      if (user && dirtyItemsRef.current.size > 0 && currentProgressData) {
         // Use sendBeacon for reliable saving during page unload
         // Only send the dirty items, not the entire progress data
         const dirtyItems: VidLinkProgressData = {}
         dirtyItemsRef.current.forEach((mediaId) => {
-          if (progressData[mediaId]) {
-            dirtyItems[mediaId] = progressData[mediaId]
+          if (currentProgressData[mediaId]) {
+            dirtyItems[mediaId] = currentProgressData[mediaId]
           }
         })
 
@@ -207,11 +215,12 @@ export function useVidlinkProgress() {
         clearTimeout(saveTimeoutRef.current)
       }
 
-      if (user && dirtyItemsRef.current.size > 0 && progressData) {
+      const currentProgressData = progressDataRef.current
+      if (user && dirtyItemsRef.current.size > 0 && currentProgressData) {
         const dirtyItems: VidLinkProgressData = {}
         dirtyItemsRef.current.forEach((mediaId) => {
-          if (progressData[mediaId]) {
-            dirtyItems[mediaId] = progressData[mediaId]
+          if (currentProgressData[mediaId]) {
+            dirtyItems[mediaId] = currentProgressData[mediaId]
           }
         })
 
@@ -220,7 +229,7 @@ export function useVidlinkProgress() {
         }
       }
     }
-  }, [user, progressData, saveToAccount])
+  }, [user, saveToAccount])
 
   const getMediaProgress = useCallback(
     (mediaId: string | number): MediaItem | undefined => {
