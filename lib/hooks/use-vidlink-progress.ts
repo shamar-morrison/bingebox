@@ -62,33 +62,32 @@ export function useVidlinkProgress() {
   const dirtyItemsRef = useRef<Set<string>>(new Set())
 
   // Auto-save debounced function - saves all dirty items
-  const debouncedSaveToAccount = useCallback(
-    (data: VidLinkProgressData) => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current)
+  // Uses progressDataRef.current to always get latest data (avoids stale closure)
+  const debouncedSaveToAccount = useCallback(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
+
+    saveTimeoutRef.current = setTimeout(async () => {
+      const data = progressDataRef.current
+      if (user && data) {
+        // First, retry any previously failed saves
+        await retryFailedSaves()
+
+        // Only save the items that have changed
+        // Capture and clear atomically to avoid race conditions with new dirty items
+        const dirtyIds = Array.from(dirtyItemsRef.current)
+        dirtyItemsRef.current.clear()
+
+        // Save all dirty items in parallel for better performance
+        await Promise.all(
+          dirtyIds
+            .filter((mediaId) => data[mediaId])
+            .map((mediaId) => saveItemToAccount(mediaId, data[mediaId])),
+        )
       }
-
-      saveTimeoutRef.current = setTimeout(async () => {
-        if (user && data) {
-          // First, retry any previously failed saves
-          await retryFailedSaves()
-
-          // Only save the items that have changed
-          // Capture and clear atomically to avoid race conditions with new dirty items
-          const dirtyIds = Array.from(dirtyItemsRef.current)
-          dirtyItemsRef.current.clear()
-
-          // Save all dirty items in parallel for better performance
-          await Promise.all(
-            dirtyIds
-              .filter((mediaId) => data[mediaId])
-              .map((mediaId) => saveItemToAccount(mediaId, data[mediaId])),
-          )
-        }
-      }, 2000) // Save 2 seconds after last update
-    },
-    [user, saveItemToAccount, retryFailedSaves],
-  )
+    }, 2000) // Save 2 seconds after last update
+  }, [user, saveItemToAccount, retryFailedSaves])
 
   // Load initial data
   useEffect(() => {
@@ -155,7 +154,7 @@ export function useVidlinkProgress() {
               dirtyItemsRef.current.add(mediaId)
             })
             // Trigger single debounced save
-            debouncedSaveToAccount(updatedData)
+            debouncedSaveToAccount()
           }
 
           return updatedData
