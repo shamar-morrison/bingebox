@@ -9,6 +9,8 @@ import { useUser } from "./use-user"
 import type { MediaItem, VidLinkProgressData } from "./use-vidlink-progress"
 
 const VIDLINK_PROGRESS_STORAGE_KEY = "vidLinkProgress"
+const MAX_RETRY_ATTEMPTS = 3
+const RETRY_BASE_DELAY_MS = 1000
 
 // Module-level Supabase client singleton (avoids re-creation on each hook call)
 let supabaseClient: ReturnType<typeof createClient> | null = null
@@ -18,6 +20,10 @@ function getSupabaseClient() {
   }
   return supabaseClient
 }
+
+// Queue for failed saves - will retry on next successful save or page unload
+const failedSavesQueue: Map<string, { item: MediaItem; attempts: number }> =
+  new Map()
 
 export function useWatchProgressSync() {
   const { user } = useUser()
@@ -84,12 +90,16 @@ export function useWatchProgressSync() {
     }, [user, supabase])
 
   /**
-   * Save a single media item to the account (optimized - only saves one item)
+   * Save a single media item to the account with retry logic
    * This is the preferred method for frequent progress updates
    */
   const saveItemToAccount = useCallback(
-    async (mediaId: string, item: MediaItem) => {
-      if (!user) return
+    async (
+      mediaId: string,
+      item: MediaItem,
+      attempt: number = 1,
+    ): Promise<boolean> => {
+      if (!user) return false
 
       try {
         const dbItem = convertItemToDbFormat(item, user.id)
@@ -100,14 +110,47 @@ export function useWatchProgressSync() {
         })
 
         if (error) {
-          console.error("Error saving item to account:", error)
+          throw error
         }
+
+        // Success - remove from failed queue if present
+        failedSavesQueue.delete(mediaId)
+        return true
       } catch (error) {
-        console.error("Error saving watch progress item:", error)
+        console.error(
+          `Error saving item ${mediaId} (attempt ${attempt}/${MAX_RETRY_ATTEMPTS}):`,
+          error,
+        )
+
+        if (attempt < MAX_RETRY_ATTEMPTS) {
+          // Exponential backoff: 1s, 2s, 4s
+          const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt - 1)
+          await new Promise((resolve) => setTimeout(resolve, delay))
+          return saveItemToAccount(mediaId, item, attempt + 1)
+        } else {
+          // Max retries reached - add to failed queue for later retry
+          failedSavesQueue.set(mediaId, { item, attempts: attempt })
+          console.warn(
+            `Failed to save ${mediaId} after ${attempt} attempts, queued for later`,
+          )
+          return false
+        }
       }
     },
     [user, supabase],
   )
+
+  /**
+   * Retry any failed saves in the queue
+   */
+  const retryFailedSaves = useCallback(async () => {
+    if (!user || failedSavesQueue.size === 0) return
+
+    const entries = Array.from(failedSavesQueue.entries())
+    for (const [mediaId, { item }] of entries) {
+      await saveItemToAccount(mediaId, item, 1)
+    }
+  }, [user, saveItemToAccount])
 
   /**
    * Save all progress data to the account (use sparingly - for bulk sync only)
@@ -171,6 +214,7 @@ export function useWatchProgressSync() {
     loadAccountData,
     saveToAccount,
     saveItemToAccount,
+    retryFailedSaves,
     clearAccountData,
   }
 }

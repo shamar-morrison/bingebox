@@ -40,8 +40,12 @@ export interface VidLinkProgressData {
 
 export function useVidlinkProgress() {
   const { user } = useUser()
-  const { loadAccountData, saveItemToAccount, saveToAccount } =
-    useWatchProgressSync()
+  const {
+    loadAccountData,
+    saveItemToAccount,
+    saveToAccount,
+    retryFailedSaves,
+  } = useWatchProgressSync()
   const [progressData, setProgressData] = useState<VidLinkProgressData | null>(
     null,
   )
@@ -60,22 +64,25 @@ export function useVidlinkProgress() {
         clearTimeout(saveTimeoutRef.current)
       }
 
-      saveTimeoutRef.current = setTimeout(() => {
+      saveTimeoutRef.current = setTimeout(async () => {
         if (user && data) {
+          // First, retry any previously failed saves
+          await retryFailedSaves()
+
           // Only save the items that have changed
           const dirtyIds = Array.from(dirtyItemsRef.current)
-          dirtyIds.forEach((mediaId) => {
+          for (const mediaId of dirtyIds) {
             const item = data[mediaId]
             if (item) {
-              saveItemToAccount(mediaId, item)
+              await saveItemToAccount(mediaId, item)
             }
-          })
+          }
           // Clear the dirty set after saving
           dirtyItemsRef.current.clear()
         }
       }, 2000) // Save 2 seconds after last update
     },
-    [user, saveItemToAccount],
+    [user, saveItemToAccount, retryFailedSaves],
   )
 
   // Load initial data
