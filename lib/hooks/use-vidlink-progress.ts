@@ -254,6 +254,7 @@ export function useVidlinkProgress() {
 
         if (Object.keys(dirtyItems).length > 0) {
           saveToAccount(dirtyItems)
+          dirtyItemsRef.current.clear()
         }
       }
     }
