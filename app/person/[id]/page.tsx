@@ -67,11 +67,56 @@ async function PersonDetails({ id }: { id: number }) {
   const movieCrewCredits = person.movie_credits?.crew || []
   const tvCastCredits = person.tv_credits?.cast || []
 
+  // TMDB genre IDs to filter out from TV appearances:
+  // 10767 = Talk Show, 10763 = News, 10764 = Reality
+  const excludedTVGenreIds = [10767, 10763, 10764]
+
+  // Known award show names to filter out (case-insensitive matching)
+  const excludedShowKeywords = [
+    "oscars",
+    "oscar",
+    "academy awards",
+    "golden globe",
+    "emmy",
+    "grammy",
+    "sag awards",
+    "screen actors guild",
+    "bafta",
+    "tony awards",
+    "mtv movie",
+    "mtv video",
+    "people's choice",
+    "critics choice",
+    "bet awards",
+    "billboard music",
+    "american music awards",
+    "country music association",
+    "cma awards",
+    "nickelodeon kids' choice",
+    "kids' choice awards",
+  ]
+
+  // Filter out talk shows, news shows, reality shows, and award shows
+  const filteredTVCastCredits = tvCastCredits.filter((credit) => {
+    const genreIds = credit.genre_ids || []
+    const showName = (credit.name || credit.title || "").toLowerCase()
+
+    const hasExcludedGenre = genreIds.some((genreId) =>
+      excludedTVGenreIds.includes(genreId),
+    )
+
+    const isAwardShow = excludedShowKeywords.some((keyword) =>
+      showName.includes(keyword),
+    )
+
+    return !hasExcludedGenre && !isAwardShow
+  })
+
   // Sort acting credits by popularity
   const sortedMovieCastCredits = [...movieCastCredits].sort(
     (a, b) => (b.popularity || 0) - (a.popularity || 0),
   )
-  const sortedTVCastCredits = [...tvCastCredits].sort(
+  const sortedTVCastCredits = [...filteredTVCastCredits].sort(
     (a, b) => (b.popularity || 0) - (a.popularity || 0),
   )
 
