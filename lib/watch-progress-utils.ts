@@ -66,7 +66,9 @@ export function convertToVidLinkFormat(
       last_season_watched: item.last_season_watched || undefined,
       last_episode_watched: item.last_episode_watched || undefined,
       show_progress: (item.show_progress as Record<string, any>) || {},
-      last_updated: new Date(item.updated_at || "").getTime(),
+      last_updated: item.updated_at
+        ? new Date(item.updated_at).getTime()
+        : Date.now(),
     }
   })
 
