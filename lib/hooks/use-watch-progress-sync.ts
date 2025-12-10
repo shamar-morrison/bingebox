@@ -9,6 +9,7 @@ import { useUser } from "./use-user"
 import type { MediaItem, VidLinkProgressData } from "./use-vidlink-progress"
 
 const VIDLINK_PROGRESS_STORAGE_KEY = "vidLinkProgress"
+const FAILED_SAVES_QUEUE_KEY = "failedSavesQueue"
 const MAX_RETRY_ATTEMPTS = 3
 const RETRY_BASE_DELAY_MS = 1000
 
@@ -21,9 +22,41 @@ function getSupabaseClient() {
   return supabaseClient
 }
 
-// Queue for failed saves - will retry on next successful save or page unload
+// Helper functions to persist failed saves queue to localStorage
+function loadFailedSavesQueue(): Map<
+  string,
+  { item: MediaItem; attempts: number }
+> {
+  if (typeof window === "undefined") return new Map()
+  try {
+    const stored = localStorage.getItem(FAILED_SAVES_QUEUE_KEY)
+    if (!stored) return new Map()
+    const parsed = JSON.parse(stored)
+    return new Map(Object.entries(parsed))
+  } catch {
+    return new Map()
+  }
+}
+
+function persistFailedSavesQueue(
+  queue: Map<string, { item: MediaItem; attempts: number }>,
+) {
+  if (typeof window === "undefined") return
+  try {
+    if (queue.size === 0) {
+      localStorage.removeItem(FAILED_SAVES_QUEUE_KEY)
+    } else {
+      const obj = Object.fromEntries(queue)
+      localStorage.setItem(FAILED_SAVES_QUEUE_KEY, JSON.stringify(obj))
+    }
+  } catch (error) {
+    console.error("Error persisting failed saves queue:", error)
+  }
+}
+
+// Queue for failed saves - persisted to localStorage to survive page refreshes
 const failedSavesQueue: Map<string, { item: MediaItem; attempts: number }> =
-  new Map()
+  loadFailedSavesQueue()
 
 export function useWatchProgressSync() {
   const { user } = useUser()
@@ -115,6 +148,7 @@ export function useWatchProgressSync() {
 
         // Success - remove from failed queue if present
         failedSavesQueue.delete(mediaId)
+        persistFailedSavesQueue(failedSavesQueue)
         return true
       } catch (error) {
         console.error(
@@ -130,6 +164,7 @@ export function useWatchProgressSync() {
         } else {
           // Max retries reached - add to failed queue for later retry
           failedSavesQueue.set(mediaId, { item, attempts: attempt })
+          persistFailedSavesQueue(failedSavesQueue)
           console.warn(
             `Failed to save ${mediaId} after ${attempt} attempts, queued for later`,
           )
