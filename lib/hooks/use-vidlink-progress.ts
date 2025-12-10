@@ -70,15 +70,16 @@ export function useVidlinkProgress() {
           await retryFailedSaves()
 
           // Only save the items that have changed
+          // Capture and clear atomically to avoid race conditions with new dirty items
           const dirtyIds = Array.from(dirtyItemsRef.current)
-          for (const mediaId of dirtyIds) {
-            const item = data[mediaId]
-            if (item) {
-              await saveItemToAccount(mediaId, item)
-            }
-          }
-          // Clear the dirty set after saving
           dirtyItemsRef.current.clear()
+
+          // Save all dirty items in parallel for better performance
+          await Promise.all(
+            dirtyIds
+              .filter((mediaId) => data[mediaId])
+              .map((mediaId) => saveItemToAccount(mediaId, data[mediaId])),
+          )
         }
       }, 2000) // Save 2 seconds after last update
     },
