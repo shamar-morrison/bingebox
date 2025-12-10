@@ -182,9 +182,9 @@ export function useWatchProgressSync() {
     if (!user || failedSavesQueue.size === 0) return
 
     const entries = Array.from(failedSavesQueue.entries())
-    for (const [mediaId, { item }] of entries) {
-      await saveItemToAccount(mediaId, item, 1)
-    }
+    await Promise.allSettled(
+      entries.map(([mediaId, { item }]) => saveItemToAccount(mediaId, item, 1)),
+    )
   }, [user, saveItemToAccount])
 
   /**
