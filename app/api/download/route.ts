@@ -107,8 +107,14 @@ export async function GET(request: NextRequest) {
       }
 
       const data: TVDownloadResponse = await response.json()
-      setCachedData(cacheKey, data)
-      return NextResponse.json(data)
+      // Ensure season and episode are populated from request params (external API may return empty values)
+      const responseData: TVDownloadResponse = {
+        ...data,
+        season: data.season || season,
+        episode: data.episode || episode,
+      }
+      setCachedData(cacheKey, responseData)
+      return NextResponse.json(responseData)
     } else if (mediaType === "movie") {
       // Multi-source aggregation for movies
       const sources = [
