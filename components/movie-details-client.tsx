@@ -256,7 +256,7 @@ export default function MovieDetailsClient({
                     }}
                   >
                     <Button variant="outline">
-                      <Sparkles className="w-4 h-4 mr-2" />
+                      <Sparkles className="w-4 h-4" />
                       Ask AI
                     </Button>
                   </AskAIDialog>
