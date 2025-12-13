@@ -13,18 +13,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useUser } from "@/lib/hooks/use-user"
+import { MediaContext } from "@/lib/gemini"
 import { Sparkles, Send, Loader2, AlertCircle, User, Bot } from "lucide-react"
 
-interface MediaContext {
-  type: "movie" | "tv"
+// Extend the shared MediaContext with component-specific id field
+interface ComponentMediaContext extends MediaContext {
   id: number
-  title: string
-  overview?: string
-  genres?: string[]
-  cast?: string[]
-  releaseDate?: string
-  runtime?: string
-  voteAverage?: number
 }
 
 interface Message {
@@ -33,7 +27,7 @@ interface Message {
 }
 
 interface AskAIDialogProps {
-  mediaContext: MediaContext
+  mediaContext: ComponentMediaContext
   children: React.ReactNode
 }
 
