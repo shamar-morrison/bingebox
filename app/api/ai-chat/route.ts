@@ -28,9 +28,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate mediaContext has required fields
-    if (!mediaContext.type || !mediaContext.title) {
+    if (
+      !mediaContext.type ||
+      !mediaContext.title ||
+      (mediaContext.type !== "movie" && mediaContext.type !== "tv")
+    ) {
       return NextResponse.json(
-        { error: "mediaContext must include type and title" },
+        { error: "mediaContext must include valid type (movie/tv) and title" },
         { status: 400 },
       )
     }
