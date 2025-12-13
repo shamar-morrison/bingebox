@@ -1,9 +1,10 @@
 "use client"
 
-import { CalendarIcon, Clock, Film, Play, Star } from "lucide-react"
+import { CalendarIcon, Clock, Film, Play, Sparkles, Star } from "lucide-react"
 import Link from "next/link"
 import { useState, useTransition } from "react"
 
+import AskAIDialog from "@/components/ask-ai-dialog"
 import CastSection from "@/components/cast-section"
 import DownloadModal from "@/components/download-modal"
 import MediaRow from "@/components/media-row"
@@ -240,6 +241,25 @@ export default function MovieDetailsClient({
                     posterPath={movie.poster_path}
                     genres={movie.genres}
                   />
+
+                  <AskAIDialog
+                    mediaContext={{
+                      type: "movie",
+                      id,
+                      title: movie.title || "Movie",
+                      overview: movie.overview || undefined,
+                      genres: genres.map((g) => g.name),
+                      cast: cast.slice(0, 10).map((c) => c.name),
+                      releaseDate,
+                      runtime,
+                      voteAverage: voteAverage ?? undefined,
+                    }}
+                  >
+                    <Button variant="outline">
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Ask AI
+                    </Button>
+                  </AskAIDialog>
                 </div>
               </div>
             </div>

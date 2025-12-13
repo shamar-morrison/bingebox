@@ -1,9 +1,18 @@
 "use client"
 
-import { CalendarIcon, Clock, InfoIcon, Play, Star, Tv } from "lucide-react"
+import {
+  CalendarIcon,
+  Clock,
+  InfoIcon,
+  Play,
+  Sparkles,
+  Star,
+  Tv,
+} from "lucide-react"
 import Link from "next/link"
 import { useState, useTransition } from "react"
 
+import AskAIDialog from "@/components/ask-ai-dialog"
 import CastSection from "@/components/cast-section"
 import DownloadModal from "@/components/download-modal"
 import MediaRow from "@/components/media-row"
@@ -264,6 +273,25 @@ export default function TVShowDetailsClient({
                     posterPath={show.poster_path}
                     genres={show.genres}
                   />
+
+                  <AskAIDialog
+                    mediaContext={{
+                      type: "tv",
+                      id,
+                      title: show.name || "TV Show",
+                      overview: show.overview || undefined,
+                      genres: genres.map((g) => g.name),
+                      cast: cast.slice(0, 10).map((c) => c.name),
+                      releaseDate: firstAirDate,
+                      runtime: `${regularSeasonsCount} ${regularSeasonsCount === 1 ? "Season" : "Seasons"}`,
+                      voteAverage: voteAverage ?? undefined,
+                    }}
+                  >
+                    <Button variant="outline">
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Ask AI
+                    </Button>
+                  </AskAIDialog>
                 </div>
               </div>
             </div>
