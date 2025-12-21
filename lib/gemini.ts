@@ -35,7 +35,7 @@ export async function detectMediaFromImage(
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
+      model: "gemini-flash-latest",
       contents: [
         {
           role: "user",
@@ -81,7 +81,94 @@ export async function detectMediaFromImage(
 
     return JSON.parse(cleanedText)
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
     console.error("Error detecting media with Gemini:", error)
-    throw new Error("Failed to analyze image")
+    throw new Error(`Failed to analyze image: ${errorMessage}`)
+  }
+}
+
+export interface MediaContext {
+  type: "movie" | "tv"
+  title: string
+  overview?: string
+  genres?: string[]
+  cast?: string[]
+  releaseDate?: string
+  runtime?: string
+  voteAverage?: number
+}
+
+export async function chatAboutMedia(
+  mediaContext: MediaContext,
+  userMessage: string,
+): Promise<string> {
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured")
+  }
+
+  const mediaTypeName = mediaContext.type === "movie" ? "movie" : "TV show"
+
+  const contextParts = [
+    `Title: ${mediaContext.title}`,
+    mediaContext.overview && `Overview: ${mediaContext.overview}`,
+    mediaContext.genres?.length && `Genres: ${mediaContext.genres.join(", ")}`,
+    mediaContext.cast?.length &&
+      `Cast: ${mediaContext.cast.slice(0, 10).join(", ")}`,
+    mediaContext.releaseDate && `Release Date: ${mediaContext.releaseDate}`,
+    mediaContext.runtime && `Runtime: ${mediaContext.runtime}`,
+    mediaContext.voteAverage && `Rating: ${mediaContext.voteAverage}/10`,
+  ]
+    .filter(Boolean)
+    .join("\n")
+
+  const systemPrompt = `You are a helpful and knowledgeable assistant specializing in movies and TV shows. 
+You are currently helping a user learn more about the following ${mediaTypeName}:
+
+${contextParts}
+
+Your responses should be:
+- Detailed and informative
+- Focused on this specific ${mediaTypeName}
+- Helpful for someone interested in watching or learning about this content
+- Based on publicly available information about this ${mediaTypeName}
+
+If asked about topics unrelated to this ${mediaTypeName} or entertainment in general, politely redirect the conversation back to discussing this ${mediaTypeName}.
+
+If you don't know something specific about this ${mediaTypeName}, be honest about it rather than making up information.`
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-flash-latest",
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: systemPrompt },
+            { text: `User question: ${userMessage}` },
+          ],
+        },
+      ],
+    })
+
+    const text = response.text
+
+    if (!text) {
+      throw new Error("No text response from Gemini")
+    }
+
+    return text.trim()
+  } catch (error: any) {
+    console.error("Error chatting with Gemini:", error)
+
+    // Check for rate limit errors
+    if (
+      error?.status === 429 ||
+      error?.message?.includes("429") ||
+      error?.message?.includes("rate limit")
+    ) {
+      throw new Error("RATE_LIMIT_EXCEEDED")
+    }
+
+    throw new Error("Failed to get AI response")
   }
 }
