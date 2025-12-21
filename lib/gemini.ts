@@ -35,7 +35,7 @@ export async function detectMediaFromImage(
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
+      model: "gemini-flash-latest",
       contents: [
         {
           role: "user",
@@ -81,8 +81,9 @@ export async function detectMediaFromImage(
 
     return JSON.parse(cleanedText)
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
     console.error("Error detecting media with Gemini:", error)
-    throw new Error("Failed to analyze image")
+    throw new Error(`Failed to analyze image: ${errorMessage}`)
   }
 }
 
@@ -137,7 +138,7 @@ If you don't know something specific about this ${mediaTypeName}, be honest abou
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-flash-latest",
       contents: [
         {
           role: "user",
