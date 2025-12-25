@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useVidlinkProgress } from "@/lib/hooks/use-vidlink-progress"
+import { Loader2 } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -65,6 +66,7 @@ export default function VidsrcPlayer({
   ]
 
   const [selectedSource, setSelectedSource] = useState<SourceOption>(sources[0])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const sourceParam = searchParams.get("source")
@@ -80,11 +82,16 @@ export default function VidsrcPlayer({
   }, [searchParams])
 
   const handleSourceChange = (source: SourceOption) => {
+    setIsLoading(true)
     setSelectedSource(source)
 
     const currentPath = window.location.pathname
     const newUrl = `${currentPath}?source=${source.name.toLowerCase()}`
     router.push(newUrl)
+  }
+
+  const handleIframeLoad = () => {
+    setIsLoading(false)
   }
 
   const handleSelectChange = (value: string) => {
@@ -172,11 +179,20 @@ export default function VidsrcPlayer({
       )}
 
       <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+        {isLoading && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <p className="mt-3 text-sm text-muted-foreground">
+              Loading source...
+            </p>
+          </div>
+        )}
         <iframe
           src={getEmbedUrl()}
           className="absolute top-0 left-0 w-full h-full border-0 outline-none rounded-lg"
           allowFullScreen
           title={`${title} - ${selectedSource.name}`}
+          onLoad={handleIframeLoad}
         ></iframe>
       </div>
     </div>
