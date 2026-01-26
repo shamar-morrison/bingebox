@@ -65,7 +65,7 @@ export default function TorrentMovieCard({ movie }: TorrentMovieCardProps) {
             {movie.year} •
             <span className="inline-flex items-center ml-1 text-amber-500">
               <Star className="h-3 w-3 fill-current mr-0.5" />
-              {movie.rating.toFixed(1)}
+              {(movie.rating ?? 0).toFixed(1)}
             </span>
           </p>
           <div className="flex flex-wrap gap-1 mb-2">

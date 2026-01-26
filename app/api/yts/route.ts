@@ -30,9 +30,7 @@ export async function GET(request: NextRequest) {
 
   // Use CORS proxy to bypass Cloudflare protection
   // The proxy service handles Cloudflare challenges and adds CORS headers
-  const ytsUrl = `https://yts.lt/api/v2/${endpoint}.json?${params.toString()}`
-  const corsProxy = "https://api.allorigins.win/raw?url="
-  const _url = `${corsProxy}${encodeURIComponent(ytsUrl)}`
+  const ytsUrl = `https://yts.bz/api/v2/${endpoint}.json?${params.toString()}`
 
   try {
     const response = await fetch(ytsUrl, {
