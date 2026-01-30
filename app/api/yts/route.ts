@@ -28,8 +28,6 @@ export async function GET(request: NextRequest) {
     if (movie_id) params.append("movie_id", movie_id)
   }
 
-  // Use CORS proxy to bypass Cloudflare protection
-  // The proxy service handles Cloudflare challenges and adds CORS headers
   const ytsUrl = `https://yts.bz/api/v2/${endpoint}.json?${params.toString()}`
 
   try {
