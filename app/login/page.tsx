@@ -1,40 +1,21 @@
-"use client"
+import { getSafeRedirectPath } from "@/lib/auth-config"
+import { redirect } from "next/navigation"
 
-import { Suspense } from "react"
-import LoginForm from "@/components/login-form"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
+type LoginPageProps = {
+  searchParams?: {
+    redirect?: string | string[]
+  }
+}
 
-export default function LoginPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Suspense
-          fallback={
-            <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl">Welcome back</CardTitle>
-                <CardDescription>
-                  Sign in to your account to access your watchlists
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-center p-8">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                </div>
-              </CardContent>
-            </Card>
-          }
-        >
-          <LoginForm />
-        </Suspense>
-      </div>
-    </div>
-  )
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  const redirectParam = Array.isArray(searchParams?.redirect)
+    ? searchParams?.redirect[0]
+    : searchParams?.redirect
+  const redirectTarget = getSafeRedirectPath(redirectParam)
+
+  if (redirectTarget) {
+    redirect(`/?redirect=${encodeURIComponent(redirectTarget)}`)
+  }
+
+  redirect("/")
 }

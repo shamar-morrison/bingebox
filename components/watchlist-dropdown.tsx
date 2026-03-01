@@ -80,7 +80,7 @@ export default function WatchlistDropdown({
   const updateWatchlistStatus = async (status: WatchlistStatus) => {
     if (!user) {
       toast.error("Please sign in to use watchlists")
-      router.push(`/login?redirect=${encodeURIComponent(getCurrentUrl())}`)
+      router.push(`/?redirect=${encodeURIComponent(getCurrentUrl())}`)
       return
     }
 

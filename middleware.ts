@@ -1,6 +1,9 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
-import { isProtectedRoute } from "./lib/auth-config"
+import {
+  getSafeRedirectPath,
+  requiresAuthGate,
+} from "./lib/auth-config"
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -47,6 +50,7 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  const { pathname, search } = request.nextUrl
 
   // Handle session cleanup for non-remember sessions
   if (!shouldRemember && user) {
@@ -54,11 +58,31 @@ export async function middleware(request: NextRequest) {
     // which will be cleared when the browser closes
   }
 
-  // Protect routes that require authentication
-  if (isProtectedRoute(request.nextUrl.pathname) && !user) {
+  // Send signed-out users trying to access app content back to auth entry (/).
+  if (!user && requiresAuthGate(pathname)) {
     const url = request.nextUrl.clone()
-    url.pathname = "/login"
-    url.searchParams.set("redirect", request.nextUrl.pathname)
+    const destination = `${pathname}${search}`
+    url.pathname = "/"
+    url.search = ""
+    url.searchParams.set("redirect", destination)
+    return NextResponse.redirect(url)
+  }
+
+  // Preserve compatibility with legacy /login routes once signed in.
+  if (user && pathname === "/login") {
+    const redirectTarget = getSafeRedirectPath(
+      request.nextUrl.searchParams.get("redirect"),
+    )
+    const url = request.nextUrl.clone()
+    url.pathname = redirectTarget || "/"
+    url.search = ""
+
+    if (redirectTarget) {
+      const parsed = new URL(redirectTarget, request.url)
+      url.pathname = parsed.pathname
+      url.search = parsed.search
+    }
+
     return NextResponse.redirect(url)
   }
 
