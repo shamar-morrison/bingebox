@@ -9,6 +9,7 @@ import "./globals.css"
 import DevToolProtection from "@/components/dev-tool-protection"
 import Footer from "@/components/footer"
 import Header from "@/components/header"
+import AuthGateModal from "@/components/auth-gate-modal"
 import PWAPrompt from "@/components/pwa-prompt"
 import ScrollToTop from "@/components/scroll-to-top"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -137,6 +138,9 @@ export default function RootLayout({
               <ScrollToTop />
               <Suspense fallback={<HeaderSkeleton />}>
                 <Header />
+              </Suspense>
+              <Suspense fallback={null}>
+                <AuthGateModal />
               </Suspense>
               <div className="flex-1">{children}</div>
               <Footer />

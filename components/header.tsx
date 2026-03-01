@@ -30,12 +30,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { isProtectedRoute } from "@/lib/auth-config"
 import { useUser } from "@/lib/hooks/use-user"
 import { useWatchProgressManager } from "@/lib/hooks/use-watch-progress-manager"
 import { createClient } from "@/lib/supabase/client"
-import LoginForm from "@/components/login-form"
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog"
 import { Spinner } from "@/components/spinner"
 import { ImageUploadModal } from "@/components/image-search/image-upload-modal"
 import { Camera } from "lucide-react"
@@ -60,7 +57,6 @@ export default function Header() {
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [isSignInOpen, setIsSignInOpen] = useState(false)
   const [isImageUploadOpen, setIsImageUploadOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -79,12 +75,8 @@ export default function Header() {
       if (error) {
         console.error("Error signing out:", error)
       } else {
-        if (isProtectedRoute(pathname)) {
-          router.push("/login")
-        } else {
-          // Stay on current page, just refresh to update auth state
-          router.refresh()
-        }
+        // Stay on current page; global auth gate will handle access.
+        router.refresh()
       }
     } catch (error) {
       console.error("Error during sign out process:", error)
@@ -187,7 +179,7 @@ export default function Header() {
 
   const handleImageSearchClick = () => {
     if (!user) {
-      setIsSignInOpen(true)
+      router.push("/")
     } else {
       setIsImageUploadOpen(true)
     }
@@ -401,19 +393,9 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Dialog open={isSignInOpen} onOpenChange={setIsSignInOpen}>
-                <DialogTrigger asChild>
-                  <Button onClick={() => setIsSignInOpen(true)}>Sign in</Button>
-                </DialogTrigger>
-                <DialogContent
-                  hideCloseButton
-                  className="bg-transparent border-none outline-none shadow-none"
-                >
-                  <div className="w-full max-w-md mx-auto">
-                    <LoginForm onSuccess={() => setIsSignInOpen(false)} />
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <Button asChild>
+                <Link href="/">Sign in</Link>
+              </Button>
             ))}
 
           <ThemeToggle />
