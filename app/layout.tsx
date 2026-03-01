@@ -139,7 +139,9 @@ export default function RootLayout({
               <Suspense fallback={<HeaderSkeleton />}>
                 <Header />
               </Suspense>
-              <AuthGateModal />
+              <Suspense fallback={null}>
+                <AuthGateModal />
+              </Suspense>
               <div className="flex-1">{children}</div>
               <Footer />
             </div>
