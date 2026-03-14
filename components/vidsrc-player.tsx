@@ -54,7 +54,7 @@ const SOURCES: SourceOption[] = [
     name: "RiverStream",
     slug: "rivestream",
     legacySlugs: ["embed"],
-    baseUrl: "https://rivestream.org/embed/agg",
+    baseUrl: "https://rivestream.org/embed",
     urlFormat: "query",
   },
   {
