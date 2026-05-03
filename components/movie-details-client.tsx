@@ -18,6 +18,7 @@ import WatchlistDropdown from "@/components/watchlist-dropdown"
 import { useVidlinkProgress } from "@/lib/hooks/use-vidlink-progress"
 import { MediaItem, Review, ReviewResponse } from "@/lib/types"
 import { getLanguageName } from "@/lib/utils"
+import { DEFAULT_WATCH_SOURCE, EXACT_RESUME_SOURCE } from "@/lib/watch-sources"
 import NotFound from "@/app/not-found"
 
 interface MovieDetailsClientProps {
@@ -92,12 +93,12 @@ export default function MovieDetailsClient({
     movieProgress && movieProgress.progress?.watched > 0
   const isProgressLoading = progressData === null
 
-  let watchPath = `/watch/movie/${id}`
+  let watchPath = `/watch/movie/${id}?source=${DEFAULT_WATCH_SOURCE}`
   let buttonText = "Watch Now"
 
   if (isInContinueWatching && movieProgress) {
     const startAt = Math.floor(movieProgress.progress.watched)
-    watchPath = `/watch/movie/${id}?startAt=${startAt}`
+    watchPath = `/watch/movie/${id}?source=${EXACT_RESUME_SOURCE}&startAt=${startAt}`
     buttonText = "Resume"
   }
 

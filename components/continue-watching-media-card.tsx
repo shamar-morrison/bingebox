@@ -13,6 +13,7 @@ import type {
   EpisodeProgress,
   MediaItem as VidLinkMediaItem,
 } from "@/lib/hooks/use-vidlink-progress"
+import { EXACT_RESUME_SOURCE } from "@/lib/watch-sources"
 import { Film, Play, Tv, Volume2, VolumeX } from "lucide-react"
 import Link from "next/link"
 
@@ -66,12 +67,11 @@ export default function ContinueWatchingMediaCard({
       currentDurationSeconds = episodeData.progress.duration
       const season = episodeData.season
       const episode = episodeData.episode
-      watchPath = `/watch/tv/${item.id}/season/${season}/episode/${episode}?source=vidlink&startAt=${Math.floor(currentWatchedSeconds)}`
+      watchPath = `/watch/tv/${item.id}/season/${season}/episode/${episode}?source=${EXACT_RESUME_SOURCE}&startAt=${Math.floor(currentWatchedSeconds)}`
     }
   } else if (itemMediaType === "movie") {
     currentWatchedSeconds = item.progress?.watched || 0
-    // currentDurationSeconds is already set from item.progress.duration
-    watchPath = `/watch/movie/${item.id}?startAt=${Math.floor(currentWatchedSeconds)}`
+    watchPath = `/watch/movie/${item.id}?source=${EXACT_RESUME_SOURCE}&startAt=${Math.floor(currentWatchedSeconds)}`
   }
 
   if (currentDurationSeconds > 0) {

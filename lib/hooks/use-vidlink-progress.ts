@@ -3,6 +3,10 @@ import { useUser } from "./use-user"
 import { useWatchProgressSync } from "./use-watch-progress-sync"
 
 const VIDLINK_PROGRESS_STORAGE_KEY = "vidLinkProgress"
+const PLAYER_MESSAGE_ORIGINS = new Set([
+  "https://vidlink.pro",
+  "https://www.vidsrc.wtf",
+])
 
 // Define the structure of the media data and progress
 // Based on the VidLink documentation example
@@ -167,7 +171,7 @@ export function useVidlinkProgress() {
     if (!isDataLoaded) return
 
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== "https://vidlink.pro") {
+      if (!PLAYER_MESSAGE_ORIGINS.has(event.origin)) {
         return
       }
 
@@ -205,37 +209,59 @@ export function useVidlinkProgress() {
 
   // Save to account when user stops watching (component unmount, page unload, etc.)
   useEffect(() => {
-    const handleBeforeUnload = () => {
+    const dirtyItemSet = dirtyItemsRef.current
+
+    const collectDirtyItems = () => {
       const currentProgressData = progressDataRef.current
-      if (user && dirtyItemsRef.current.size > 0 && currentProgressData) {
-        // Use sendBeacon for reliable saving during page unload
-        // Only send the dirty items, not the entire progress data
-        const dirtyItems: VidLinkProgressData = {}
-        dirtyItemsRef.current.forEach((mediaId) => {
-          if (currentProgressData[mediaId]) {
-            dirtyItems[mediaId] = currentProgressData[mediaId]
-          }
-        })
+      const dirtyMediaIds = Array.from(dirtyItemSet)
 
-        if (Object.keys(dirtyItems).length > 0) {
-          const blob = new Blob(
-            [
-              JSON.stringify({
-                action: "save_progress",
-                data: dirtyItems,
-                userId: user.id,
-              }),
-            ],
-            { type: "application/json" },
-          )
+      if (!user || dirtyMediaIds.length === 0 || !currentProgressData) {
+        return null
+      }
 
-          if ("sendBeacon" in navigator) {
-            navigator.sendBeacon("/api/save-progress", blob)
-          } else {
-            // Fallback: save all dirty items
-            saveToAccount(dirtyItems)
-          }
+      const dirtyItems: VidLinkProgressData = {}
+      dirtyMediaIds.forEach((mediaId) => {
+        if (currentProgressData[mediaId]) {
+          dirtyItems[mediaId] = currentProgressData[mediaId]
         }
+      })
+
+      if (Object.keys(dirtyItems).length === 0) {
+        return null
+      }
+
+      return {
+        dirtyItems,
+        userId: user.id,
+      }
+    }
+
+    const handleBeforeUnload = () => {
+      const dirtyPayload = collectDirtyItems()
+      if (!dirtyPayload) {
+        return
+      }
+
+      const { dirtyItems, userId } = dirtyPayload
+
+      // Use sendBeacon for reliable saving during page unload
+      // Only send the dirty items, not the entire progress data
+      const blob = new Blob(
+        [
+          JSON.stringify({
+            action: "save_progress",
+            data: dirtyItems,
+            userId,
+          }),
+        ],
+        { type: "application/json" },
+      )
+
+      if ("sendBeacon" in navigator) {
+        navigator.sendBeacon("/api/save-progress", blob)
+      } else {
+        // Fallback: save all dirty items
+        saveToAccount(dirtyItems)
       }
     }
 
@@ -249,19 +275,10 @@ export function useVidlinkProgress() {
         clearTimeout(saveTimeoutRef.current)
       }
 
-      const currentProgressData = progressDataRef.current
-      if (user && dirtyItemsRef.current.size > 0 && currentProgressData) {
-        const dirtyItems: VidLinkProgressData = {}
-        dirtyItemsRef.current.forEach((mediaId) => {
-          if (currentProgressData[mediaId]) {
-            dirtyItems[mediaId] = currentProgressData[mediaId]
-          }
-        })
-
-        if (Object.keys(dirtyItems).length > 0) {
-          saveToAccount(dirtyItems)
-          dirtyItemsRef.current.clear()
-        }
+      const dirtyPayload = collectDirtyItems()
+      if (dirtyPayload) {
+        saveToAccount(dirtyPayload.dirtyItems)
+        dirtyItemSet.clear()
       }
     }
   }, [user, saveToAccount])

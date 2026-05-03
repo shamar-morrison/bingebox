@@ -24,6 +24,7 @@ import WatchlistDropdown from "@/components/watchlist-dropdown"
 import { useVidlinkProgress } from "@/lib/hooks/use-vidlink-progress"
 import { MediaItem, Review, ReviewResponse } from "@/lib/types"
 import { cn, getLanguageName } from "@/lib/utils"
+import { DEFAULT_WATCH_SOURCE, EXACT_RESUME_SOURCE } from "@/lib/watch-sources"
 import NotFound from "@/app/not-found"
 
 interface TVShowDetailsClientProps {
@@ -103,7 +104,7 @@ export default function TVShowDetailsClient({
       showProgress.progress?.watched > 0)
   const isProgressLoading = progressData === null
 
-  let watchPath = `/watch/tv/${id}/season/1/episode/1`
+  let watchPath = `/watch/tv/${id}/season/1/episode/1?source=${DEFAULT_WATCH_SOURCE}`
   let buttonText = "Watch Now"
 
   if (isInContinueWatching && showProgress) {
@@ -113,7 +114,7 @@ export default function TVShowDetailsClient({
       const startAt = episodeProgress
         ? Math.floor(episodeProgress.progress.watched)
         : 0
-      watchPath = `/watch/tv/${id}/season/${showProgress.last_season_watched}/episode/${showProgress.last_episode_watched}?startAt=${startAt}`
+      watchPath = `/watch/tv/${id}/season/${showProgress.last_season_watched}/episode/${showProgress.last_episode_watched}?source=${EXACT_RESUME_SOURCE}&startAt=${startAt}`
       buttonText = "Resume"
     }
   }
@@ -355,7 +356,7 @@ export default function TVShowDetailsClient({
                             <Link
                               href={{
                                 pathname: `/watch/tv/${id}/season/${season.season_number}/episode/1`,
-                                query: { source: `/tv/${id}` },
+                                query: { source: DEFAULT_WATCH_SOURCE },
                               }}
                               className={cn(
                                 season.episode_count === 0 &&
